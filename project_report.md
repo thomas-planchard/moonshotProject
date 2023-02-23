@@ -10,6 +10,7 @@
   - [Project Budget](#project-budget)
   - [Project Timeline](#project-timeline)
   - [Conclusion](#conclusion)
+- [Researchs](#researchs)
 
 </details>
 
@@ -87,10 +88,35 @@ The project will be developed for both Android and iOS platforms, using programm
 
 
 
-
-
-
 ## Project Budget
+
+The project budget is estimated to be $10,000, which will be used to cover the following expenses:
+
+- **Development:** The development team will be responsible for developing the application, including the user interface, AI, and social networking features. The development team will be composed of 1 person, and will be paid $50 per hour for a total of 200 hours.
+
+
+- **Testing:** The application will be tested on different devices to ensure its compatibility and performance. The testing team will be composed of 1 person, and will be paid $50 per hour for a total of 100 hours.
+
+
+- **Marketing:** The application will be marketed through social media platforms such as Facebook and Instagram. The marketing team will be composed of 1 person, and will be paid $50 per hour for a total of 50 hours.
+
+
+- **Legal and Privacy:** The application will involve collecting and processing user data, which could potentially raise legal and privacy concerns. The legal and privacy team will be composed of 1 person, and will be paid $50 per hour for a total of 50 hours.
+
+
+- **Miscellaneous:** The project budget will also cover miscellaneous expenses such as hosting fees, domain name registration, and software licenses.
+
+- **Prototype**: I need to develop a physical product or object that would help users position their phone in front of the pins. This may involve prototyping, testing, and manufacturing of the product, which could come with its own set of expenses. I need to consider factors such as design, usability, and compatibility with different phone sizes and types. I will also need to consider the cost of materials, labour, and other resources required to develop the product. =~$500
+
+
+- **Total:** The total project budget is estimated to be $10,500.
+
+As I plan to do most of the work for my project myself, I will be able to significantly reduce the overall project cost without needing to hire external developers or consultants. This is especially beneficial for me as I have a limited budget, and I can allocate more resources to other essential areas such as marketing, testing, and legal compliance.
+
+I am also excited to have full control over the development process and ensure that the final product meets my standards and requirements. Working by myself will allow me to work at my own pace and gain a deeper understanding of the project's technical aspects.
+
+However, I am aware that developing the project by myself can also be time-consuming and requires a significant amount of effort, patience, and dedication. To achieve my goal, I will need to have the necessary technical skills and knowledge to develop the project and may need to invest in some resources such as software, hardware, and other tools. I also understand the importance of managing my time effectively to ensure that I meet my project milestones and deadlines.
+
 
 ## Project Timeline
 
@@ -124,3 +150,10 @@ The project will be developed for both Android and iOS platforms, using programm
 
 
 ## Conclusion
+
+In conclusion, after conducting thorough research on how to incorporate additional technologies such as sensors or captors into the bowling ball, it has become evident that it is impossible to do so without damaging the infrastructure of the bowling alley. Therefore, the project cannot meet the expectations of ALGOSUP, and I will need to find another project that better fits their requirements.
+
+While this is disappointing, it is essential to acknowledge that some projects have limitations that cannot be overcome. It's crucial to be realistic and open-minded when exploring new projects and to ensure that the scope of the project aligns with the resources and skills available. I look forward to exploring new project ideas and identifying the right opportunity that fits both my skills and the expectations of future clients
+
+
+# Researchs

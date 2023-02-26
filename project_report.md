@@ -157,3 +157,12 @@ While this is disappointing, it is essential to acknowledge that some projects h
 
 
 # Researchs
+
+| Source | Relevant Information | Type of Information | Link to Source |
+|:----:|:----|----|:----:|
+| World Bowling | The official website of the World Bowling organization, which is the international governing body for the sport of bowling. The website includes information about the rules and regulations of bowling, as well as news and updates about bowling tournaments and events around the world. | Bowling Rules and Regulations | https://bowling.sport/ |
+| Bowling Scoring | A website that provides an overview of how scoring works in bowling, including information on how to calculate scores using traditional scoring methods and automatic scoring systems. | Bowling Scoring Methods | https://www.myactivesg.com/sports/bowling/how-to-play/bowling-rules/how-are-points-determined-in-bowling|
+| How to Build an App | An article on the Apple developer website that provides an overview of the process of building an app, including information on choosing a development platform, designing user interfaces, and testing and submitting your app to the App Store. | App Development Process | https://developer.apple.com/develop/ |
+| Android Developers | The official website of the Android developer platform, which provides information and resources for developing apps for Android devices. The website includes documentation, tutorials, and code samples for building Android apps using Java or Kotlin. | Android Development Resources | https://developer.android.com/ |
+| Swift Documentation | The official documentation for the Swift programming language, including a Swift programming guide, a language reference, and API reference for the Swift Standard Library. | Swift Language Reference | https://docs.swift.org/swift-book/ |
+| Swift Playgrounds | An interactive learning tool created by Apple that allows users to learn Swift in a fun and interactive way. The app includes a series of interactive puzzles and challenges that teach users the basics of Swift programming. | Swift Learning Tool | https://www.apple.com/swift/playgrounds/ |

@@ -1,0 +1,13 @@
+{
+  "expo": {
+    "scheme": "acme",
+    "web": {
+      "bundler": "metro"
+    },
+    "name": "EcoGo",
+    "slug": "EcoGo",
+    "plugins": [
+      "expo-router"
+    ]
+  }
+}

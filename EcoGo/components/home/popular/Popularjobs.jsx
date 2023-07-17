@@ -10,7 +10,7 @@ import{COLORS, SIZES} from '../../../constants'
 
 import useFetch from '../../../hook/useFetch'
 
-import PopularjobCard from '../../common/cards/popular/PopularJobCard'
+import PopularJobCard from '../../common/cards/popular/PopularJobCard'
 
 const Popularjobs = () => {
   const router = useRouter();
@@ -29,16 +29,17 @@ const Popularjobs = () => {
           <Text style={styles.headerBtn}>Show all</Text>
         </TouchableOpacity>
       </View>
+
       <View style={styles.cardsContainer}>
         {isLoading ? (
-          <ActivityIndicator colors={COLORS.primary} size="large" />
-        ): error ?(
+          <ActivityIndicator size="large" colors={COLORS.primary} />
+        ) : error ?(
           <Text>Something went wrong</Text>
         ): (
           <FlatList
             data={data}
             renderItem={({item}) => (
-              <PopularjobCard 
+              <PopularJobCard 
                 item ={item}
                 selectedJob={selectedJob}
                 handleCardPress={handleCardPress}

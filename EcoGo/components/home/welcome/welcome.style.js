@@ -1,72 +1,107 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Dimensions } from "react-native";
 
 import { COLORS, FONT, SIZES } from "../../../constants";
 
+const height = Dimensions.get("window").height*0.45;
+
 const styles = StyleSheet.create({
   container: {
-    width: "100%",
+    flex : 1,
+    height
+  },
+
+  welcomeMessage: {
+    fontFamily: FONT.regular,
+    fontSize: SIZES.medium,
+    color: COLORS.gray2,
+    marginLeft:SIZES.medium,
+    marginTop:SIZES.xSmall,
   },
   userName: {
-    fontFamily: FONT.regular,
-    fontSize: SIZES.large,
-    color: COLORS.secondary,
-  },
-  welcomeMessage: {
     fontFamily: FONT.bold,
     fontSize: SIZES.xLarge,
-    color: COLORS.primary,
-    marginTop: 2,
+    color: COLORS.white,
+    marginLeft:SIZES.medium,
   },
-  searchContainer: {
-    justifyContent: "center",
-    alignItems: "center",
+  stepImage: {
+    width: SIZES.small,
+    display: "flex",
+    height: SIZES.small,
+    
+  },
+  carbonImage: {
+    width: SIZES.medium,
+    display: "flex",
+    height: SIZES.medium,
+    
+  },
+  caloriesImage: {
+    width: SIZES.small,
+    display: "flex",
+    height: SIZES.small,
+  },
+
+  containerStepCarbon: {
     flexDirection: "row",
-    marginTop: SIZES.large,
-    height: 50,
+    flexWrap: "wrap",
+    justifyContent: "space-around",
+    top: "-25%"  ,
   },
-  searchWrapper: {
-    flex: 1,
-    backgroundColor: COLORS.white,
-    marginRight: SIZES.small,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: SIZES.medium,
-    height: "100%",
-  },
-  searchInput: {
-    fontFamily: FONT.regular,
-    width: "100%",
-    height: "100%",
-    paddingHorizontal: SIZES.medium,
-  },
-  searchBtn: {
-    width: 50,
-    height: "100%",
-    backgroundColor: COLORS.tertiary,
-    borderRadius: SIZES.medium,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  searchBtnImage: {
-    width: "50%",
-    height: "50%",
-    tintColor: COLORS.white,
-  },
-  tabsContainer: {
-    width: "100%",
-    marginTop: SIZES.medium,
-  },
-  tab: (activeJobType, item) => ({
-    paddingVertical: SIZES.small / 2,
-    paddingHorizontal: SIZES.small,
-    borderRadius: SIZES.medium,
-    borderWidth: 1,
-    borderColor: activeJobType === item ? COLORS.secondary : COLORS.gray2,
-  }),
-  tabText: (activeJobType, item) => ({
-    fontFamily: FONT.medium,
-    color: activeJobType === item ? COLORS.secondary : COLORS.gray2,
-  }),
+
+  imageBackground: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    resizeMode: 'stretch',
+    },
+  infoContainer: {
+      width: '40%',
+      backgroundColor: COLORS.WhiteOpacity,
+      borderRadius: '20%',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+
+    infoContainerLarge: {
+      flexDirection: "row",
+      justifyContent: "space-around",
+      alignItems: "center",
+      width: '90%',
+      backgroundColor: COLORS.WhiteOpacity,
+      borderRadius: '20%',
+      marginLeft: SIZES.medium,
+      top: "-15%",
+    },
+
+    userInformationMain: {
+      marginTop: SIZES.xLarge,
+      fontFamily: FONT.bold,
+      fontSize: SIZES.xxLarge,
+      color: COLORS.white,
+    },
+    userInformationMain2: {
+      marginTop: SIZES.medium,
+      fontFamily: FONT.medium,
+      fontSize: SIZES.medium,
+      color: COLORS.white,
+    },
+    column: {
+      flexDirection: "column",
+      alignItems: "center",
+    },
+
+    userInformationSecondary: {
+      marginBottom: SIZES.xLarge,
+      fontFamily: FONT.regular,
+      fontSize: SIZES.small,
+      color: COLORS.gray2,
+    },
+    userInformationSecondary2: {
+      marginBottom: SIZES.small,
+      fontFamily: FONT.regular,
+      fontSize: SIZES.small,
+      color: COLORS.gray2,
+    },
 });
 
 export default styles;

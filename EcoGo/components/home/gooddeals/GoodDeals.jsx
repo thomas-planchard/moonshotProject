@@ -2,12 +2,12 @@ import React from "react";
 import { useRouter } from "expo-router";
 import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
 
-import styles from "./nearbyjobs.style";
+import styles from "./gooddeals.style";
 import { COLORS } from "../../../constants";
-import NearbyJobCard from "../../common/cards/nearby/NearbyJobCard";
+import DealsCard from "../../common/cards/dealscard/DealsCard";
 import useFetch from "../../../hook/useFetch";
 
-const Nearbyjobs = () => {
+const GoodDeals = () => {
   const router = useRouter();
   const { data, isLoading, error } = useFetch("search", {
     query: "React Native developer",
@@ -30,7 +30,7 @@ const Nearbyjobs = () => {
           <Text>Something went wrong</Text>
         ) : (
           data?.map((job) => (
-            <NearbyJobCard
+            <DealsCard
               job={job}
               key={`nearby-job-${job.job_id}`}
               handleNavigate={() => router.push(`/job-details/${job.job_id}`)}
@@ -42,4 +42,4 @@ const Nearbyjobs = () => {
   );
 };
 
-export default Nearbyjobs;
+export default GoodDeals;

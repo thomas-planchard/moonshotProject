@@ -4,10 +4,11 @@ const COLORS = {
   tertiary: "#FF7754",
 
   gray: "#83829A",
-  gray2: "#C1C0C8",
+  gray2: "#BAB7BC",
 
   white: "#F3F4F8",
   lightWhite: "#FAFAFC",
+  WhiteOpacity:"#F3F4F820",
 
   purple: "#3A1C64",
 };
@@ -16,6 +17,7 @@ const FONT = {
   regular: "DMRegular",
   medium: "DMMedium",
   bold: "DMBold",
+  
 };
 
 const SIZES = {
@@ -51,3 +53,6 @@ const SHADOWS = {
 };
 
 export { COLORS, FONT, SIZES, SHADOWS };
+
+
+

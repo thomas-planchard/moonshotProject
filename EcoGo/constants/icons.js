@@ -8,6 +8,9 @@ import share from "../assets/icons/share.png";
 import location from "../assets/icons/location.png";
 import chevronLeft from '../assets/icons/chevron-left.png'
 import chevronRight from '../assets/icons/chevron-right.png'
+import steps from '../assets/icons/ic_steps.png'
+import carbon from '../assets/icons/carbon.png'
+import calories from '../assets/icons/ic_cal.png'
 
 export default {
   heart,
@@ -19,5 +22,8 @@ export default {
   share,
   location,
   chevronLeft,
-  chevronRight
+  chevronRight,
+  steps,
+  carbon,
+  calories
 };

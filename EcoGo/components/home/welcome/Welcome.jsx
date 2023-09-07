@@ -19,51 +19,38 @@ const Welcome = ({ searchTerm, setSearchTerm, handleClick }) => {
   const [activeJobType, setActiveJobType] = useState("Full-time");
 
   return (
-    <View>
+    <View style={styles.container}>
+      <Image  source={require('../../../assets/images/bg.png')} style={styles.imageBackground}></Image>
       <View style={styles.container}>
-        <Text style={styles.userName}>Hello Adrian</Text>
-        <Text style={styles.welcomeMessage}>Find your perfect job</Text>
+        <Text style={styles.welcomeMessage}>Hello,</Text>
+        <Text style={styles.userName}>Planchard Thomas</Text>
       </View>
-
-      <View style={styles.searchContainer}>
-        <View style={styles.searchWrapper}>
-          <TextInput
-            style={styles.searchInput}
-            value={searchTerm}
-            onChangeText={(text) => setSearchTerm(text)}
-            placeholder='What are you looking for?'
-          />
+      <View style={styles.containerStepCarbon}>
+        <View style={styles.infoContainer}>
+          <Text style={styles.userInformationMain}>2568</Text>
+          <Text style={styles.userInformationSecondary}><Image source={icons.steps} resizeMode='contain' style={styles.stepImage}/>Steps</Text>
         </View>
-
-        <TouchableOpacity style={styles.searchBtn} onPress={handleClick}>
-          <Image
-            source={icons.search}
-            resizeMode='contain'
-            style={styles.searchBtnImage}
-          />
-        </TouchableOpacity>
+        <View style={styles.infoContainer}>
+          <Text style={styles.userInformationMain}>952 LBS</Text>
+          <Text style={styles.userInformationSecondary}><Image source={icons.carbon} resizeMode='contain' style={styles.carbonImage}/>Carbon Footprint</Text>
+        </View>
+        </View>
+        <View style={styles.infoContainerLarge}>
+          <View style= {styles.column}>
+          <Text style={styles.userInformationMain2}>12.19</Text>
+          <Text style={styles.userInformationSecondary2}>Coins</Text>
+          </View>
+          <View style= {styles.column}>
+          <Text style={styles.userInformationMain2}>2.4 KM</Text>
+          <Text style={styles.userInformationSecondary2}>Distance</Text>
+          </View>
+          <View style= {styles.column}>
+          <Text style={styles.userInformationMain2}>169</Text>
+          <Text style={styles.userInformationSecondary2}><Image source={icons.calories} resizeMode='contain' style={styles.caloriesImage}/>Calories</Text>
+          </View>
+        </View>
       </View>
-
-      <View style={styles.tabsContainer}>
-        <FlatList
-          data={jobTypes}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              style={styles.tab(activeJobType, item)}
-              onPress={() => {
-                setActiveJobType(item);
-                router.push(`/search/${item}`);
-              }}
-            >
-              <Text style={styles.tabText(activeJobType, item)}>{item}</Text>
-            </TouchableOpacity>
-          )}
-          keyExtractor={(item) => item}
-          contentContainerStyle={{ columnGap: SIZES.small }}
-          horizontal
-        />
-      </View>
-    </View>
+    
   );
 };
 

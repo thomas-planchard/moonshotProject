@@ -4,7 +4,7 @@ import { Stack, useRouter, useSearchParams } from 'expo-router'
 import { Text, SafeAreaView } from 'react-native'
 import axios from 'axios'
 
-import { ScreenHeaderBtn, NearbyJobCard } from '../../components'
+import { ScreenHeaderBtn, DealsCard } from '../../components'
 import { COLORS, icons, SIZES } from '../../constants'
 import styles from '../../styles/search'
 
@@ -79,7 +79,7 @@ const JobSearch = () => {
             <FlatList
                 data={searchResult}
                 renderItem={({ item }) => (
-                    <NearbyJobCard
+                    <DealsCard
                         job={item}
                         handleNavigate={() => router.push(`/job-details/${item.job_id}`)}
                     />

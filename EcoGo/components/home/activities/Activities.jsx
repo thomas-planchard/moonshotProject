@@ -8,12 +8,12 @@ import {
   ActivityIndicator,
 } from "react-native";
 
-import styles from "./popularjobs.style";
+import styles from "./activities.style";
 import { COLORS, SIZES } from "../../../constants";
-import PopularJobCard from "../../common/cards/popular/PopularJobCard";
+import ActivitiesCard from "../../common/cards/activitiescard/ActivitiesCard";
 import useFetch from "../../../hook/useFetch";
 
-const Popularjobs = () => {
+const Activities = () => {
   const router = useRouter();
   const { data, isLoading, error } = useFetch("search", {
     query: "React developer",
@@ -45,7 +45,7 @@ const Popularjobs = () => {
           <FlatList
             data={data}
             renderItem={({ item }) => (
-              <PopularJobCard
+              <ActivitiesCard
                 item={item}
                 selectedJob={selectedJob}
                 handleCardPress={handleCardPress}
@@ -61,4 +61,4 @@ const Popularjobs = () => {
   );
 };
 
-export default Popularjobs;
+export default Activities;

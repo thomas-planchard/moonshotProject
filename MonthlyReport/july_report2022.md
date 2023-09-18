@@ -41,3 +41,6 @@ Attachments:
 - Screenshots of the iOS app prototype
 
 The next report will be submitted at the end of Month 5, providing a comprehensive update on the progress of the EcoGo project.
+
+
+![ImageMockup](../MockupImage/prototype.PNG)

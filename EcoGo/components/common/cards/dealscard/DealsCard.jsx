@@ -7,24 +7,11 @@ const DealsCard = ({ job, handleNavigate }) => {
   return (
     <TouchableOpacity style={styles.container} onPress={handleNavigate}>
       <TouchableOpacity style={styles.logoContainer}>
-        <Image
-          source={{
-            uri: checkImageURL(job.employer_logo)
-              ? job.employer_logo
-              : "https://t4.ftcdn.net/jpg/05/05/61/73/360_F_505617309_NN1CW7diNmGXJfMicpY9eXHKV4sqzO5H.jpg",
-          }}
-          resizeMode='contain'
-          style={styles.logoImage}
-        />
+      <TouchableOpacity>
+            <Image source={require('../../../../assets/images/blablacar.png')} style={styles.logoImage}></Image>
+            <Image source={require('../../../../assets/images/logosncf.png')} style={styles.logoImage}></Image>
+          </TouchableOpacity>
       </TouchableOpacity>
-
-      <View style={styles.textContainer}>
-        <Text style={styles.jobName} numberOfLines={1}>
-          {job?.job_title}
-        </Text>
-
-        <Text style={styles.jobType}>{job?.job_employment_type}</Text>
-      </View>
     </TouchableOpacity>
   );
 };

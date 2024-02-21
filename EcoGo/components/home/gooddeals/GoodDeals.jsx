@@ -1,6 +1,6 @@
 import React from "react";
 import { useRouter } from "expo-router";
-import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, ActivityIndicator, Image, Linking } from "react-native";
 
 import styles from "./gooddeals.style";
 import { COLORS } from "../../../constants";
@@ -8,35 +8,25 @@ import DealsCard from "../../common/cards/dealscard/DealsCard";
 import useFetch from "../../../hook/useFetch";
 
 const GoodDeals = () => {
-  const router = useRouter();
-  const { data, isLoading, error } = useFetch("search", {
-    query: "React Native developer",
-    num_pages: "1",
-  });
+
+  function handleNavigate(website) {
+    Linking.openURL(website);
+  }
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Nearby jobs</Text>
-        <TouchableOpacity>
-          <Text style={styles.headerBtn}>Show all</Text>
-        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Good deals in your area</Text>
       </View>
 
       <View style={styles.cardsContainer}>
-        {isLoading ? (
-          <ActivityIndicator size='large' color={COLORS.primary} />
-        ) : error ? (
-          <Text>Something went wrong</Text>
-        ) : (
-          data?.map((job) => (
-            <DealsCard
-              job={job}
-              key={`nearby-job-${job.job_id}`}
-              handleNavigate={() => router.push(`/job-details/${job.job_id}`)}
-            />
-          ))
-        )}
+          <TouchableOpacity
+            onPress={() => handleNavigate("https://blablacardaily.com/")}>
+            <Image source={require('../../../assets/images/blablacar.png')} style={styles.imageDeals}></Image></TouchableOpacity>
+            <TouchableOpacity
+            onPress={() => handleNavigate("https://www.sncf-connect.com/")}>
+            <Image source={require('../../../assets/images/logosncf.png')} style={styles.imageDeals}></Image>
+          </TouchableOpacity>
       </View>
     </View>
   );

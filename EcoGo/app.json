@@ -1,6 +1,6 @@
 {
   "expo": {
-    "scheme": "acme",
+    "scheme": "EcoGo",
     "web": {
       "bundler": "metro"
     },
@@ -8,6 +8,9 @@
     "slug": "EcoGo",
     "plugins": [
       "expo-router"
-    ]
+    ],
+    "ios": {
+      "bundleIdentifier": "com.anonymous.EcoGo"
+    }
   }
 }

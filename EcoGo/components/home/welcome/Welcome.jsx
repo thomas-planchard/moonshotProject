@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,26 +8,53 @@ import {
   FlatList,
 } from "react-native";
 import { useRouter } from "expo-router";
+import {Pedometer} from 'expo-sensors';
 
 import styles from "./welcome.style";
 import { icons, SIZES } from "../../../constants";
 
-const jobTypes = ["Full-time", "Part-time", "Contractor"];
 
-const Welcome = ({ searchTerm, setSearchTerm, handleClick }) => {
-  const router = useRouter();
-  const [activeJobType, setActiveJobType] = useState("Full-time");
+
+
+
+const Welcome = () => {
+
+  const [PedomaterAvailability, SetPedomaterAvailability] = useState("");
+
+  const [StepCount, SetStepCount] = useState(0);
+  var Dist = StepCount / 1400;
+  var DistanceCovered = Dist.toFixed(2);
+  var cal = StepCount / 25;
+  var caloriesBurnt = cal.toFixed(2);
+ 
+  useEffect(() => {
+    subscribe();
+  }, []);
+ 
+  subscribe = () => {
+    const subscription = Pedometer.watchStepCount((result) => {
+      SetStepCount(result.steps);
+    });
+    Pedometer.isAvailableAsync().then(
+      (result) => {
+        SetPedomaterAvailability(String(result));
+      },
+      (error) => {
+       SetPedomaterAvailability(error);
+      }
+    );
+  };
 
   return (
     <View style={styles.container}>
       <Image  source={require('../../../assets/images/bg.png')} style={styles.imageBackground}></Image>
-      <View style={styles.container}>
+      <View style={styles.header}>
         <Text style={styles.welcomeMessage}>Hello,</Text>
         <Text style={styles.userName}>Planchard Thomas</Text>
       </View>
       <View style={styles.containerStepCarbon}>
         <View style={styles.infoContainer}>
-          <Text style={styles.userInformationMain}>2568</Text>
+          <Text style={styles.userInformationMain}>{StepCount}</Text>
           <Text style={styles.userInformationSecondary}><Image source={icons.steps} resizeMode='contain' style={styles.stepImage}/>Steps</Text>
         </View>
         <View style={styles.infoContainer}>
@@ -41,11 +68,11 @@ const Welcome = ({ searchTerm, setSearchTerm, handleClick }) => {
           <Text style={styles.userInformationSecondary2}>Coins</Text>
           </View>
           <View style= {styles.column}>
-          <Text style={styles.userInformationMain2}>2.4 KM</Text>
+          <Text style={styles.userInformationMain2}>{DistanceCovered} KM</Text>
           <Text style={styles.userInformationSecondary2}>Distance</Text>
           </View>
           <View style= {styles.column}>
-          <Text style={styles.userInformationMain2}>169</Text>
+          <Text style={styles.userInformationMain2}>{caloriesBurnt}</Text>
           <Text style={styles.userInformationSecondary2}><Image source={icons.calories} resizeMode='contain' style={styles.caloriesImage}/>Calories</Text>
           </View>
         </View>

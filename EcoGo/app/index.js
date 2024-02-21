@@ -1,32 +1,36 @@
-import { useState } from "react";
-import { SafeAreaView, ScrollView, View, Image } from "react-native";
-import { Stack, useRouter } from "expo-router";
+import { Link, Stack, useRouter } from 'expo-router';
+import { StyleSheet } from 'react-native';
+import { View, Pressable, Text } from 'react-native';
 
-import { COLORS, icons, images, SIZES } from "../constants";
-import {
-  Activities,
-  GoodDeals,
-  ScreenHeaderBtn,
-  Welcome,
-} from "../components";
-import styles from "../components/common/whitebackground/whitebackground.style";
+style = StyleSheet.create({
+	container: {
+	backgroundColor: "#5EC5FF 0%, rgba(100, 223, 183, 0.552083) 99.99%, rgba(107, 255, 94, 0) 100%);" ,
+	flex: 1,
+	justifyContent: 'center',
+	alignItems: 'center',
+	},
+	text: {
+	color: 'black',
+	fontSize: 100,
+	fontWeight: 'bold',
+	},
+});
 
+const LoginPage = () => {
+	const router = useRouter();
 
+	const handleLogin = () => {
+		// Add your login logic here
+		router.replace('/home');
+	};
 
-
-const Home = () => {
-  const router = useRouter();
-  return (
-    <SafeAreaView>
-      <ScrollView showsVerticalScrollIndicator={false}>
-          <Welcome/>
-          <View style = {styles.whiteBackground}>
-          <Activities />
-          <GoodDeals />
-          </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
+	return (
+		<View style={style.container}>
+			<Pressable onPress={handleLogin}>
+				<Text style={style.text}>EcoGo</Text>
+			</Pressable>
+		</View>
+	);
 };
 
-export default Home;
+export default LoginPage;

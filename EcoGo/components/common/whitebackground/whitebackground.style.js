@@ -8,6 +8,9 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: SIZES.xLarge,
     borderTopRightRadius: SIZES.xLarge,
     top: -SIZES.xLarge,
+  },
+  container:{
+    height: "100%",
   }
     
 });

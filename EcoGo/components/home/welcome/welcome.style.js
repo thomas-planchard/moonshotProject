@@ -2,12 +2,14 @@ import { StyleSheet, Dimensions } from "react-native";
 
 import { COLORS, FONT, SIZES } from "../../../constants";
 
-const height = Dimensions.get("window").height*0.45;
+const height = Dimensions.get("window").height*0.40;
+width = Dimensions.get("window").width;
 
 const styles = StyleSheet.create({
   container: {
     flex : 1,
-    height
+    height,
+    width,
   },
 
   welcomeMessage: {
@@ -43,15 +45,14 @@ const styles = StyleSheet.create({
 
   containerStepCarbon: {
     flexDirection: "row",
-    flexWrap: "wrap",
     justifyContent: "space-around",
-    top: "-25%"  ,
+    marginTop: SIZES.medium,
   },
 
   imageBackground: {
     position: 'absolute',
     top: 0,
-    left: 0,
+    width,
     resizeMode: 'stretch',
     },
   infoContainer: {
@@ -70,7 +71,7 @@ const styles = StyleSheet.create({
       backgroundColor: COLORS.WhiteOpacity,
       borderRadius: '20%',
       marginLeft: SIZES.medium,
-      top: "-15%",
+      marginTop: SIZES.xxLarge,
     },
 
     userInformationMain: {

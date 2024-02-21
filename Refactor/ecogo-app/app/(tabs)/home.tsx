@@ -1,11 +1,28 @@
-import { View, Text } from 'react-native';
+import { ScrollView, View } from "react-native";
 
-const HomePage = () => {
-	return (
-		<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-			<Text>HomePage</Text>
-		</View>
-	);
+import {
+  Activities,
+  GoodDeals,
+  Welcome,
+  whitebackground,
+} from "../../components/home/index";
+
+
+
+
+const Home = () => {
+  return (
+    
+    <View>
+      <ScrollView showsVerticalScrollIndicator={false} style = {whitebackground.container}>
+          <Welcome/>
+          <View style = {whitebackground.whiteBackground}>
+          <Activities />
+          <GoodDeals />
+          </View>
+      </ScrollView>
+    </View>
+  );
 };
 
-export default HomePage;
+export default Home;

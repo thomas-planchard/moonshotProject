@@ -1,20 +1,12 @@
-import { useState } from "react";
-import { useRouter } from "expo-router";
 import {
   ScrollView,
   View,
   Text,
   Image,
-  TouchableOpacity,
-  FlatList,
-  ActivityIndicator,
 } from "react-native";
 
 import styles from "./activities.style";
 
-import { COLORS, SIZES } from "../../../constants";
-import ActivitiesCard from "../../common/cards/activitiescard/ActivitiesCard";
-import useFetch from "../../../hook/useFetch";
 
 const Activities = () => {
 

@@ -43,7 +43,7 @@ const Welcome = () => {
   return (
     <View style={styles.container}>
       <Image  source={require('../../../assets/images/bg.png')} style={styles.imageBackground}></Image>
-      <View style={styles.header}>
+      <View>
         <Text style={styles.welcomeMessage}>Hello,</Text>
         <Text style={styles.userName}>Planchard Thomas</Text>
       </View>
@@ -54,7 +54,7 @@ const Welcome = () => {
         </View>
         <View style={styles.infoContainer}>
           <Text style={styles.userInformationMain}>952 LBS</Text>
-          <Text style={styles.userInformationSecondary}><Image source={icons.carbon} resizeMode='contain' style={styles.carbonImage}/>Carbon Footprint</Text>
+          <Text style={styles.userInformationSecondary}><Image style={styles.carbonImage} source={icons.carbon} resizeMode='contain'/>Carbon Footprint</Text>
         </View>
         </View>
         <View style={styles.infoContainerLarge}>

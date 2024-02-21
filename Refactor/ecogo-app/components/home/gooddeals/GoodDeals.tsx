@@ -1,11 +1,10 @@
 import React from "react";
-import { useRouter } from "expo-router";
-import { View, Text, TouchableOpacity, ActivityIndicator, Image, Linking } from "react-native";
+import { View, Text, TouchableOpacity, Image, Linking } from "react-native";
 
 import styles from "./gooddeals.style";
-import { COLORS } from "../../../constants";
-import DealsCard from "../../common/cards/dealscard/DealsCard";
-import useFetch from "../../../hook/useFetch";
+
+
+
 
 const GoodDeals = () => {
 
@@ -25,7 +24,7 @@ const GoodDeals = () => {
             <Image source={require('../../../assets/images/blablacar.png')} style={styles.imageDeals}></Image></TouchableOpacity>
             <TouchableOpacity
             onPress={() => handleNavigate("https://www.sncf-connect.com/")}>
-            <Image source={require('../../../assets/images/logosncf.png')} style={styles.imageDeals}></Image>
+            <Image source={require('../../../assets/images/sncflogo.png')} style={styles.imageDeals}></Image>
           </TouchableOpacity>
       </View>
     </View>

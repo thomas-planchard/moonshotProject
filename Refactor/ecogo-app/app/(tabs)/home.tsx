@@ -10,7 +10,7 @@ import {
 
 
 
-const Home = () => {
+const HomePage = () => {
   return (
     
     <View>
@@ -25,4 +25,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default HomePage;

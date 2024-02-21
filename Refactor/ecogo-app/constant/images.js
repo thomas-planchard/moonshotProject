@@ -8,8 +8,8 @@ import restaurant from '../assets/images/restaurant.jpeg';
 import sale1 from '../assets/images/sale1.jpg';
 import sale2 from '../assets/images/sale2.jpg';
 import sale3 from '../assets/images/sale3.jpg';
-import spotlight1 from '../assets/images/spotlight.jpeg';
-import spotlight2 from '../assets/images/spotlight2.jpeg';
+import spotlight1 from '../assets/images/spotlight1.jpeg';
+import spotlight2 from '../assets/images/spotlight2.png';
 import spotlight3 from '../assets/images/spotlight3.jpeg';
 import travel from '../assets/images/travel.jpeg';
 

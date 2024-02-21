@@ -1,6 +1,6 @@
 import { StyleSheet } from "react-native";
 
-import { COLORS, SIZES } from "../../../constants";
+import { COLORS, SIZES } from "../../../constant/index";
 
 const whitebackground = StyleSheet.create({
   whiteBackground: {

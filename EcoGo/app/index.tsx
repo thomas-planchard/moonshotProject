@@ -1,6 +1,24 @@
-import { Link, Stack, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { StyleSheet } from 'react-native';
 import { View, Pressable, Text } from 'react-native';
+
+
+const LoginPage = () => {
+	const router = useRouter();
+	
+	const handleLogin = () => {
+		// Add your login logic here
+		router.replace('/home');
+	};
+	
+	return (
+		<View style={style.container}>
+			<Pressable onPress={handleLogin}>
+				<Text style={style.text}>EcoGo</Text>
+			</Pressable>
+		</View>
+	);
+};
 
 const style = StyleSheet.create({
 	container: {
@@ -15,22 +33,3 @@ const style = StyleSheet.create({
 	fontWeight: 'bold',
 	},
 });
-
-const LoginPage = () => {
-	const router = useRouter();
-
-	const handleLogin = () => {
-		// Add your login logic here
-		router.replace('/home');
-	};
-
-	return (
-		<View style={style.container}>
-			<Pressable onPress={handleLogin}>
-				<Text style={style.text}>EcoGo</Text>
-			</Pressable>
-		</View>
-	);
-};
-
-export default LoginPage;

@@ -3,19 +3,23 @@
   - [1. Project Overview](#1-project-overview)
     - [1.1 Objectives](#11-objectives)
     - [1.2 Use Cases](#12-use-cases)
+      - [1.2.1 Actors:](#121-actors)
+      - [1.2.2 Preconditions:](#122-preconditions)
+      - [1.2.3 Main Flow:](#123-main-flow)
+      - [1.2.4 Postconditions:](#124-postconditions)
     - [1.3 Personas](#13-personas)
   - [2. Scope](#2-scope)
     - [2.1 Main Features](#21-main-features)
     - [2.2 Risks and Assumptions](#22-risks-and-assumptions)
       - [Assumptions](#assumptions)
-    - [1. Interest in Eco-Friendly Offers:](#1-interest-in-eco-friendly-offers)
-    - [2. User Awareness:](#2-user-awareness)
-    - [3. Effectiveness of Gamification:](#3-effectiveness-of-gamification)
-    - [4. Market Gap:](#4-market-gap)
-    - [5. React Native Suitability:](#5-react-native-suitability)
-    - [6. Effectiveness of Social Sharing:](#6-effectiveness-of-social-sharing)
   - [3. Requirements](#3-requirements)
     - [3.1 Functional Requirements](#31-functional-requirements)
+      - [3.1.1 User Authentication](#311-user-authentication)
+      - [3.1.2 Dashboard](#312-dashboard)
+      - [3.1.3 Activity Tracking](#313-activity-tracking)
+      - [3.1.4 Carpooling Offers](#314-carpooling-offers)
+      - [3.1.5 Store Offers](#315-store-offers)
+      - [3.1.6 GPS](#316-gps)
     - [3.2 Non-Functional Requirements](#32-non-functional-requirements)
   - [4. Deliverables](#4-deliverables)
     - [4.1 Application Development](#41-application-development)
@@ -46,11 +50,68 @@
 The primary objective of EcoGo is to provide users with a gamified carbon footprint tracking application. Users can monitor their emissions, get offers for eco-friendly transportation, and earn rewards for reducing their carbon footprint.
 
 ### 1.2 Use Cases
-- Users can track their carbon footprint in real-time using GPS.
-- Users receive offers for carpooling and public transportation.
-- Gamified elements encourage users to reduce their carbon footprint.
-- Users can visualize their carbon footprint changes over time.
-- Social sharing of carbon footprint achievements with friends and family.
+
+The following use case illustrates the primary functionality of the EcoGo application.
+
+#### 1.2.1 Actors:
+- **User:** The individual using the EcoGo application.
+
+#### 1.2.2 Preconditions:
+- The EcoGo application is installed on the user's iOS device.
+- The user has created an account and logged into the application.
+- The GPS and accelerometer permissions are granted.
+
+#### 1.2.3 Main Flow:
+
+1. **Open the Application:**
+   - The user opens the EcoGo application on their iOS device.
+
+2. **Dashboard Overview:**
+   - The user is presented with the dashboard, featuring:
+     - Current carbon footprint statistics.
+     - Gamification elements like earned coins and achievements.
+     - Current step and calorie statistics.
+     - Activity tracking like walking, cycling, or driving.
+     - Offers from carpooling services, or public transportation providers.
+
+3. **Initiate Tracking:**
+   - The user initiates the carbon footprint tracking feature.
+   - GPS and accelerometer data are utilized to track the user's movement and calculate carbon emissions.
+
+4. **Select Transportation Mode:**
+   - The user selects the mode of transportation (e.g., walking, cycling, public transport, carpooling) for their current activity.
+
+5. **Real-time Emission Calculation:**
+   - The application calculates real-time carbon emissions based on the selected transportation mode and distance traveled.
+   - The user can view the immediate impact of their choices on the environment.
+
+6. **Steps and Calories Tracking:**
+   - Simultaneously, the app tracks the number of steps and estimates calories burned during the activity.
+
+7. **Graphical Representation:**
+   - The user can view graphical representations of their carbon footprint changes and health-related data over days, weeks, or months.
+
+8. **Receive Offers:**
+   - Based on their tracked activities and reduced carbon footprint, the user receives notifications and offers from eco-friendly stores, carpooling services, or public transportation providers.
+
+9. **Gamification Rewards:**
+   - The user earns virtual coins due to the decrease in their carbon footprint.
+   - Achieving milestones or completing challenges results in gamification rewards.
+
+10. **Visit the EcoGo Store:**
+    - The user explores the in-app store using earned coins.
+    - They can redeem coins for offers such as discounts on eco-friendly products, carpooling vouchers, or public transportation passes.
+
+11. **Social Sharing:**
+    - The user has the option to share their achievements, and challenges, or store purchases on social media directly from the app.
+    - This encourages a social aspect and spreads awareness among friends and family.
+
+#### 1.2.4 Postconditions:
+- The user has successfully tracked their carbon footprint for a specific activity.
+- Real-time emission data, steps, and calorie information are stored for historical tracking.
+- The user has earned coins, explored offers in the store, and potentially made eco-friendly choices based on the application's suggestions.
+
+This use case illustrates how EcoGo provides a comprehensive and gamified experience for users to actively track, understand, and reduce their carbon footprint while gaining tangible rewards and contributing to environmental sustainability.
 
 ### 1.3 Personas
 
@@ -199,6 +260,7 @@ Implementation Details:
      - Develop the app initially for iOS using React Native.
      - Ensure compatibility for later expansion to Android.
 
+---
 
 ### 2.2 Risks and Assumptions
 
@@ -215,49 +277,82 @@ Implementation Details:
 
 #### Assumptions
 
-### 1. Interest in Eco-Friendly Offers:
-   - **Assumption:** Users are interested in eco-friendly offers and discounts.
-   - **Validation:** Monitor user engagement with store offerings and conduct surveys to understand preferences.
+| Assumptions | Validation |
+| --- | --- |
+| **1. Interest in Eco-Friendly Offers:** Users are interested in eco-friendly offers and discounts. | Monitor user engagement with store offerings and conduct surveys to understand preferences. |
+| **2. User Awareness:** Users are not fully aware of their carbon footprint and its impact. | Track user engagement with educational content. Monitor changes in behavior and carbon footprint reduction. |
+| **3. Effectiveness of Gamification:** Gamifying the application will enhance user engagement. | Track user participation in challenges and observe trends in app usage. |
+| **4. Market Gap:** There is a gap in the market for a user-centric carbon footprint tracking application. | Analyze user reviews, feedback, and adoption rates compared to any potential competitors that may emerge. |
+| **5. React Native Suitability:** React Native is a suitable framework for developing the application. | Conduct a thorough analysis of React Native's capabilities and limitations. |
+| **6. User Privacy:** Users are concerned about their privacy and data collection. | Implement privacy controls and ensure GDPR compliance. |
+| **7. Effectiveness of Social Sharing:** Users will be interested in sharing their achievements on social media. | Monitor user engagement with social sharing features. Conduct surveys to understand preferences. |
 
-### 2. User Awareness:
-   - **Assumption:** Users are not fully aware of their carbon footprint and its impact.
-   - **Validation:** Track user engagement with educational content. Monitor changes in behavior and carbon footprint reduction.
 
-### 3. Effectiveness of Gamification:
-   - **Assumption:** Gamifying the application will enhance user engagement.
-   - **Validation:** Track user participation in challenges and observe trends in app usage.
-
-### 4. Market Gap:
-   - **Assumption:** There is a gap in the market for a user-centric carbon footprint tracking application.
-   - **Validation:** Analyze user reviews, feedback, and adoption rates compared to any potential competitors that may emerge.
-
-### 5. React Native Suitability:
-   - **Assumption:** React Native is a suitable framework for developing the application.
-   - **Validation:** Monitor app performance, user reviews, and development efficiency. Seek feedback on cross-platform compatibility.
-
-### 6. Effectiveness of Social Sharing:
-   - **Assumption:** Users will find value in sharing their achievements on social media.
-   - **Validation:** Track the frequency of social sharing and user interactions related to shared content.
-
-These risks and assumptions provide a framework for anticipating challenges and validating key assumptions throughout the development and deployment of the EcoGo application.
 ## 3. Requirements
 
 ### 3.1 Functional Requirements
+
+#### 3.1.1 User Authentication
+1. **Login:**
+   - Users can log in to the application using their email and password.
+   - Users can log in to the application using their Facebook or Google accounts.
+    - Users can log in to the application using their Apple ID (iOS only).
+
+2. **Registration:**
+    - Users can register for the application using their email and password.
+    - Users can register for the application using their Facebook or Google accounts.
+    - Users can register for the application using their Apple ID (iOS only).
+
+3. **Forgot Password:**
+   - Users can reset their password using their email address.
+
+#### 3.1.2 Dashboard 
+
 1. **Carbon Footprint Tracking:**
-   - GPS-based real-time tracking.
-   - Manual emission calculation for various transportation modes.
+   - Users can track their carbon footprint in real-time.
 
-2. **Gamification:**
-   - Coin-based reward system.
-   - Virtual store integration.
+2. **Calories Burned Tracking:**
+   - Users can track their calories burned in real-time.
+   - Estimates for calories burned during physical activities are provided.
 
-3. **Health Tracking:**
-   - Step counting.
-   - Calorie burned tracking.
+3. **Steps Tracking:** 
+   - Users can track their steps in real-time.
+   - Users can track their distance traveled in real-time.
 
-4. **Social Aspect:**
-   - Achievement sharing.
-   - Friends and family leaderboard.
+4. **Coins Tracking:**
+   - Users can track their coins earned in real-time.
+
+#### 3.1.3 Activity Tracking
+
+1. **Transportation Tracking:**
+   - Users can track their transportation choices.
+   - Users can set their default transportation mode.
+   - User can set their transportation mode for each trip.
+
+#### 3.1.4 Carpooling Offers 
+
+1. **Carpooling Offers:**
+   - Users can view carpooling offers from partnered services.
+   - Users can view carpooling offers from their daily commute.
+
+#### 3.1.5 Store Offers
+
+1. **Store Offers:**
+   - Users can view eco-friendly store offers from partnered stores.
+   - Users can view store offers based on their location.
+   - Users can view store offers based on their preferences.
+
+2. **Store Offer Redemption:**
+   - Users can redeem coins for discounts or freebies in partnered stores.
+
+#### 3.1.6 GPS 
+
+1. **Map View:**
+   - Users can view their current location on a map.
+   - Users can view their current location on a map with a route overlay.
+
+2. **Route Tracking:**
+   - Users can track their route in real-time.
 
 ### 3.2 Non-Functional Requirements
 1. **Performance:**
@@ -343,4 +438,3 @@ These risks and assumptions provide a framework for anticipating challenges and 
 - Social Aspect Integration.
 - Store Integration.
 
-This functional specification aims to guide the development of EcoGo, ensuring a comprehensive, engaging, and effective solution for individual carbon footprint tracking and reduction.

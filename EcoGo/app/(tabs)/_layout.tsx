@@ -29,7 +29,7 @@ export default () => {
                 options={
                     {
                     tabBarIcon: ({focused}) => (
-                        <View style={{alignItems: "center", justifyContent: "center", top: 10}}>
+                        <View style={{alignItems: "center", justifyContent: "center", top: 15}}>
                             <Image 
                                 source={require("../../assets/icons/ic_home.png")}
                                 style={{
@@ -49,7 +49,7 @@ export default () => {
                 options={
                     {
                         tabBarIcon: ({focused}) => (
-                            <View style={{alignItems: "center", justifyContent: "center", top: 10}}>
+                            <View style={{alignItems: "center", justifyContent: "center", top: 15}}>
                             <Image 
                                 source={require("../../assets/icons/ic_shop.png")}
                                 style={{
@@ -84,7 +84,7 @@ export default () => {
                 options = {
                     {
                         tabBarIcon: ({focused}) => (
-                        <View style={{alignItems: "center", justifyContent: "center", top: 10}}>
+                        <View style={{alignItems: "center", justifyContent: "center", top: 15}}>
                             <Image 
                                 source={require("../../assets/icons/ic_setting.png")}
                                 style={{
@@ -103,7 +103,7 @@ export default () => {
                 options={
                     {
                         tabBarIcon: ({focused}) => (
-                            <View style={{alignItems: "center", justifyContent: "center", top: 10}}>
+                            <View style={{alignItems: "center", justifyContent: "center", top: 15}}>
                             <Image 
                                 source={require("../../assets/icons/ic_user-square.png")}
                                 style={{

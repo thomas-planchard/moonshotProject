@@ -4,7 +4,6 @@
 import Welcome from "./home/welcome/Welcome";
 import GoodDeals from "./home/gooddeals/GoodDeals";
 import Activities from "./home/activities/Activities";
-import Footer from "./common/footer/Footer";
 
 
 // common
@@ -30,7 +29,6 @@ export {
   Activities,
   GoodDeals,
   DealsCard,
-  Footer,
   // MapGoogle,
   NameAndProfile,
   FriendsNumber,

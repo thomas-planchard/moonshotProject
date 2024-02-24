@@ -3,7 +3,6 @@ import { Stack, useRouter } from "expo-router";
 
 import {
   NameAndProfile,
-  Footer,
   TotalData,
   FriendsNumber,
   Graphique,

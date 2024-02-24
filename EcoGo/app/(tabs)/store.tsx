@@ -4,7 +4,6 @@ import {
   PopularCategories,
   Sales,
   Spotlight,
-  Footer,
 } from "../../components";
 
 

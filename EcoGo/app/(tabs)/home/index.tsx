@@ -2,7 +2,6 @@ import { SafeAreaView, ScrollView, View, Image } from "react-native";
 
 import {
   Activities,
-  Footer,
   GoodDeals,
   Welcome,
 } from "../../../components";
@@ -22,7 +21,6 @@ export default function Home() {
           <GoodDeals />
           </View>
       </ScrollView>
-      <Footer />
     </View>
   );
 };

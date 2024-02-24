@@ -13,11 +13,11 @@ import {
 import styles from "./popularcategories.style"
 
 
-const PopularCategories = () => {
+export default function PopularCategories() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <View>
         <Text style={styles.headerTitle}>Popular Categories</Text>
         
     </View>
@@ -43,4 +43,4 @@ const PopularCategories = () => {
   );
 };
 
-export default PopularCategories;
+

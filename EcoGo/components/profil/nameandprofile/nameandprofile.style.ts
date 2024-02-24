@@ -1,6 +1,6 @@
 import {StyleSheet, Dimensions} from 'react-native';
 
-import { COLORS, FONT, SIZES } from "../../../constants";
+import { COLORS, SIZES } from "../../../constants";
 
 export default StyleSheet.create({
     container: {
@@ -19,12 +19,12 @@ export default StyleSheet.create({
         marginBottom: SIZES.medium,
     },
     userName: {
-        fontFamily: FONT.bold,
+        fontFamily: "Montserrat-Bold",
         fontSize: 30,
         marginLeft:SIZES.medium,
     },
     welcomeMessage: {
-        fontFamily: FONT.regular,
+        fontFamily: "Montserrat-Bold",
         fontSize: SIZES.medium,
         color: COLORS.gray2,
         marginLeft:SIZES.medium,

@@ -1,37 +1,31 @@
 import {StyleSheet, Dimensions} from 'react-native';
 
-import { COLORS, FONT, SIZES } from "../../../constants";
+import { COLORS, SIZES } from "../../../constants";
 
 export default StyleSheet.create({
-      container: {
+    container: {
         marginTop: SIZES.xLarge,
+        height: 300,
       },
       headerTitle: {
         marginLeft: SIZES.medium,
         fontSize: SIZES.xLarge,
-        fontFamily: FONT.medium,
+        fontFamily: "Montserrat-Bold",
         color: COLORS.primary,
       },
       cardsContainer: {
         marginTop: SIZES.medium,
         flexDirection: "row",
         marginLeft: SIZES.medium,
-        height: 100,
         
         
       },
       card: {
-        width: 80,
-        height: 80,
+        width: 160,
+        height: 220,
         marginRight: SIZES.medium,
-        borderRadius: 50,
+        borderRadius: 10,
       },
      
-      categoryName: {
-        fontSize: SIZES.small,
-        fontFamily: FONT.regular,
-        color: COLORS.gray,
-        textAlign: "center",
-      },
-    
+   
 });

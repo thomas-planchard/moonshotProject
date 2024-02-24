@@ -5,8 +5,8 @@ import {
   Footer,
   GoodDeals,
   Welcome,
-} from "../../components";
-import styles from "../../components/common/whitebackground/whitebackground.style";
+} from "../../../components";
+import styles from "../../../components/common/whitebackground/whitebackground.style";
 
 
 

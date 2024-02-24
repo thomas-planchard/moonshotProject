@@ -1,6 +1,6 @@
 import {StyleSheet, Dimensions} from 'react-native';
 
-import { COLORS, FONT, SIZES } from "../../../constants";
+import { COLORS, SIZES } from "../../../constants";
 
 const height = Dimensions.get("window").height*0.05;
 
@@ -23,16 +23,16 @@ export default StyleSheet.create({
         marginRight : SIZES.small,
     },
     follower: {
-        fontFamily: FONT.bold,
+        fontFamily: "Montserrat-Bold",
         fontSize: SIZES.medium,
     },
     followerText: {
-        fontFamily: FONT.regular,
+        fontFamily: "Montserrat-Bold",
         fontSize: SIZES.small,
         color: COLORS.gray2,
     },
     edit: {
-        fontFamily: FONT.regular,
+        fontFamily: "Montserrat-Bold",
         fontSize: SIZES.small,
     },
 

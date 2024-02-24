@@ -1,5 +1,3 @@
-import { useState } from "react";
-import { useRouter } from "expo-router";
 import {
   ScrollView,
   View,
@@ -13,11 +11,11 @@ import {
 import styles from "./sales.style"
 
 
-const Sales = () => {
+export default function Sales(){
 
   return (
     <View style={styles.container}>
-    <View style={styles.header}>
+    <View>
       <Text style={styles.headerTitle}>Super Coin Savers</Text>
   </View>
     <ScrollView showsHorizontalScrollIndicator={false}   horizontal style={styles.cardsContainer}>
@@ -35,4 +33,4 @@ const Sales = () => {
   );
 };
 
-export default Sales;
+

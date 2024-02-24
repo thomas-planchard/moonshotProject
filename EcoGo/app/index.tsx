@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native';
 import { View, Pressable, Text } from 'react-native';
 
 
-const LoginPage = () => {
+export default function LoginPage() {
 	const router = useRouter();
 	
 	const handleLogin = () => {

@@ -1,9 +1,9 @@
 import { StyleSheet, Dimensions } from "react-native";
 
-import { COLORS, FONT, SIZES } from "../../../constants";
+import { COLORS, SIZES } from "../../../constants";
 
 const height = Dimensions.get("window").height*0.40;
-width = Dimensions.get("window").width;
+const width = Dimensions.get("window").width;
 
 const styles = StyleSheet.create({
   container: {
@@ -13,14 +13,14 @@ const styles = StyleSheet.create({
   },
 
   welcomeMessage: {
-    fontFamily: FONT.regular,
+    fontFamily: "Montserrat-Bold",
     fontSize: SIZES.medium,
     color: COLORS.gray2,
     marginLeft:SIZES.medium,
     marginTop:SIZES.xSmall,
   },
   userName: {
-    fontFamily: FONT.bold,
+    fontFamily: "Montserrat-Bold",
     fontSize: SIZES.xLarge,
     color: COLORS.white,
     marginLeft:SIZES.medium,
@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
   infoContainer: {
       width: '40%',
       backgroundColor: COLORS.WhiteOpacity,
-      borderRadius: '20%',
+      borderRadius: 20,
       justifyContent: 'center',
       alignItems: 'center',
     },
@@ -69,20 +69,20 @@ const styles = StyleSheet.create({
       alignItems: "center",
       width: '90%',
       backgroundColor: COLORS.WhiteOpacity,
-      borderRadius: '20%',
+      borderRadius: 20,
       marginLeft: SIZES.medium,
       marginTop: SIZES.xxLarge,
     },
 
     userInformationMain: {
       marginTop: SIZES.xLarge,
-      fontFamily: FONT.bold,
+      fontFamily: "Montserrat-Bold",
       fontSize: SIZES.xxLarge,
       color: COLORS.white,
     },
     userInformationMain2: {
       marginTop: SIZES.medium,
-      fontFamily: FONT.medium,
+      fontFamily: "Montserrat-Bold",
       fontSize: SIZES.medium,
       color: COLORS.white,
     },
@@ -93,13 +93,13 @@ const styles = StyleSheet.create({
 
     userInformationSecondary: {
       marginBottom: SIZES.xLarge,
-      fontFamily: FONT.regular,
+      fontFamily: "Montserrat-Bold",
       fontSize: SIZES.small,
       color: COLORS.gray2,
     },
     userInformationSecondary2: {
       marginBottom: SIZES.small,
-      fontFamily: FONT.regular,
+      fontFamily: "Montserrat-Bold",
       fontSize: SIZES.small,
       color: COLORS.gray2,
     },

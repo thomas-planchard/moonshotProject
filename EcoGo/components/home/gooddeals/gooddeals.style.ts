@@ -1,6 +1,6 @@
 import { StyleSheet, Dimensions } from "react-native";
 
-import { COLORS, FONT, SIZES } from "../../../constants";
+import { COLORS, SIZES } from "../../../constants";
 
 const width = Dimensions.get("window").width*0.92;
 const height = Dimensions.get("window").height*0.10;
@@ -17,7 +17,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: SIZES.large,
-    fontFamily: FONT.medium,
+    fontFamily: "Montserrat-Bold",
     color: COLORS.primary,
     marginLeft: SIZES.medium,
   },

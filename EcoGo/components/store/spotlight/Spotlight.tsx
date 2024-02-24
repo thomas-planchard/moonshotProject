@@ -13,11 +13,11 @@ import {
 import styles from "./spotlight.style"
 
 
-const Spotlight = () => {
+export default function Spotlight() {
 
   return (
     <View style={styles.container}>
-    <View style={styles.header}>
+    <View>
       <Text style={styles.headerTitle}>In The Spotlight</Text>
   </View>
     <ScrollView showsHorizontalScrollIndicator={false}   horizontal style={styles.cardsContainer}>
@@ -35,4 +35,4 @@ const Spotlight = () => {
   );
 };
 
-export default Spotlight;
+

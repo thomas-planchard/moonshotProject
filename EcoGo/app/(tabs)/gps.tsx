@@ -15,7 +15,6 @@ export default function Gps(){
             <ScrollView >
                 {/* <MapGoogle /> */}
             </ScrollView>
-            <Footer />
         </SafeAreaView>
 
     );

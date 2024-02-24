@@ -20,7 +20,6 @@ export default function Store(){
         <Sales />
         <Spotlight />
       </ScrollView>
-      <Footer />
     </SafeAreaView>
   );
 };

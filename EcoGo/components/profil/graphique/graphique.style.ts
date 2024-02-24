@@ -1,6 +1,6 @@
 import { StyleSheet, Dimensions } from "react-native";
 
-import { COLORS, FONT, SIZES } from "../../../constants";
+import { COLORS, SIZES } from "../../../constants";
 
 const height = Dimensions.get("window").height * 0.4;
 const width = Dimensions.get("window").width * 0.9;
@@ -45,16 +45,16 @@ export default StyleSheet.create({
 
     },
     text: {
-        fontFamily: FONT.bold,
+        fontFamily: "Montserrat-Bold",
         fontSize: SIZES.medium,
     },
     text2: {
-        fontFamily: FONT.regular,
+        fontFamily: "Montserrat-Bold",
         fontSize: SIZES.small,
         color: COLORS.gray2,
     },
     days: {
-        fontFamily: FONT.regular,
+        fontFamily: "Montserrat-Bold",
         fontSize: SIZES.small,
         textAlign: "center", 
     },

@@ -1,6 +1,6 @@
 import { StyleSheet } from "react-native";
 
-import { FONT, SIZES, COLORS } from "../../../constants";
+import { SIZES, COLORS } from "../../../constants";
 
 const styles = StyleSheet.create({
   container: {
@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     marginLeft: SIZES.medium,
     fontSize: SIZES.large,
-    fontFamily: FONT.medium,
+    fontFamily: "Montserrat-Bold",
     color: COLORS.primary,
   },
   cardsContainer: {
@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
   },
   activityName: {
     fontSize: SIZES.small,
-    fontFamily: FONT.regular,
+    fontFamily: "Montserrat-Bold",
     color: COLORS.gray,
     marginLeft: SIZES.medium,
   },
@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
     marginLeft: SIZES.medium,
     fontWeight: "bold",
     fontSize: SIZES.medium,
-    fontFamily: FONT.regular,
+    fontFamily: "Montserrat-Bold",
   },
 });
 

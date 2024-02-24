@@ -1,13 +1,13 @@
 import { StyleSheet, Dimensions } from "react-native";
 
-import { COLORS, FONT, SIZES } from "../../../constants";
+import { COLORS, SIZES } from "../../../constants";
 const height = Dimensions.get("window").height * 0.15;
 
 export default StyleSheet.create({
 
 userInformationMain: {
     marginTop: SIZES.medium,
-    fontFamily: FONT.bold,
+    fontFamily: "Montserrat-Bold",
     fontSize: SIZES.medium,
     fontWeight: "bold",
   },
@@ -17,7 +17,7 @@ userInformationMain: {
   },
   userInformationSecondary: {
     marginBottom: SIZES.small,
-    fontFamily: FONT.regular,
+    fontFamily: "Montserrat-Bold",
     fontSize: SIZES.small,
     color: COLORS.gray2,
   },

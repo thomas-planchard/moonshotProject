@@ -1,5 +1,7 @@
-# EcoGo Functional Specification
-- [EcoGo Functional Specification](#ecogo-functional-specification)
+# EcoGo Functional Specification <img src="../pictures/logo.jpeg" alt="Logo HubSpot" width="50" />
+
+
+- [EcoGo Functional Specification ](#ecogo-functional-specification-)
   - [1. Project Overview](#1-project-overview)
     - [1.1 Objectives](#11-objectives)
     - [1.2 Use Cases](#12-use-cases)
@@ -43,6 +45,8 @@
   - [10. Timeline](#10-timeline)
     - [10.1 Development Phases Timeline](#101-development-phases-timeline)
     - [10.2 Milestones](#102-milestones)
+
+
 
 ## 1. Project Overview
 

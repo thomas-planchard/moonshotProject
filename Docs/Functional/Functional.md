@@ -115,72 +115,15 @@ This use case illustrates how EcoGo provides a comprehensive and gamified experi
 
 ### 1.3 Personas
 
+![Personas](../pictures/persona1.png)
 
-**1. Environmental Enthusiast Emily**
-   - **Background:**
-     - Age: 28
-     - Occupation: Environmental Scientist
-     - Lifestyle: Active, eco-conscious, enjoys outdoor activities.
-   - **Motivations:**
-     - Passionate about minimizing her carbon footprint.
-     - Enjoys challenges and competitions.
-   - **Goals with EcoGo:**
-     - Use the app to actively monitor and reduce her carbon footprint.
-     - Participate in gamified challenges to earn rewards.
-     - Share achievements with friends for added motivation.
+![Personas](../pictures/persona2.png)
 
-**2. Eco-Curious Chris**
-   - **Background:**
-     - Age: 35
-     - Occupation: IT Professional
-     - Lifestyle: Tech-savvy, interested in sustainability.
-   - **Motivations:**
-     - Wants to understand the personal impact on the environment.
-     - Open to adopting eco-friendly habits.
-   - **Goals with EcoGo:**
-     - Track and analyze personal carbon footprint.
-     - Use gamification as a motivational tool to make sustainable choices.
-     - Explore offers in the store for practical, sustainable living.
+![Personas](../pictures/persona3.png)
 
-**3. Savvy Shopper Sam**
-   - **Background:**
-     - Age: 25
-     - Occupation: Marketing Specialist
-     - Lifestyle: Urban, enjoys shopping, values convenience.
-   - **Motivations:**
-     - Interested in sustainability but seeks practical benefits.
-     - Enjoys shopping for eco-friendly products.
-   - **Goals with EcoGo:**
-     - Monitor carbon footprint effortlessly using the app.
-     - Earn rewards to use in the store for practical eco-friendly purchases.
-     - Share achievements selectively on social platforms.
+![Personas](../pictures/persona4.png)
 
-**4. Commuter Carla**
-   - **Background:**
-     - Age: 30
-     - Occupation: Sales Representative
-     - Lifestyle: Commutes daily, values time and efficiency.
-   - **Motivations:**
-     - Seeks solutions to reduce emissions during daily commutes.
-     - Open to exploring alternative transportation options.
-   - **Goals with EcoGo:**
-     - Utilize GPS tracking to understand and optimize daily commutes.
-     - Receive offers for eco-friendly transportation.
-     - Engage with the social aspect to stay motivated.
-
-**5. Family-Focused Fred**
-   - **Background:**
-     - Age: 40
-     - Occupation: Parent and Small Business Owner
-     - Lifestyle: Family-oriented, concerned about the future.
-   - **Motivations:**
-     - Wants to set a sustainable example for the family.
-     - Values practical and family-friendly eco-options.
-   - **Goals with EcoGo:**
-     - Monitor family's overall carbon footprint.
-     - Encourage family members to make sustainable choices.
-     - Explore family-oriented offers in the store.
-
+![Personas](../pictures/persona5.png)
 
 ## 2. Scope
 

@@ -1,35 +1,70 @@
-import { useRouter } from 'expo-router';
-import { StyleSheet } from 'react-native';
-import { View, Pressable, Text } from 'react-native';
-
+import { StyleSheet, View, Pressable, Text, TextInput, ActivityIndicator, Button, KeyboardAvoidingView } from 'react-native';
+import React, {useState} from 'react';
+import { FIREBASE_APP, FIREBASE_AUTH } from '@/FirebaseConfig';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 
 export default function LoginPage() {
-	const router = useRouter();
+	const [email, setEmail] = useState('');
+	const [password, setPassword] = useState('');
+	const [loading, setLoading] = useState(false);
+	const auth = FIREBASE_AUTH;
+
 	
-	const handleLogin = () => {
-		// Add your login logic here
-		router.replace('/home');
-	};
-	
+	const signIn = async () => {
+		setLoading(true);
+		try {
+			const response = await signInWithEmailAndPassword(auth, email, password);
+			console.log(response);
+		} catch (error) {
+			console.error(error);
+			alert("Sign in failed")
+		} finally {
+			setLoading(false);
+		}
+	}
+
+	const signUp = async () => {
+		setLoading(true);
+		try {
+			const response = await createUserWithEmailAndPassword(auth, email, password);
+			console.log(response);
+			alert("Check your email")
+		} catch (error) {
+			console.error(error);
+			alert("Sign in failed")
+		} finally {
+			setLoading(false);
+		}
+	}
+
 	return (
 		<View style={style.container}>
-			<Pressable onPress={handleLogin}>
-				<Text style={style.text}>EcoGo</Text>
-			</Pressable>
+			<KeyboardAvoidingView behavior="padding">
+			<TextInput style={style.input} placeholder="Email" autoCapitalize='none' value={email} onChangeText={(text)=>setEmail(text)} />
+			<TextInput style={style.input} placeholder="password" autoCapitalize='none' value={password} onChangeText={(text)=>setPassword(text)} secureTextEntry={true} />
+			{ loading ? <ActivityIndicator size="large" color="#1a434e" /> 
+			: <>
+			<Button title="Login" onPress={signIn} />
+			<Button title="Create account" onPress={signUp} />
+			</>
+			}
+			</KeyboardAvoidingView>
 		</View>
 	);
 };
 
 const style = StyleSheet.create({
 	container: {
-	backgroundColor: "#5EC5FF 0%, rgba(100, 223, 183, 0.552083) 99.99%, rgba(107, 255, 94, 0) 100%);" ,
+	marginHorizontal: 20,
 	flex: 1,
 	justifyContent: 'center',
-	alignItems: 'center',
 	},
-	text: {
-	color: 'black',
-	fontSize: 100,
-	fontWeight: 'bold',
+	input: {
+	marginVertical: 4,
+	height: 50,
+	borderWidth: 1, 
+	borderRadius: 4,
+	padding: 10,
+	backgroundColor: 'white',
 	},
 });

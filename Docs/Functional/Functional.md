@@ -115,7 +115,7 @@ The following use case illustrates the primary functionality of the EcoGo applic
 - Real-time emission data, steps, and calorie information are stored for historical tracking.
 - The user has earned coins, explored offers in the store, and potentially made eco-friendly choices based on the application's suggestions.
 
-This use case illustrates how EcoGo provides a comprehensive and gamified experience for users to actively track, understand, and reduce their carbon footprint while gaining tangible rewards and contributing to environmental sustainability.
+This use case illustrates how EcoGo provides an experience for users to actively track, understand, and reduce their carbon footprint while gaining tangible rewards and contributing to environmental sustainability.
 
 ### 1.3 Personas
 

@@ -7,15 +7,15 @@ import { useRouter } from 'expo-router';
 import Loading from '@/components/loading/loading';
 
 
-export default function SignIn() {
+export default function SignUp() {
     const router = useRouter();
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
 
     const emailRef = useRef("");
     const passwordRef = useRef("");
 
 
-    const handleLogin = async () => {
+    const handleRegister = async () => {
         if (!emailRef.current || !passwordRef.current) {
             Alert.alert('Error', 'Please fill all the fields');
             return;
@@ -28,7 +28,7 @@ export default function SignIn() {
       <StatusBar style="dark" />
       <View>
         <View>
-            <Image source={require('../assets/images/login.png')} style={{width: wp('50%'), height: hp('20%'), alignSelf: 'center'}} />
+            <Image source={require('../assets/images/register.jpg')} style={{width: wp('50%'), height: hp('20%'), alignSelf: 'center'}} />
         </View>
 
 
@@ -63,11 +63,11 @@ export default function SignIn() {
                     {
                         loading?(
                             <View>
-                                <Loading size={hp(7)} />
+                                <Loading size={hp(5.5)} />
                             </View>
 
                         ):(
-                            <TouchableOpacity onPress={handleLogin}>
+                            <TouchableOpacity onPress={handleRegister}>
                                 <Text 
                                 style={{backgroundColor: 'blue', color: 'white', fontSize: hp(2.5), padding: hp(1), textAlign: 'center', borderRadius: hp(1)}}
                                 >Sign in

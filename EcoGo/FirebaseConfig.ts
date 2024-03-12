@@ -15,12 +15,12 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-export const FIREBASE_APP = initializeApp(firebaseConfig);
-export const FIREBASE_AUTH = initializeAuth(FIREBASE_APP, {
+export const app = initializeApp(firebaseConfig);
+export const auth = initializeAuth(app, {
     persistence: getReactNativePersistence(AsyncStorage),
 })
-export const FIREBASE_DB = getFirestore(FIREBASE_APP);
+export const db = getFirestore(app);
 
-export const usersRef = collection(FIREBASE_DB, 'users');
-export const roomRef = collection(FIREBASE_DB, 'rooms');
+export const usersRef = collection(db, 'users');
+export const roomRef = collection(db, 'rooms');
 

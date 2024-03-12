@@ -9,7 +9,7 @@ import Loading from '@/components/loading/loading';
 
 export default function SignIn() {
     const router = useRouter();
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
 
     const emailRef = useRef("");
     const passwordRef = useRef("");
@@ -63,7 +63,7 @@ export default function SignIn() {
                     {
                         loading?(
                             <View>
-                                <Loading size={hp(7)} />
+                                <Loading size={hp(5.5)} />
                             </View>
 
                         ):(

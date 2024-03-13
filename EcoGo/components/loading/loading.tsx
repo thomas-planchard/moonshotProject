@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Text, View, StyleSheet } from 'react-native';
+import {View } from 'react-native';
 import LottieView from 'lottie-react-native';
 
 export default function Loading({size}: {size: number}) {
@@ -7,7 +7,7 @@ export default function Loading({size}: {size: number}) {
     <View style={{height: size, aspectRatio: 1}}>
       <LottieView
         style = {{flex: 1}}
-        source={require('../../assets/animation/loadingHand.json')}
+        source={require('../../assets/animation/loading.json')}
         autoPlay
         loop
       />

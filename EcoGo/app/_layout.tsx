@@ -5,7 +5,7 @@ import "../global.css";
 
 
 
-const mainLayout = () => {
+const MainLayout = () => {
     const {isAuthenticated} = useAuth();
     const segments = useSegments();
     const router = useRouter();
@@ -26,12 +26,11 @@ const mainLayout = () => {
 }
 
 
-const StackLayout = () => {
+export default function RootLayout() {
     return (
         <AuthContextProvider>
-                <mainLayout />
+                <MainLayout />
         </AuthContextProvider>
     );
 };
 
-export default StackLayout;

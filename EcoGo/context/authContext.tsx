@@ -1,18 +1,37 @@
-import { createContext, useEffect } from 'react';
+import { FC, ReactNode, createContext, useEffect } from 'react';
 import { useState, useContext } from 'react';
 
-export const AuthContext = createContext(null);
+interface User {
+    email: string;
+    password: string;
+    username: string;
+    profileUrl: string;
+}
 
-export const AuthContextProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+interface AuthContextInterface {
+    user: User | null;
+    isAuthenticated: boolean | undefined;
+    login: (email: string, password: string) => void;
+    logout: () => void;
+    register: (email: string, password: string, username: string, profileUrl: string) => void;
+}
+
+export const AuthContext = createContext<AuthContextInterface | null>(null);
+
+interface AuthContextProviderProps {
+    children: ReactNode;
+}
+
+
+export const AuthContextProvider: FC<AuthContextProviderProps> = ({children}) => {
+    const [user, setUser] = useState<User | null>(null);
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean | undefined>(undefined);
 
     useEffect(() => {
-        // onAuthStateChanged
-            setIsAuthenticated(false);
+        setIsAuthenticated(false);
     },[]);
 
-    const login = async (email, password) => {
+    const login = async (email: string, password : string) => {
         try{
 
         }catch(e){
@@ -28,7 +47,7 @@ export const AuthContextProvider = ({ children }) => {
         }
     };
 
-    const register = async (email, password, username, profileUrl) => {
+    const register = async (email: string, password: string, username: string, profileUrl: string) => {
         try{
 
         }catch(e){
@@ -44,7 +63,7 @@ export const AuthContextProvider = ({ children }) => {
 }
 
 
-export const useAuth = () => {
+export const useAuth = (): AuthContextInterface => {
     const value = useContext(AuthContext);
 
     if(!value){

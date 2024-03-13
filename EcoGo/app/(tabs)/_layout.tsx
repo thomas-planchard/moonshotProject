@@ -4,7 +4,7 @@ import styles from "../../components/common/footer/footer.style";
 
 
 
-export default () => {
+export default function layout_ () {
     return (
         <Tabs 
             screenOptions={
@@ -63,8 +63,7 @@ export default () => {
                         )
                     }
                 }
-                />
-
+            />
             <Tabs.Screen name="gps" 
                 options={
                     {

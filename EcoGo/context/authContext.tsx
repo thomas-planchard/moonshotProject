@@ -1,5 +1,8 @@
 import { FC, ReactNode, createContext, useEffect } from 'react';
 import { useState, useContext } from 'react';
+import { onAuthStateChanged, createUserWithEmailAndPassword , signInWithEmailAndPassword} from 'firebase/auth';
+import { auth, db } from '../FirebaseConfig';
+import { addDoc, doc, setDoc } from 'firebase/firestore';
 
 interface User {
     email: string;
@@ -13,7 +16,7 @@ interface AuthContextInterface {
     isAuthenticated: boolean | undefined;
     login: (email: string, password: string) => void;
     logout: () => void;
-    register: (email: string, password: string, username: string, profileUrl: string) => void;
+    register: (email: string, password: string, username: string, profileUrl: string) => Promise<{sucess: boolean, message?: string}>;
 }
 
 export const AuthContext = createContext<AuthContextInterface | null>(null);
@@ -28,7 +31,15 @@ export const AuthContextProvider: FC<AuthContextProviderProps> = ({children}) =>
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | undefined>(undefined);
 
     useEffect(() => {
-        setIsAuthenticated(false);
+        const unsub = onAuthStateChanged(auth, (user) => {
+            if (user){
+                setIsAuthenticated(true);
+                setUser(user);
+            }else{
+                setIsAuthenticated(false);
+                setUser(null);
+            }
+        })
     },[]);
 
     const login = async (email: string, password : string) => {
@@ -49,8 +60,20 @@ export const AuthContextProvider: FC<AuthContextProviderProps> = ({children}) =>
 
     const register = async (email: string, password: string, username: string, profileUrl: string) => {
         try{
+            const response = await createUserWithEmailAndPassword(auth, email, password);
+            console.log('response.user: ', response?.user);
+
+            await setDoc(doc(db, "users", response?.user?.uid, ), {
+                username,
+                profileUrl,
+                userId: response?.user?.uid
+            });
+            return {sucess: true, data: response?.user};
 
         }catch(e){
+            let msg = e.message;
+            if(msg.includes('(auth/invalid-email)')) msg = 'Invalid email';
+            return {sucess: false, message: msg};
 
         }
     };

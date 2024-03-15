@@ -4,7 +4,8 @@ import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-nativ
 import { StatusBar } from 'expo-status-bar';
 import { Octicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import Loading from '@/components/loading/loading';
+import Loading from '@/components/loading';
+import CustomKeyboardView from '@/components/CustomKeyboardView';
 
 
 export default function SignIn() {
@@ -24,7 +25,7 @@ export default function SignIn() {
     };
 
   return (
-    <View className="flex-1">
+    <CustomKeyboardView>
       <StatusBar style="dark" />
       <View style ={{paddingTop : hp(8), paddingHorizontal: wp(5)}} className='flex-1 gap-12'>
         <View className='items-center'>
@@ -91,6 +92,6 @@ export default function SignIn() {
            </View>
         </View>
        </View>
-    </View>
+    </CustomKeyboardView>
   );
 }

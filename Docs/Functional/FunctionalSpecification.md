@@ -94,15 +94,66 @@ Activity Tracking is a core feature of the application, serving as the primary d
 
 - **Manual Entry:** Users also have the option to manually enter their transportation mode and trip duration. This functionality caters to users who may prefer or need to input their travel details directly, offering flexibility and ensuring that all users can accurately track their carbon footprint regardless of their preference for automatic detection.
 
-Upon detecting a trip, the application generates a pop-up notification the next time the user opens the app. This notification confirms the details of the trip, such as duration (e.g., 20 minutes), distance traveled (e.g., 20 km), and the estimated CO2 emissions (e.g., 30 kg CO2). The user is prompted to confirm these details, ensuring accurate tracking and fostering awareness of their carbon footprint with each trip. 
+Upon detecting a trip, the application generates a pop-up notification the next time the user opens the app. This notification confirms the details of the trip, such as duration (e.g., 20 minutes), distance traveled (e.g., 20 km), and the estimated CO2 emissions (e.g., 30 kg CO2). The user is prompted to confirm these details, ensuring tracking and awareness of their carbon footprint on each trip. 
 
 ![Activity Tracking](../pictures/activityDiagram.png)
 #### 4.2.4 Emission Calculation
-- Calculates real-time CO2 emissions based on transportation mode and distance.
-- Offers graphical representation of emissions over time (daily, weekly, monthly, yearly).
+The emission calculation forms the core of the application. This function operates by:
+
+- **Accurate CO2 Emission Estimation**: 
+EcoGo calculates CO2 emissions by looking at how users travel and how far they go. To keep things simple and accurate, the app focuses on common ways people get around in cities: subway, bus, bicycle, walking, and car. This choice helps make sure the app's emission calculations are reliable. Whether users let the app automatically track their movement or they enter their travel details by hand, EcoGo sticks to these five modes of transport. This way, the app gives users straightforward and useful information about their carbon footprint.
+
+- **Simplified Vehicle Model Consideration**: The primary goal is to accurately calculate the carbon footprint of your trips, rather than covering every vehicle model available. Therefore, the app will categorize vehicle options into broad types: electric, gasoline, SUV, city car, and saloon. This approach simplifies the process of estimating CO2 emissions based on the type of vehicle used for travel.
+
+
+![Emission Calculation](../pictures/EmissionCalculationProcess.png)
+
 
 #### 4.2.5 Rewards System
-- Users earn coins for reducing their carbon footprint, which can be spent in the EcoGo store.
+
+Within the app, users accumulate coins as a reward for reducing their carbon footprint. The reward system is structured around several key criteria that directly relate to eco-friendly behaviors and choices:
+
+1. **Eco-Friendly Transportation Choices:** Users earn coins for selecting sustainable transportation methods. Walking, cycling, and using public transit are prioritized over personal gasoline vehicles, with rewards scaled according to the eco-friendliness of the mode chosen.
+
+2. **Travel Distance in Eco-Mode:** Coins are awarded based on the distance traveled using green transportation options. 
+
+3. **CO2 Savings:** The app calculates the CO2 emissions saved by opting for a greener transportation mode instead of a conventional gasoline vehicle. Users receive coins proportional to the amount of CO2 they save, making a direct connection between rewards and environmental benefits.
+
+4. **Completion of Eco-Challenges:** The app introduces daily or weekly eco-challenges, such as avoiding the use of personal gasoline vehicles for a day. Completing these challenges earns users additional coins, promoting engagement and continuous eco-conscious behavior.
+
+5. **Consistent Eco-Friendly Actions:** Bonus coins are awarded for maintaining consistent sustainable behaviors over set periods, such as using public transportation or biking for several consecutive days. This system aims to foster long-term commitment to reducing one’s carbon footprint.
+
+
+![Rewards System](../pictures/RewardsSystemCoinAllocation.png)
+
+##### Coin Allocation
+
+1. **Eco-Friendly Transportation Choices:**
+   - Walking or Cycling: Earn 10 coins for every kilometer.
+   - Public Transit: Earn 5 coins for every kilometer.
+   - Note: These values incentivize the most sustainable options, with higher rewards for zero-emission choices.
+
+2. **Travel Distance in Eco-Mode:**
+   - For every 5 kilometers traveled by eco-friendly transportation in a single trip, users earn an additional 10 bonus coins.
+
+3. **CO2 Savings:**
+   - Calculating CO2 savings compared to driving a gasoline car: Earn 1 coin for every kilogram of CO2 saved.
+   - Example: If choosing public transit over a personal car for a 10km trip saves 2kg of CO2, the user earns an additional 2 coins.
+
+4. **Completion of Eco-Challenges:**
+   - Daily Challenge (e.g., No Car Day): 50 coins.
+   - Weekly Challenge (e.g., Use Public Transit 5 times in a week): 100 coins.
+
+5. **Consistent Eco-Friendly Actions:**
+   - Consistent use of eco-friendly transportation for a week: 100 bonus coins.
+   - Consistent use for a month: 500 bonus coins.
+
+### Adjustments and Flexibility
+
+- The number of coins awarded for each action is designed to encourage the use of the most sustainable transportation options available and to reward users for making significant contributions to reducing their carbon footprint.
+- This reward system is subject to adjustments based on user feedback, the app's economic model, and the overarching goal of promoting sustainable behaviors. Future updates may refine coin values to better align with these objectives, ensuring the system remains effective and motivating for users.
+
+By establishing a clear, quantifiable reward system, EcoGo aims to tangibly recognize and incentivize users' efforts towards a more sustainable lifestyle. The specific coin allocations mentioned above serve as an initial framework, providing a structured yet flexible approach to encouraging eco-friendly transportation choices.
 
 #### 4.2.6 EcoGo Store
 - Features eco-responsible brands and restaurant offers.
@@ -110,6 +161,13 @@ Upon detecting a trip, the application generates a pop-up notification the next 
 
 #### 4.2.7 Social Sharing
 - Enables users to share achievements and purchases on social media.
+
+
+#### 4.2.8 User Settings
+- Allows users to manage their account, notifications, and privacy settings.
+- Provides access to the app's help and support resources.
+- Offers the ability to delete the account and associated data.
+- Allows users to manage
 
 ### 4.3 Use Cases
 

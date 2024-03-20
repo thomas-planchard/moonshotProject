@@ -79,8 +79,8 @@ efforts through technology.
 ![Account Creation and Management](../pictures/accountDiagram.png)
 
 #### 4.2.2 Dashboard
-- Presents current carbon footprint statistics, steps, calories burned, and coins earned.
-- Displays offers based on user activity and location, promoting eco-friendly alternatives. Those offers will be in partnership with eco-responsible brands and regional services. The user will be able to see the offers only if he is in the region where the offer is available. Nevertheless, this feature will be simulated in the first version of the app.
+- Presents current carbon footprint statistics, steps (number), calories burned (kcal), distance traveled (km) and coins earned.
+- Displays offers based on user activity and location. Those offers will be in partnership with eco-responsible brands and regional services. The user will be able to see the offers only if he is in the region where the offer is available. Nevertheless, this feature will be simulated in the first version of the app.
 
 - The dashboard will be the first screen that the user will see when he opens the app.
 
@@ -109,6 +109,66 @@ EcoGo calculates CO2 emissions by looking at how users travel and how far they g
 ![Emission Calculation](../pictures/EmissionCalculationProcess.png)
 
 
+##### Calculating System Carbon Emissions (Car)
+Calculating System CO2 emissions for car travel involves understanding the amount of fuel the car consumes and then converting that fuel consumption into CO2 emissions. The calculation can vary depending on the type of fuel (e.g., gasoline, diesel, electric) and the vehicle's efficiency. Here's a basic approach for gasoline and diesel vehicles:
+
+---
+
+**Step 1: Determine Fuel Consumption**
+First, the app will have to know the car's fuel consumption, typically measured in liters per 100 kilometers (L/100km) or miles per gallon (MPG). This information can often be found in the vehicle's manual or manufacturer's website. The consumption should be asked in the app when the user enters the car's details at the creation of the account.
+
+---
+
+**Step 2: Calculate Fuel Used**
+Based on the distance traveled, calculate how much fuel the car used for the trip. For instance, if a car has a fuel efficiency of 8 L/100km and the trip is 100km long, the car used 8 liters of fuel. The formula for this calculation is:  
+*Fuel Used (liters) = (Distance Traveled (km) / 100) x Fuel Efficiency (L/100km)*
+
+---
+
+**Step 3: Convert Fuel to CO2 Emissions**
+Different types of fuel emit different amounts of CO2 per liter burned. On average, burning 1 liter of gasoline produces about 2.31 kg of CO2, while 1 liter of diesel produces about 2.68 kg of CO2. The app will use these emission factors to convert fuel consumption into CO2 emissions. The formulas for this conversion are:
+
+*CO2 Emissions (kg)=Fuel Used (liters)×CO2 Emission Factor*
+
+- For gasoline: *CO2 Emissions (kg)=Fuel Used (liters)×2.31*
+- For diesel: *CO2 Emissions (kg)=Fuel Used (liters)×2.68*
+
+##### Calculating System Carbon Emissions (Electric Car)
+For electric vehicles (EVs), the calculation is different and generally involves the following steps:
+
+1. **Electricity Consumption:** Determine how much electricity (in kilowatt-hours, kWh) the vehicle consumes per 100 kilometers or per mile. Same as for gasoline cars, this information should be asked when the user enters the car's details at the creation of the account.
+2. **Electricity Source Emissions:** Calculate the CO2 emissions associated with generating the consumed electricity. This varies greatly depending on the energy mix of the grid (coal, natural gas, renewable energy sources, etc.) and can be expressed as kg of CO2 per kWh. As we can't know the exact source of electricity, the app will use the main sources of electricity in the country where the user is located. At first, the app will only focus on France, so it will be the nuclear energy that will be used as the main source of electricity.
+   
+   Here is the table of the C02 emissions by the factor of electricity source:
+
+   | Electricity Source | CO2 Emission Factor (g/kWh) 
+   | --- | --- 
+   | Nuclear | 12g of CO2 by kW|
+   |Hydraulics | 24g of CO2 by kWh|
+   |Gas| 490g of CO2 by kWh|
+   |Wind power | 11g of CO2 by kWh|
+   |Solary | 41-48 g of CO2 by kWh|
+   |Bioenergy (biomass) | 230g of CO2 by kWh|
+   |Coal | 820g of CO2 by kWh|
+
+
+
+1. **Total Emissions:** Multiply the electricity consumed by the CO2 emissions factor of the electricity source.
+   
+   *CO2 Emissions (kg)=Electricity Consumed (kWh)×CO2 Emission Factor of Electricity Source*
+
+---
+
+##### Calculating System Carbon Emissions (Bus, Bicycle, and Subway)
+
+1. **Bus:** The average CO2 emission factor for a bus is approximately **0.101 kg** CO2 per passenger kilometer. This factor can vary based on the bus type, occupancy, and fuel efficiency. However, the average value provides a reasonable estimate for emission calculations.
+
+2. **Regular Bicycle:** Cycling is considered a zero-emission mode of transport. However, considering the food energy required by a cyclist and the carbon intensity of food production, a very small emission factor, such as **0.021 kg** CO2 per kilometer, can be used for a more comprehensive analysis.
+
+3. **Subway:** The average CO2 emission factor for subway transport varies widely based on the electricity generation mix of the region. A general estimate is around **0.06 kg** CO2 per passenger kilometer.
+
+---
+
 #### 4.2.5 Rewards System
 
 Within the app, users accumulate coins as a reward for reducing their carbon footprint. The reward system is structured around several key criteria that directly relate to eco-friendly behaviors and choices:
@@ -125,6 +185,25 @@ Within the app, users accumulate coins as a reward for reducing their carbon foo
 
 
 ![Rewards System](../pictures/RewardsSystemCoinAllocation.png)
+
+
+##### Eco-Challenges
+Here's a table listing several eco-challenges along with their associated rewards:
+
+| Eco-Challenge                               | Reward (Coins) |
+|---------------------------------------------|----------------|
+| **No Car Day** - Avoid using a car for a day.                     | 50             |
+| **Bike to Work Week** - Use a bicycle for commuting every day for a week. | 100            |
+| **Public Transit Pro** - Use public transportation exclusively for a week.  | 70             |
+| **Walk-a-Thon** - Walk at least 10,000 steps every day for a week.         | 80             |
+| **Zero Emission Day** - Only use zero-emission transportation modes for a day. | 60             |
+| **Local Explorer** - Use only walking or cycling for all travel within a 5km radius for a week. | 120           |
+| **Eco-Shopper** - Make all shopping trips by foot, bike, or public transit for a month. | 150           |
+| **Green Commuter** - Replace car commuting with any eco-friendly transportation for a month. | 200           |
+| **Carbon Saver** - Achieve the highest CO2 savings in a month among all users. | 250           |
+| **Eco-Warrior** - Complete all other challenges within a specified time frame. | 300           |
+
+The app will display these challenges to users, allowing them to select and participate in the ones that align with their preferences and lifestyles. Completing these challenges will not only earn users coins but also contribute to their overall carbon footprint reduction efforts. Those challenges might be updated regularly to keep the app engaging and motivating for users.
 
 ##### Coin Allocation
 
@@ -153,11 +232,13 @@ Within the app, users accumulate coins as a reward for reducing their carbon foo
 - The number of coins awarded for each action is designed to encourage the use of the most sustainable transportation options available and to reward users for making significant contributions to reducing their carbon footprint.
 - This reward system is subject to adjustments based on user feedback, the app's economic model, and the overarching goal of promoting sustainable behaviors. Future updates may refine coin values to better align with these objectives, ensuring the system remains effective and motivating for users.
 
-By establishing a clear, quantifiable reward system, EcoGo aims to tangibly recognize and incentivize users' efforts towards a more sustainable lifestyle. The specific coin allocations mentioned above serve as an initial framework, providing a structured yet flexible approach to encouraging eco-friendly transportation choices.
 
 #### 4.2.6 EcoGo Store
-- Features eco-responsible brands and restaurant offers.
-- Allows redemption of coins for discounts and vouchers.
+
+The EcoGo Store is a virtual marketplace within the app, showcasing offers from eco-conscious brands and restaurants. Users can spend their earned coins to redeem discounts and vouchers, engaging directly with businesses that share EcoGo's commitment to sustainability.
+
+While the implementation of this feature in the current version will be simulated, due to its status as a school project. 
+
 
 #### 4.2.7 Social Sharing
 - Enables users to share achievements and purchases on social media.

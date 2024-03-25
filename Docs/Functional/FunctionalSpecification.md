@@ -332,8 +332,205 @@ Above is a wireframe of the social sharing feature. It is only a wireframe, the 
 
 ### 4.3 Use Cases
 
-The primary use case involves tracking carbon emissions, earning rewards, and utilizing the in-app store, as detailed in the provided use case scenarios.
+- **Use Case 1: User Account Creation**
 
+  **Actors:**
+  - User
+
+  **Preconditions:**
+  - The user has installed the EcoGo app on their iOS device.
+
+  **Main Flow:**
+  1. The user launches the EcoGo app and selects the option to create a new account.
+  2. The user enters their email address, name, surname, and chooses a password. Optionally, they can upload a profile picture.
+  3. The user submits the account creation form.
+  4. The EcoGo app sends a verification email to the user's provided email address.
+  5. The user clicks the verification link in the email to activate their account.
+  6. The user logs in to the EcoGo app with their new credentials.
+
+  **Postconditions**:
+  - The user has successfully created and verified their EcoGo account.
+
+  ![useCase1](../pictures/useCase1.png)
+
+---
+
+- **Use Case 2: Carbon Footprint Tracking**
+
+  **Actors:**
+  - User
+
+  **Preconditions:**
+  - The user has an active EcoGo account.
+  - The GPS and accelerometer permissions are granted.
+
+  **Main Flow:**
+  1. The user starts a trip using their preferred mode of transportation (e.g., walking, cycling).
+  2. The EcoGo app automatically detects the trip start through GPS and accelerometer data (for automatic detection) or the user manually starts the trip in the app (for manual entry).
+  3. During the trip, the app continuously tracks the distance traveled.
+  4. At the trip's end, the app calculates the CO2 emissions based on the distance and mode of transportation.
+  5. The app displays the CO2 emissions for the trip and updates the user's daily, weekly, and monthly statistics.
+
+  **Postconditions:**
+  - The user's carbon footprint data is updated based on the latest trip.
+
+  ![useCase2](../pictures/useCase2.png)
+
+
+---
+
+- **Use Case 3: Redeeming Rewards in the EcoGo Store**
+
+  **Actors:**
+  - User
+
+  **Preconditions:**
+  - The user has accumulated coins through eco-friendly activities.
+
+  **Main Flow:**
+  1. The user navigates to the EcoGo Store within the app.
+  2. The user browses available offers from eco-responsible brands and restaurants.
+  3. The user selects an offer they wish to redeem.
+  4. The app displays the cost in coins and asks the user to confirm the redemption.
+  5. The user confirms, and the coins are deducted from their account.
+  6. The app displays a voucher or discount code for the redeemed offer.
+
+  **Postconditions:**
+  - The user has successfully redeemed coins for an offer in the EcoGo Store.
+
+  ![useCase3](../pictures/useCase3.png)
+
+--- 
+
+- **Use Case 4: Modifying Notification Preferences**
+
+  **Actors:**
+  - User
+
+  **Preconditions:**
+  - The user has an active EcoGo account.
+
+  **Main Flow:**
+  1. The user navigates to the User Settings section in the EcoGo app.
+  2. The user selects Notification Preferences.
+  3. The app displays options for various types of notifications (e.g., new store offers, challenge completions, coin milestones).
+  4. The user toggles their preferences for each notification type.
+  5. The user saves their preferences.
+
+  **Postconditions:**
+  - The user's notification preferences are updated according to their selections.
+
+
+  ![useCase4](../pictures/useCase4.png)
+
+---
+
+- **Use Case 5: Updating Transportation Preferences**
+
+  **Actors:**
+  - User
+
+  **Preconditions:**
+  - The user has an active EcoGo account and is logged into the app.
+
+  **Main Flow:**
+  1. The user navigates to the User Settings section and selects "Transportation Preferences."
+  2. The user views their current preferences and selects options to update their preferred modes of transport (e.g., electric, gasoline, SUV, city car, saloon).
+  3. The user saves their updated preferences, which the app confirms.
+  4. EcoGo updates the user's profile and tailors future challenges and rewards based on the new preferences.
+
+  **Postconditions:**
+  - The user's transportation preferences are updated, affecting future app interactions and personalized suggestions.
+
+  ![useCase5](../pictures/useCase5.png)
+
+---
+
+- **Use Case 6: Manual Entry of Transportation Mode and Trip Details**
+
+  **Actors:**
+  - User
+
+  **Preconditions:**
+  - The user chooses not to enable automatic detection or wishes to enter a trip not captured by the app.
+
+  **Main Flow:**
+  1. The user selects the option to manually add a trip from the dashboard.
+  2. The user selects the mode of transportation used and inputs details such as distance traveled and trip duration.
+  3. The app calculates the CO2 emissions based on the entered details and updates the user's carbon footprint statistics.
+  4. The user reviews and confirms the trip details and CO2 emission estimate.
+
+  **Postconditions:**
+  - The app records the manually entered trip, including it in the user's carbon footprint data.
+
+  ![useCase6](../pictures/useCase6.png)
+
+
+---
+
+- **Use Case 7: Sharing Eco-Friendly Achievements on Social Media**
+
+  **Actors:**
+  - User
+
+  **Preconditions:**
+  - The user has achieved a notable milestone in carbon footprint reduction or completed a challenge.
+
+  **Main Flow:**
+  1. The user navigates to their profile page and clicks the "Share" button.
+  2. The app generates a pre-populated post highlighting the user's achievements, such as CO2 reduction, preferred transportation mode, or completed challenges.
+  3. The user can customize the message if desired and selects the social media platforms where they want to share their achievement.
+  4. The user posts the achievement to their selected social media platforms directly from the app.
+
+  **Postconditions:**
+  - The user's achievements are shared on social media, increasing awareness and potentially motivating others to join EcoGo.
+
+  ![useCase7](../pictures/useCase7.png)
+
+---
+
+- **Use Case 8: Requesting Personal Data**
+
+  **Actors:**
+  - User
+
+  **Preconditions:**
+  - The user wants to review the personal data EcoGo has collected on them, in compliance with GDPR.
+
+  **Main Flow:**
+  1. The user accesses the User Settings menu and selects the option to request their personal data.
+  2. The app explains the process and asks the user to confirm their request.
+  3. The user confirms, and the app initiates the process to compile the user's personal data.
+  4. Once ready, EcoGo sends the user an email with a link to download their data in a machine-readable format.
+
+  **Postconditions:**
+  - The user receives access to their personal data collected by EcoGo, enhancing transparency and trust.
+
+  ![useCase8](../pictures/useCase8.png)
+
+---
+
+- **Use Case 9: Deleting Account and Associated Data**
+
+  **Actors:**
+  - User
+
+  **Preconditions:**
+  - The user decides to stop using EcoGo and wants to remove their account and all associated data.
+
+  **Main Flow:**
+  1. The user navigates to the User Settings section and selects the option to delete their account.
+  2. The app displays a warning about the permanence of this action and asks for confirmation.
+  3. The user confirms their decision to delete the account.
+  4. EcoGo permanently removes the user's account and all associated personal data from its servers, in compliance with GDPR.
+
+  **Postconditions:**
+  - The user's account and all related data are permanently deleted, fulfilling the user's right to erasure.
+
+  ![useCase9](../pictures/useCase9.png)
+
+
+  
 ## 5. Non-Functional Requirements
 
 ### 5.1 Performance

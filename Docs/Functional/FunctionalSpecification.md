@@ -530,49 +530,145 @@ Above is a wireframe of the social sharing feature. It is only a wireframe, the 
   ![useCase9](../pictures/useCase9.png)
 
 
-  
+
 ## 5. Non-Functional Requirements
 
 ### 5.1 Performance
-- The application should be responsive and efficient in tracking activities and calculating emissions in real-time.
+
+Performance objectives are structured around responsiveness, efficiency, and reliability to ensure a seamless experience for all users.
+
+#### User Interface (UI) Responsiveness
+
+- **Adaptive UI Scaling:** The goal is to deliver a consistent and accessible experience for users on screens of any size, from small smartphones to large tablets.
+
+    - **Screen Size and Resolution:** The application interface is designed to be responsive to a wide range of screen sizes, from a minimum of 4 inches to over 12 inches for tablets, covering resolutions from 640x1136 (iPhone SE) to 2796 x 1290 pixels (iPhone 15 Pro Max) and equivalent Android devices. 
+    
+    - **Density Independence:** UI elements are scaled based on screen density (measured in dots per inch, DPI) to ensure that text, icons, and interactive elements maintain their intended size and legibility. The app supports DPI settings from low (120 DPI) to extra-extra-extra-high (640 DPI), accommodating virtually all modern smartphones and tablets.
+    
+    - **Layout Flexibility:** The app utilizes a flexible grid layout that adapts to the screen size, ensuring that content is presented in an organized manner without overcrowding or truncation. This approach includes dynamic resizing and repositioning of UI components based on the device's aspect ratio and orientation (portrait or landscape).
+    
+    - **Font Scaling:** Text sizes are dynamically adjusted based on the user's screen size and system font size preferences, ensuring readability across all devices. This includes implementing scalable units (such as 'sp' for fonts in Android and Dynamic Type in iOS) that respond to user and system settings.
+    
+    - **Touch Target Size:** Interactive elements are designed with ample touch targets, adhering to the minimum recommended size of 44x44 points, to ensure ease of interaction regardless of the device's screen size or the user's finger size.
+
+- **Frame Rate Consistency:** The application is designed to maintain a consistent frame rate that matches the maximum refresh rate of the user's device display.
+
+  - **Target Frame Rates:** The app aims for a standard frame rate of 60 frames per second (FPS) on devices with standard 60Hz screens, which encompasses the majority of smartphones and tablets. For devices equipped with higher refresh rate displays, such as 90Hz, 120Hz, or even 144Hz screens. The app adjusts its frame rate to match the device's capabilities, ensuring a fluid and visually appealing experience.
+  
+  - **Adaptive Frame Rate Adjustment:** In scenarios where maintaining the maximum frame rate is not feasible due to complex animations or high processing requirements, the app employs adaptive frame rate strategies. This approach adjusts the frame rate dynamically to ensure the smoothest possible experience without compromising device performance or significantly draining the battery.
+  
+  - **Monitoring and Testing:** Continuous performance monitoring and benchmarking are integral to the app's development process. Real device testing across a diverse range of screen refresh rates and specifications ensures that frame rate consistency is maintained. Adjustments and optimizations are made based on real-world usage data and feedback.
+  
+  - **User-Centric Design:** Recognizing that a smooth visual experience is crucial to user satisfaction, the app prioritizes frame rate consistency not only as a technical goal but also as a core aspect of user-centric design. This commitment to performance ensures that users experience the benefits of a responsive interface, regardless of their device's specifications.
+   
+
+#### Scalability
+
+- **Objective:** Strategically scale the application to efficiently manage an expanding user base and increasing data volumes. Initially targeting a smaller audience for product testing, the system is architected to transition to accommodate larger user groups as adoption grows.
+
+  - **Initial User and Data Volume Projections:** The app is initially designed to support up to 1,000 active users, with the expectation of handling data transactions and interactions typical of a user base engaged in daily activity tracking, emissions calculations, and interaction with the rewards system.
+
+  - **Data Management Strategies:** Implementing efficient data storage and retrieval mechanisms, such as indexing and caching, is crucial for handling growing volumes of user-generated data. For the initial phase, a NoSQL database provides flexibility and scalability to accommodate the varied data types and structures inherent to activity tracking and user profiles.
+
+  - **Load Balancing:** A load balancer is deployed to distribute incoming app traffic and data processing requests across multiple servers, preventing any single server from becoming a bottleneck. This is essential for maintaining application responsiveness as the number of simultaneous users increases.
+
 
 ### 5.2 Security
-- User data protection is crucial, employing secure authentication and data storage practices.
 
- - **Privacy Policy for EcoGo Application**
+ Implementing robust security measures to protect user information from unauthorized access, alteration, and destruction. Our approach encompasses secure authentication practices, data encryption, compliance with GDPR standards, and regular security assessments.
 
-  **Introduction**
-  EcoGo ("we", "us", or "our") operates the EcoGo mobile application ("Service"). This page informs you of our policies regarding the collection, use, and disclosure of personal data when you use our Service and the choices you have associated with that data. We use your data to provide and improve the Service. By using the Service, you agree to the collection and use of information in accordance with this policy.
+#### Secure Authentication
 
-  **Data Collection and Use**
-  We collect several different types of information for various purposes to provide and improve our Service to you.
+- **Authentication Mechanisms:** EcoGo integrates Firebase Authentication to manage user sign-ins and identity verification efficiently. This service supports various authentication methods, including email and password, social media accounts, and phone authentication, providing flexibility and ease of use for our users. For the initial version, email and password authentication will be the primary method.
+- **Password Management:** Through Firebase Authentication, passwords are securely hashed and salted using industry-standard cryptographic algorithms, ensuring they are never stored in plaintext. Firebase enforces strong password practices, requiring passwords to meet specific length and complexity criteria. Additionally, users can reset their passwords securely through email verification.
+- **Two-Factor Authentication (2FA):** For users seeking additional security, EcoGo, via Firebase, offers the option to enable two-factor authentication. This added security layer requires users to verify their identity through a secondary method upon login, significantly reducing the risk of unauthorized access.
 
-  **Types of Data Collected:**
-  - **Personal Data:** While using our Service, we may ask you to provide us with certain personally identifiable information that can be used to contact or identify you ("Personal Data"). Personally identifiable information may include, but is not limited to: Email address, First name and last name, Cookies and Usage Data.
-  - **Usage Data:** We may also collect information on how the Service is accessed and used ("Usage Data"). This Usage Data may include information such as your device's Internet Protocol address (e.g., IP address), browser type, browser version, our Service pages that you visit, the time and date of your visit, the time spent on those pages, unique device identifiers, and other diagnostic data.
+#### Data Encryption
 
-  **Use of Data:**
-  EcoGo uses the collected data for various purposes:
-  - To provide and maintain our Service
-  - To notify you about changes to our Service
-  - To allow you to participate in interactive features of our Service when you choose to do so
-  - To provide customer support
-  - To gather analysis or valuable information so that we can improve our Service
-  - To monitor the usage of our Service
-  - To detect, prevent, and address technical issues
+- **Data In Transit:** EcoGo ensures that all data transmitted between the user's device and Firebase servers is encrypted using TLS (Transport Layer Security). This encryption protects users' data from being intercepted by unauthorized parties.
+  
+- **Data At Rest:** Firebase securely encrypts sensitive data at rest, including personal information and usage data stored within Firebase's databases. Utilizing advanced encryption algorithms, Firebase provides a secure storage solution that protects against data breaches and unauthorized access.
 
-  **Transfer of Data:**
-  Your information, including Personal Data, may be transferred to — and maintained on — computers located outside of your state, province, country, or other governmental jurisdiction where the data protection laws may differ from those of your jurisdiction. If you are located outside the European Union and choose to provide information to us, please note that we transfer the data, including Personal Data, to the European Union and process it there. Your consent to this Privacy Policy followed by your submission of such information represents your agreement to that transfer.
+#### Compliance and Data Protection
 
-  **Data Security:**
-  The security of your data is important to us but remember that no method of transmission over the Internet or method of electronic storage is 
+- **Firebase and GDPR:** Firebase's infrastructure and services are designed to comply with the General Data Protection Regulation (GDPR) and other relevant privacy laws. EcoGo benefits from Firebase's commitment to data protection and privacy, ensuring that user data is handled in compliance with legal standards.
+- **User Data Management:** Users can manage their data directly within the app. This includes options to access, update, or delete their personal information, in line with GDPR rights. All user data management actions are facilitated through Firebase's secure backend services, ensuring transparent and secure data handling practices.
+- **Data Processing Agreement (DPA):** Firebase includes data processing terms that detail the obligations and responsibilities regarding data protection and security. This ensures that data processing on behalf of EcoGo adheres to GDPR standards, with Google acting as a data processor.
+- **Compliance with Data Transfer Regulations:** Firebase uses Standard Contractual Clauses (SCCs) for international data transfers, aligning with GDPR requirements. This ensures that user data is protected according to European Union standards, even when data is transferred outside the EU.
+
+#### GDPR Compliance
+
+EcoGo is fully committed to complying with the General Data Protection Regulation (GDPR) to protect the privacy and security of our users within the European Union and beyond. Key aspects include:
+
+- **Data Minimization:** We collect only the data necessary for the purposes stated in our Privacy Policy.
+- **User Consent:** Explicit consent is obtained for the collection and processing of personal data, with clear options for users to opt-in or opt-out.
+- **Right to Access and Erasure:** Users have the right to access their data and request its deletion. EcoGo provides mechanisms for users to exercise these rights easily.
+- **Data Portability:** Users can request a copy of their data in a structured, commonly used, and machine-readable format.
+- **Privacy by Design:** EcoGo incorporates privacy into the development and operation of our services, ensuring that user data protection is a core consideration.
+
+#### Privacy Policy for EcoGo
+
+Welcome to EcoGo! We are committed to protecting your privacy and ensuring you have a positive experience on our app. This Privacy Policy outlines how we collect, use, share, and protect your information when you use our services.
+
+###### 1. Information We Collect
+
+**a. Personal Information:** When you create an account with EcoGo, we collect personal information such as your name, email address, and profile picture. This information is essential for providing you with personalized services.
+
+**b. Usage Data:** We collect data about how you use our app, including your transportation modes, distances traveled, and interactions with the app. This helps us improve EcoGo and tailor it to your needs.
+
+**c. Location Data:** With your permission, we collect precise location data from your device to accurately track your transportation activities and calculate your carbon footprint.
+
+###### 2. How We Use Your Information
+
+We use the information we collect to:
+
+- Provide, maintain, and improve our services.
+- Personalize your experience and tailor recommendations.
+- Communicate with you about updates, support, and promotional offers.
+- Monitor and analyze trends, usage, and activities.
+- Ensure the security and integrity of our app.
+
+###### 3. Sharing Your Information
+
+We do not share your personal information with third parties except in the following circumstances:
+
+- **Service Providers:** We may share information with vendors and service providers who support our business, such as cloud hosting and analytics services.
+- **Compliance and Protection:** If required by law or to protect our rights, we may disclose information about you. This includes responding to legal processes or to prevent fraud and abuse.
+- **With Your Consent:** We may share information with other parties when we have your explicit consent to do so.
+
+###### 4. Data Security
+
+EcoGo employs a range of security measures designed to protect your personal information from unauthorized access and disclosure. While we strive to use commercially acceptable means to protect your information, please be aware that no security measures are entirely foolproof.
+
+###### 5. Your Rights
+
+You have the right to access, correct, delete, or transfer your personal information. You can also object to or restrict certain processing of your data. These rights can be exercised through the app's settings or by contacting us directly.
+
+###### 6. International Data Transfers
+
+EcoGo is based on Firebase, a Google service, which means your information may be processed on servers located outside of your country. We ensure that international data transfers comply with applicable laws and regulations, including GDPR.
+
+###### 7. Changes to This Privacy Policy
+
+We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Effective Date" at the top.
+
+###### 8. Contact Us
+
+If you have any questions or concerns about this Privacy Policy or our data practices, please contact us at:
+
+- Email: ecogo@gmail.com
+
+Your privacy is of utmost importance to us, and we are committed to protecting it as we empower you to reduce your carbon footprint with EcoGo.
 
 
-### 5.3 Scalability
-- Designed to accommodate an increasing number of users and data volume.
+## 5. Competitors and Differentiators
 
-### 5.4 Usability
-- The app should be user-friendly, with intuitive navigation and accessible information.
+### 5.1 Competing Solutions
+- No direct competitors identified in the individual carbon footprint tracking and gamification space.
+
+### 5.2 Unique Selling Proposition
+- Gamified approach to individual carbon footprint reduction.
+- Integration of eco-friendly offers for a holistic approach.
 
 ## 6. Preliminary Design
 - The main app design and user interfaces have been conceptualized, focusing on simplicity and user engagement.
@@ -624,28 +720,11 @@ Above is a wireframe of the social sharing feature. It is only a wireframe, the 
 |CO2 (Carbon Dioxide)| A greenhouse gas emitted through fossil fuel consumption and other activities, contributing to global warming.|
 |GPS (Global Positioning System)|A satellite-based navigation system used to determine the device's precise location.
 |UI (User Interface)| The graphical layout of an application.
-|MVP (Minimum Viable Product)| The version of a product with just enough features to be usable by early customers.
+|MVP (Minimum Viable Product)| The version of a product with just enough features to be usable by early customers.|
 
-<!-- //## 5. Competitors and Differentiators
 
-### 5.1 Competing Solutions
-- No direct competitors identified in the individual carbon footprint tracking and gamification space.
 
-### 5.2 Unique Selling Proposition
-- Gamified approach to individual carbon footprint reduction.
-- Integration of eco-friendly offers for a holistic approach.
 
-## 6. Compatibility
-
-### 6.1 Platform Compatibility
-- Initial release on iOS, followed by Android.
-
-### 6.2 Language Support
-- English and French language support.
-
-## 7. Development Tools and Technologies
-
-### 7.1 Technology Stack
 <!-- - React Native for cross-platform development.
 - GPS and accelerometer integration.
 

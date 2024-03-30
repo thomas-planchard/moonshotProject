@@ -10,11 +10,29 @@
 </div>
 
 
-#### 1. **Introduction**
+## Audience 
+
+This document is primarily intended for:
+
+Software developer: to understand the user and technical requirements, and to guide decision-making and planning. Help them understand risks and challenges, customer requirements, additional technical requirements and choices made.
+Secondary audiences:
+
+Program manager: to validate against the functional specification and the client's expectations.
+QA: to assist in preparing the Test Plan and to use it for validating issues.
+Project manager: to help identify risks and dependencies
+
+## Overview
 
 This technical specification outlines the development of EcoGo, a mobile application aimed at enabling individuals to track and reduce their carbon dioxide emissions through everyday activities. This document serves as a comprehensive guide for developers, providing detailed specifications on the app's functionality, architecture, and non-functional requirements.
 
-#### 2. **Architecture and System Overview**
+
+## Glossary
+
+| Term              | Definition                                                                 |
+|-------------------|----------------------------------------------------------------------------|
+| Firebase          | A mobile and web application development platform developed by Firebase, Inc. in 2011, then acquired by Google in 2014. |
+
+## 2. **Architecture and System Overview**
 
 - **Platform:** The application will be developed using React Native, allowing for cross-platform compatibility across iOS and Android devices. TypeScript will be used to ensure type safety and enhance code quality.
 - **Backend Services:** Firebase will serve as the backend, providing authentication, database, and hosting services. Firestore, a NoSQL database, will be utilized for storing user data and activity logs.
@@ -23,7 +41,7 @@ This technical specification outlines the development of EcoGo, a mobile applica
   - **Social Media Integration:** Allow for sharing achievements on social platforms through respective APIs.
   - **Third-Party Eco-Friendly Stores:** Integration with eco-responsible brands and services will require developing partnerships and APIs for offer retrieval and coin redemption.
 
-#### 3. **Functional Requirements**
+## 3. **Functional Requirements**
 
 - **User Authentication:** Implement secure login/logout functionality using Firebase Authentication. Support for email and password-based authentication will be prioritized.
 - **Activity Tracking:** Leverage device GPS and accelerometer to detect and record user transportation activities. Include manual entry options for users to input transportation modes and distances.
@@ -32,20 +50,20 @@ This technical specification outlines the development of EcoGo, a mobile applica
 - **EcoGo Store:** Create a marketplace within the app for users to redeem coins for offers from eco-conscious brands. Requires backend support for offer management and user redemption processes.
 - **Social Sharing:** Implement functionality for users to share their eco-friendly achievements on social media platforms directly from the app.
 
-#### 4. **Non-Functional Requirements**
+## 4. **Non-Functional Requirements**
 
 - **Performance:** Ensure responsiveness and smooth operation across all supported devices. Target a consistent frame rate of 60 FPS for fluid animations and transitions.
 - **Scalability:** Design the backend to handle an increasing number of users and data volume. Employ cloud functions and scalable database solutions to manage load effectively.
 - **Security:** Adhere to best practices for data encryption, secure authentication, and privacy compliance. Regularly update security measures to protect user data.
 - **Compliance:** Ensure the app meets GDPR and other relevant privacy regulations. Implement features allowing users to manage their data, including access, correction, and deletion.
 
-#### 5. **Technical Challenges and Risks**
+## 5. **Technical Challenges and Risks**
 
 - **Data Accuracy:** Ensuring the precision of GPS and accelerometer data for activity tracking. Mitigation involves implementing calibration techniques and allowing user corrections.
 - **User Engagement:** Maintaining user interest over time. Strategies include regular feature updates, personalized content, and community challenges.
 - **Partner Integration:** Dependence on third-party brands for the EcoGo store offers. Establish multiple partnerships to diversify offers and reduce risk.
 
-#### 6. **Development and Deployment Plan**
+## 6. **Development and Deployment Plan**
 
 - **Milestones:**
   1. Setup development environment and tooling.
@@ -61,7 +79,7 @@ This technical specification outlines the development of EcoGo, a mobile applica
 
 - **Deployment:** Utilize CI/CD pipelines for automated testing and deployment. Plan for staged releases, starting with a beta version to gather user feedback before the full launch.
 
-#### 7. **Maintenance and Support**
+## 7. **Maintenance and Support**
 
 - **Update Policy:** Regularly release updates for bug fixes, performance enhancements, and new features based on user feedback and market trends.
 - **Support Channels:** Establish a support system through email, in-app feedback, and social media to address user concerns and gather suggestions.

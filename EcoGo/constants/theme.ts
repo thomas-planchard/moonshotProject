@@ -3,7 +3,7 @@ const COLORS = {
   secondary: "#444262",
   tertiary: "#FF7754",
 
-  gray: "#83829A",
+  gray: "#acacb7",
   gray2: "#BAB7BC",
 
   white: "#F3F4F8",
@@ -11,6 +11,21 @@ const COLORS = {
   WhiteOpacity:"#F3F4F820",
 
   purple: "#3A1C64",
+
+  greenMedium: "#4dab65",
+  greenWhite:"#e8f5f0",
+  darkGreen:"#052e2b",
+  green:"#37910b",
+  greenForest:"#156547",
+  lightgreen:"#6fdf57",
+  blueGreen:"#156547",
+  greyGreen:"#88bc87"
+  
+
+
+
+
+
 };
 
 

@@ -1,35 +1,18 @@
 import { useRouter } from 'expo-router';
-import { StyleSheet } from 'react-native';
-import { View, Pressable, Text } from 'react-native';
+import * as React from 'react';
+import { ActivityIndicator, Text, View } from 'react-native';
 
 
-export default function LoginPage() {
-	const router = useRouter();
-	
-	const handleLogin = () => {
-		// Add your login logic here
-		router.replace('/home');
-	};
+
+const StartPage = () => {
 	
 	return (
-		<View style={style.container}>
-			<Pressable onPress={handleLogin}>
-				<Text style={style.text}>EcoGo</Text>
-			</Pressable>
-		</View>
-	);
+	<View className="flex-1 justify-center">
+	  <ActivityIndicator size ="large" color="grey">
+	  </ActivityIndicator>					
+	</View>
+  );
 };
 
-const style = StyleSheet.create({
-	container: {
-	backgroundColor: "#5EC5FF 0%, rgba(100, 223, 183, 0.552083) 99.99%, rgba(107, 255, 94, 0) 100%);" ,
-	flex: 1,
-	justifyContent: 'center',
-	alignItems: 'center',
-	},
-	text: {
-	color: 'black',
-	fontSize: 100,
-	fontWeight: 'bold',
-	},
-});
+export default StartPage;
+

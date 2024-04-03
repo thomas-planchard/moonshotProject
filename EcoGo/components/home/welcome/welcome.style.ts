@@ -1,29 +1,47 @@
 import { StyleSheet, Dimensions } from "react-native";
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
 import { COLORS, SIZES } from "../../../constants";
 
-const height = Dimensions.get("window").height*0.40;
-const width = Dimensions.get("window").width;
+
+
 
 const styles = StyleSheet.create({
   container: {
     flex : 1,
-    height,
-    width,
+    height: hp(43),
+    width: wp(100),
+    backgroundColor: COLORS.blueGreen,
+  },
+
+
+ header: {
+  flexDirection: "row",
+  alignItems: "center",
+  padding: wp(5),
+  marginTop: hp(3),
+  
+ },
+  profil: {
+    width: wp(16),
+    height: hp(8),
+    borderRadius: SIZES.large,
+
   },
 
   welcomeMessage: {
     fontFamily: "Montserrat-Bold",
     fontSize: SIZES.medium,
     color: COLORS.gray2,
-    marginLeft:SIZES.medium,
     marginTop:SIZES.xSmall,
+    width: wp(50),
+    
   },
   userName: {
     fontFamily: "Montserrat-Bold",
     fontSize: SIZES.xLarge,
     color: COLORS.white,
-    marginLeft:SIZES.medium,
+    width: wp(50),
   },
   stepImage: {
     width: SIZES.small,
@@ -52,7 +70,7 @@ const styles = StyleSheet.create({
   imageBackground: {
     position: 'absolute',
     top: 0,
-    width,
+    width: wp(100),
     resizeMode: 'stretch',
     },
   infoContainer: {

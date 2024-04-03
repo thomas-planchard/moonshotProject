@@ -3,17 +3,26 @@ import {
   View,
   Text,
   Image,
+  Touchable,
+  TouchableOpacity,
 } from "react-native";
 import {Pedometer} from 'expo-sensors';
 
 import styles from "./welcome.style";
 import { icons } from "../../../constants";
+import { useRouter } from "expo-router";
 
 
 
 
 
 const Welcome = () => {
+
+  const routing = useRouter();
+
+  const goToinfoUser = () => {
+    routing.navigate("../screens/infoUser");
+  }
 
   const [PedomaterAvailability, SetPedomaterAvailability] = useState("");
 
@@ -43,11 +52,15 @@ const Welcome = () => {
 
   return (
     <View style={styles.container}>
-      <Image  source={require('../../../assets/images/bg.png')} style={styles.imageBackground}></Image>
-      <View>
-        <Text style={styles.welcomeMessage}>Hello,</Text>
-        <Text style={styles.userName}>Planchard Thomas</Text>
-      </View>
+      <View style={styles.header}>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.welcomeMessage}>Hello,</Text>
+          <Text style={styles.userName}>Planchard Thomas</Text>
+        </View>
+        <TouchableOpacity onPress={goToinfoUser}>
+          <Image source={require("../../../assets/images/avatar.png")} resizeMode='cover' style={styles.profil} />
+        </TouchableOpacity>
+    </View>
       <View style={styles.containerStepCarbon}>
         <View style={styles.infoContainer}>
           <Text style={styles.userInformationMain}>{StepCount}</Text>
@@ -60,16 +73,16 @@ const Welcome = () => {
         </View>
         <View style={styles.infoContainerLarge}>
           <View style= {styles.column}>
-          <Text style={styles.userInformationMain2}>12.19</Text>
-          <Text style={styles.userInformationSecondary2}>Coins</Text>
+            <Text style={styles.userInformationMain2}>12.19</Text>
+            <Text style={styles.userInformationSecondary2}>Coins</Text>
           </View>
           <View style= {styles.column}>
-          <Text style={styles.userInformationMain2}>{DistanceCovered} KM</Text>
-          <Text style={styles.userInformationSecondary2}>Distance</Text>
+            <Text style={styles.userInformationMain2}>{DistanceCovered} KM</Text>
+            <Text style={styles.userInformationSecondary2}>Distance</Text>
           </View>
           <View style= {styles.column}>
-          <Text style={styles.userInformationMain2}>{caloriesBurnt}</Text>
-          <Text style={styles.userInformationSecondary2}><Image source={icons.calories} resizeMode='contain' style={styles.caloriesImage}/>Calories</Text>
+            <Text style={styles.userInformationMain2}>{caloriesBurnt}</Text>
+            <Text style={styles.userInformationSecondary2}><Image source={icons.calories} resizeMode='contain' style={styles.caloriesImage}/>Calories</Text>
           </View>
         </View>
       </View>

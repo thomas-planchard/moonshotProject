@@ -10,12 +10,19 @@ import {Pedometer} from 'expo-sensors';
 
 import styles from "./welcome.style";
 import { icons } from "../../../constants";
+import { useRouter } from "expo-router";
 
 
 
 
 
 const Welcome = () => {
+
+  const routing = useRouter();
+
+  const goToinfoUser = () => {
+    routing.navigate("../screens/infoUser");
+  }
 
   const [PedomaterAvailability, SetPedomaterAvailability] = useState("");
 
@@ -50,7 +57,7 @@ const Welcome = () => {
           <Text style={styles.welcomeMessage}>Hello,</Text>
           <Text style={styles.userName}>Planchard Thomas</Text>
         </View>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={goToinfoUser}>
           <Image source={require("../../../assets/images/avatar.png")} resizeMode='cover' style={styles.profil} />
         </TouchableOpacity>
     </View>

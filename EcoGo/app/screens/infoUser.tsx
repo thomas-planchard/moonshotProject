@@ -1,38 +1,38 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
+import React from 'react';
+import { View, Text, Button, Image, StyleSheet } from 'react-native';
 import { useAuth } from '@/context/authContext';
 import { useRouter } from 'expo-router';
-
+import  styles  from '../../components/screens/infoUser.style.ts';
 
 const InfoUser = () => {
-  const {logout,user} = useAuth();
+  const { user, logout } = useAuth();
+  const router = useRouter();
+
   const handleLogout = async () => {
     await logout();
   }
 
-  const router = useRouter();
-
-
   return (
     <View style={styles.container}>
-      <Button title="Sign out" onPress={handleLogout} />
-      <Button title="Go to home" onPress={() => router.push('/home')} />
+      <View style={styles.header}>
+        <Text style={styles.title}>Your Profile</Text>
+        <Button title="Home" onPress={() => router.push('/home')} />
+      </View>
+
+      <Image
+        source={{ uri: user.photoURL || 'https://static.vecteezy.com/system/resources/thumbnails/003/337/584/small/default-avatar-photo-placeholder-profile-icon-vector.jpg' }}
+        style={styles.profileImage}
+      />
+
+      <View style={styles.infoContainer}>
+        <Text style={styles.infoLabel}>Email: {user.email}</Text>
+        <Text style={styles.infoLabel}>Username: {user.displayName || 'Not specified'}</Text>
+        <Text style={styles.infoLabel}>Password: ••••••••</Text>
+      </View>
+
+      <Button title="Sign out" onPress={handleLogout} style={styles.logoutButton} />
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#F3F4F8',
-  },
-  info: {
-    fontSize: 16, 
-    marginBottom: 10,
-  },
-});
 
 export default InfoUser;

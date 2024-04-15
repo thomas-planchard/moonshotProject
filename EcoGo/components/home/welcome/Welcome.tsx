@@ -22,7 +22,7 @@ const Welcome = () => {
   const routing = useRouter();
 
   const goToinfoUser = () => {
-    routing.navigate("../screens/infoUser");
+    routing.navigate("screens/infoUser");
   }
 
   const [username, setUsername] = useState("");

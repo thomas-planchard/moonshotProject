@@ -1,20 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
-import { getAuth, signOut } from 'firebase/auth';
-import { getFirestore, doc, getDoc } from 'firebase/firestore';
 import { useAuth } from '@/context/authContext';
-// Assume you have initialized Firebase elsewhere in your project
+import { useRouter } from 'expo-router';
+
 
 const InfoUser = () => {
   const {logout,user} = useAuth();
   const handleLogout = async () => {
     await logout();
   }
-  console.log('InfoUser', user);
+
+  const router = useRouter();
+
 
   return (
     <View style={styles.container}>
       <Button title="Sign out" onPress={handleLogout} />
+      <Button title="Go to home" onPress={() => router.push('/home')} />
     </View>
   );
 };
@@ -25,14 +27,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: '#F3F4F8', // Use theme colors if defined
+    backgroundColor: '#F3F4F8',
   },
   info: {
-    fontSize: 16, // Use theme sizes if defined
+    fontSize: 16, 
     marginBottom: 10,
-    // Apply other styling as needed, using theme if applicable
   },
-  // Add styles for other elements
 });
 
 export default InfoUser;

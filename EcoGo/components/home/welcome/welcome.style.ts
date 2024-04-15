@@ -34,14 +34,12 @@ const styles = StyleSheet.create({
     fontSize: SIZES.medium,
     color: COLORS.gray2,
     marginTop:SIZES.xSmall,
-    width: wp(50),
     
   },
   userName: {
     fontFamily: "Montserrat-Bold",
     fontSize: SIZES.xLarge,
     color: COLORS.white,
-    width: wp(50),
   },
   stepImage: {
     width: SIZES.small,

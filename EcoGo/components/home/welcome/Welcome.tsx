@@ -3,7 +3,6 @@ import {
   View,
   Text,
   Image,
-  Touchable,
   TouchableOpacity,
 } from "react-native";
 import {Pedometer} from 'expo-sensors';
@@ -11,6 +10,8 @@ import {Pedometer} from 'expo-sensors';
 import styles from "./welcome.style";
 import { icons } from "../../../constants";
 import { useRouter } from "expo-router";
+import { getAuth } from "firebase/auth";
+import { getFirestore, doc, getDoc } from "firebase/firestore";
 
 
 
@@ -23,6 +24,31 @@ const Welcome = () => {
   const goToinfoUser = () => {
     routing.navigate("../screens/infoUser");
   }
+
+  const [username, setUsername] = useState("");
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const auth = getAuth();
+      const db = getFirestore();
+      const user = auth.currentUser;
+
+      if (user) {
+        const userRef = doc(db, 'users', user.uid); // Users collection
+        try {
+          const userDoc = await getDoc(userRef);
+          if (userDoc.exists()) {
+            setUsername(userDoc.data().username); // Get the username from the user document
+          } else {
+            console.log("No such document!");
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        }
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   const [PedomaterAvailability, SetPedomaterAvailability] = useState("");
 
@@ -55,7 +81,7 @@ const Welcome = () => {
       <View style={styles.header}>
         <View style={{ flex: 1 }}>
           <Text style={styles.welcomeMessage}>Hello,</Text>
-          <Text style={styles.userName}>Planchard Thomas</Text>
+          {username ? <Text style={styles.userName}>{username}!</Text> : <Text>Chargement...</Text>}
         </View>
         <TouchableOpacity onPress={goToinfoUser}>
           <Image source={require("../../../assets/images/avatar.png")} resizeMode='cover' style={styles.profil} />

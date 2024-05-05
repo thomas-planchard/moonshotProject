@@ -9,6 +9,7 @@ interface User {
     password: string;
     username: string;
     profileUrl: string;
+    
 }
 
 interface AuthContextInterface {

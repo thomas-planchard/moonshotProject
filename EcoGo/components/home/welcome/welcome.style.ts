@@ -25,7 +25,7 @@ const styles = StyleSheet.create({
   profil: {
     width: wp(16),
     height: hp(8),
-    borderRadius: SIZES.large,
+    borderRadius: 100,
 
   },
 

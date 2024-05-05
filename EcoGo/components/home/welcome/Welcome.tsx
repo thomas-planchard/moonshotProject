@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import {Pedometer} from 'expo-sensors';
+import { fetchingUserNameAndProfileImage } from "@/fetchingData/fetchingUserNameAndProfileImage";
 
 import styles from "./welcome.style";
 import { icons } from "../../../constants";
@@ -25,30 +26,7 @@ const Welcome = () => {
     routing.navigate("screens/infoUser");
   }
 
-  const [username, setUsername] = useState("");
-  useEffect(() => {
-    const fetchUserData = async () => {
-      const auth = getAuth();
-      const db = getFirestore();
-      const user = auth.currentUser;
-
-      if (user) {
-        const userRef = doc(db, 'users', user.uid); // Users collection
-        try {
-          const userDoc = await getDoc(userRef);
-          if (userDoc.exists()) {
-            setUsername(userDoc.data().username); // Get the username from the user document
-          } else {
-            console.log("No such document!");
-          }
-        } catch (error) {
-          console.error("Error fetching user data:", error);
-        }
-      }
-    };
-
-    fetchUserData();
-  }, []);
+  const {username, profileImage} = fetchingUserNameAndProfileImage();
 
   const [PedomaterAvailability, SetPedomaterAvailability] = useState("");
 
@@ -84,7 +62,7 @@ const Welcome = () => {
           {username ? <Text style={styles.userName}>{username}!</Text> : <Text>Chargement...</Text>}
         </View>
         <TouchableOpacity onPress={goToinfoUser}>
-          <Image source={require("../../../assets/images/avatar.png")} resizeMode='cover' style={styles.profil} />
+        {profileImage ? <Image source={{uri: profileImage}} style={styles.profil} /> : <Text>Chargement...</Text>}
         </TouchableOpacity>
     </View>
       <View style={styles.containerStepCarbon}>

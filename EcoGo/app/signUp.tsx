@@ -23,7 +23,7 @@ export default function SignUp() {
     const emailRef = useRef("");
     const passwordRef = useRef("");
     const usernameRef = useRef("");
-    const profilerRef = useRef("");
+    
 
     const [image, setImage] = useState(null);
     const [uploading, setUploading] = useState(false);
@@ -33,7 +33,7 @@ export default function SignUp() {
       let result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.All,
         allowsEditing: true,
-        aspect : [4, 3],
+        aspect : [1, 1],
         quality: 1,
       });
   
@@ -51,11 +51,11 @@ export default function SignUp() {
         const fetchResponse = await fetch(uri);
         const theBlob = await fetchResponse.blob();
         
-        const imageRef = ref(storage, `images/${new Date().toISOString()}`);
+        const imageRef = ref(storage, `images/user/test.jpg`);
 
         const uploadTask = uploadBytesResumable(imageRef, theBlob);
 
-        return new Promise((resolve, reject) => {
+        return imageRef && new Promise((resolve, reject) => {
             uploadTask.on('state_changed', 
             (snapshot) => {
                 const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
@@ -76,22 +76,24 @@ export default function SignUp() {
                 getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
                     console.log('File available at', downloadURL);
                     resolve(downloadURL);
+                
                 });
             });
-        }
-        );
+        });
     }
 
 
 
     const handleRegister = async () => {
-        if (!emailRef.current || !passwordRef.current || !usernameRef.current || !profilerRef.current) {
+        if (!emailRef.current || !passwordRef.current || !usernameRef.current || image == null) {
             Alert.alert('Error', 'Please fill all the fields');
             return;
         }
         setLoading(true);
 
-        let response = await register(emailRef.current, passwordRef.current, usernameRef.current, profilerRef.current);
+        await uploadToFirebase(image);
+        let response = await register(emailRef.current, passwordRef.current, usernameRef.current, `images/user/test.jpg`);
+
         setLoading(false);
 
         console.log('got result: ', response);

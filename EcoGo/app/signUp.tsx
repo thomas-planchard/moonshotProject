@@ -1,4 +1,4 @@
-import {View, Text, Image, TextInput, TouchableOpacity, Pressable, Alert} from 'react-native';
+import {View, Text, Image, TextInput, TouchableOpacity, Pressable, Alert, Button} from 'react-native';
 import React, { useRef, useState } from 'react';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import { StatusBar } from 'expo-status-bar';
@@ -8,7 +8,10 @@ import Loading from '@/components/loading';
 import CustomKeyboardView from '@/components/CustomKeyboardView';
 import { useAuth } from '@/context/authContext';
 import * as ImagePicker from 'expo-image-picker';
-import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { storage } from '../FirebaseConfig';
+import { auth } from '../FirebaseConfig';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+
 
 
 
@@ -16,12 +19,68 @@ export default function SignUp() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const {register} = useAuth();
-    const [selectedImageUri, setSelectedImageUri] = useState(null);
 
     const emailRef = useRef("");
     const passwordRef = useRef("");
     const usernameRef = useRef("");
     const profilerRef = useRef("");
+
+    const [image, setImage] = useState(null);
+    const [uploading, setUploading] = useState(false);
+
+    const pickImage = async () => {
+      // No permissions request is necessary for launching the image library
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        allowsEditing: true,
+        aspect : [4, 3],
+        quality: 1,
+      });
+  
+      console.log(result);
+  
+      if (!result.canceled) {
+        setImage(result.assets[0].uri);
+      }
+    };
+
+
+    // Upload Image
+
+    const uploadToFirebase = async (uri) => {
+        const fetchResponse = await fetch(uri);
+        const theBlob = await fetchResponse.blob();
+        
+        const imageRef = ref(storage, `images/${new Date().toISOString()}`);
+
+        const uploadTask = uploadBytesResumable(imageRef, theBlob);
+
+        return new Promise((resolve, reject) => {
+            uploadTask.on('state_changed', 
+            (snapshot) => {
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                console.log(`Upload is ${progress}% done`);
+                switch (snapshot.state) {
+                    case 'paused':
+                        console.log('Upload is paused');
+                        break;
+                    case 'running':
+                        console.log('Upload is running');
+                        break;
+                }
+            }, 
+            (error) => {
+                reject(error);
+            }, 
+            () => {
+                getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                    console.log('File available at', downloadURL);
+                    resolve(downloadURL);
+                });
+            });
+        }
+        );
+    }
 
 
 
@@ -32,44 +91,15 @@ export default function SignUp() {
         }
         setLoading(true);
 
-        try {
-            // Upload image first
-            const storage = getStorage();
-            const storageRef = sRef(storage, `profileImages/${new Date().getTime()}`);
-            const imgBlob = await fetch(profilerRef.current).then((r) => r.blob());
-            const snapshot = await uploadBytes(storageRef, imgBlob);
-            const downloadURL = await getDownloadURL(snapshot.ref);
-        
-            // Now proceed with user registration
-            let response = await register(emailRef.current, passwordRef.current, usernameRef.current, downloadURL);
-        
-            if (!response.success) {
-              Alert.alert('Sign Up', response.message);
-              return;
-            }
-        } catch (error) {
-            console.log(error);
-            Alert.alert('Upload Error', 'Error during the sign-up process.');
-          } finally {
-            setLoading(false);
-          }
-    };
+        let response = await register(emailRef.current, passwordRef.current, usernameRef.current, profilerRef.current);
+        setLoading(false);
 
-    const handleImageSelection = async () => {
-        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (permissionResult.granted === false) {
-            Alert.alert("Permission Required", "Permission to access gallery is required!");
-            return;
+        console.log('got result: ', response);
+
+        if(!response.sucess){
+            Alert.alert('Sign Up', response.message);
         }
-        const pickerResult = await ImagePicker.launchImageLibraryAsync({
-            allowsEditing: true, // Allow basic editing before finalizing
-            aspect: [4, 3], // Aspect ratio to maintain during editing
-            quality: 1, // Keep full quality of the image
-        });
-        if (!pickerResult.cancelled) {
-            setSelectedImageUri(pickerResult.uri);
-            profilerRef.current = pickerResult.uri;
-        }
+
     };
 
   return (
@@ -113,16 +143,23 @@ export default function SignUp() {
                         placeholder="Email address" 
                         placeholderTextColor={"grey"} />
                     </View>
-                    <View style={{height: hp(7)}} className='flex-row gap-4 px-4 bg-neutral-100 items-center rounded-2xl'>
-                        <Feather name="image" size={hp(2.7)} color="grey" />
-                        <TouchableOpacity onPress={handleImageSelection} style={{flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
-                            <Text style={{fontSize: hp(2)}} className='flex-1 font-semibold text-neutral-700'>
-                                {selectedImageUri ? 'Image Selected' : 'Select Profile Image'}
-                            </Text>
-                            {selectedImageUri && <Image source={{ uri: selectedImageUri }} style={{ width: 40, height: 40, borderRadius: 20 }} />}
-                        </TouchableOpacity>
-                    </View>
-
+                    <TouchableOpacity  style={{height: hp(7)}} className='flex-row gap-4 px-4 bg-neutral-100 items-center rounded-2xl' onPress={pickImage}>
+                        {/* <Feather name= "image" size={hp(2.7)} color="grey" />
+                        <TextInput 
+                        onChangeText={value=>profilerRef.current=value}
+                        style={{fontSize: hp(2)}} 
+                        className='flex-1 font-semibold text-neutral-700'
+                        placeholder="Profile url" 
+                        placeholderTextColor={"grey"} /> */}
+                    
+                         <Image source={{ uri: image || 'https://i0.wp.com/sbcf.fr/wp-content/uploads/2018/03/sbcf-default-avatar.png?ssl=1' }} style={{height:  hp(5), width: wp(10), borderRadius: 100}} />
+                        <Text 
+                        style={{fontSize: hp(2), color: 'grey'}}  
+                        className='flex-1 font-semibold'>
+                            {image ? 'Change Image' : 'Select Image'}
+                        </Text>
+                        
+                    </TouchableOpacity>
                     {/* submit button */}
                     <View>
                         {

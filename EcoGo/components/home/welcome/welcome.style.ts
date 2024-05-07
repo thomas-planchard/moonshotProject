@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
   flexDirection: "row",
   alignItems: "center",
   padding: wp(5),
-  marginTop: hp(3),
+  marginTop: hp(5),
   
  },
   profil: {
@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
   containerStepCarbon: {
     flexDirection: "row",
     justifyContent: "space-around",
-    marginTop: SIZES.medium,
+    marginTop: SIZES.xSmall,
   },
 
   imageBackground: {

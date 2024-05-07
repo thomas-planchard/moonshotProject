@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import {Pedometer} from 'expo-sensors';
-import { fetchingUserNameAndProfileImage } from "@/fetchingData/fetchingUserNameAndProfileImage";
+import { fetchingUserNameAndProfileImage } from "@/utils/dataProcessing/fetchingUserNameAndProfileImage";
 
 import styles from "./welcome.style";
 import { icons } from "../../../constants";
@@ -62,7 +62,7 @@ const Welcome = () => {
           {username ? <Text style={styles.userName}>{username}!</Text> : <Text>Chargement...</Text>}
         </View>
         <TouchableOpacity onPress={goToinfoUser}>
-        {profileImage ? <Image source={{uri: profileImage}} style={styles.profil} /> : <Text>Chargement...</Text>}
+        {profileImage ? <Image source={{uri: profileImage}} style={styles.profil} /> : <Image source={{uri:'https://i0.wp.com/sbcf.fr/wp-content/uploads/2018/03/sbcf-default-avatar.png?ssl=1'}} style={styles.profil} />}
         </TouchableOpacity>
     </View>
       <View style={styles.containerStepCarbon}>

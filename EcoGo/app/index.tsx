@@ -1,6 +1,5 @@
-import { useRouter } from 'expo-router';
 import * as React from 'react';
-import { ActivityIndicator, Text, View } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
 
 
 

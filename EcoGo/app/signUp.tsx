@@ -8,11 +8,7 @@ import Loading from '@/components/loading';
 import CustomKeyboardView from '@/components/CustomKeyboardView';
 import { useAuth } from '@/context/authContext';
 import * as ImagePicker from 'expo-image-picker';
-import { storage } from '../FirebaseConfig';
-import { auth } from '../FirebaseConfig';
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-
-
+import {uploadImageToFirebase, imagePath, generateImagePath}  from '@/utils/dataProcessing/uploadImageToFirebase';
 
 
 export default function SignUp() {
@@ -45,45 +41,6 @@ export default function SignUp() {
     };
 
 
-    // Upload Image
-
-    const uploadToFirebase = async (uri) => {
-        const fetchResponse = await fetch(uri);
-        const theBlob = await fetchResponse.blob();
-        
-        const imageRef = ref(storage, `images/user/test.jpg`);
-
-        const uploadTask = uploadBytesResumable(imageRef, theBlob);
-
-        return imageRef && new Promise((resolve, reject) => {
-            uploadTask.on('state_changed', 
-            (snapshot) => {
-                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                console.log(`Upload is ${progress}% done`);
-                switch (snapshot.state) {
-                    case 'paused':
-                        console.log('Upload is paused');
-                        break;
-                    case 'running':
-                        console.log('Upload is running');
-                        break;
-                }
-            }, 
-            (error) => {
-                reject(error);
-            }, 
-            () => {
-                getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                    console.log('File available at', downloadURL);
-                    resolve(downloadURL);
-                
-                });
-            });
-        });
-    }
-
-
-
     const handleRegister = async () => {
         if (!emailRef.current || !passwordRef.current || !usernameRef.current || image == null) {
             Alert.alert('Error', 'Please fill all the fields');
@@ -91,8 +48,9 @@ export default function SignUp() {
         }
         setLoading(true);
 
-        await uploadToFirebase(image);
-        let response = await register(emailRef.current, passwordRef.current, usernameRef.current, `images/user/test.jpg`);
+        await uploadImageToFirebase(image, imagePath); 
+
+        let response = await register(emailRef.current, passwordRef.current, usernameRef.current, imagePath);
 
         setLoading(false);
 

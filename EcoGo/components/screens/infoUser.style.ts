@@ -9,28 +9,35 @@ import { COLORS, SIZES } from "../../constants/theme";
 
 const styles = StyleSheet.create({
     container: {
-      flex: 1,
       alignItems: 'center',
       backgroundColor: '#F3F4F8',
+      marginTop: hp(5),
     },
     header: {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
       width: wp(90),
-      padding: 16,
     },
     title: {
-      fontSize: 20,
+      fontSize: SIZES.large,
       fontWeight: 'bold',
     },
     profileImage: {
       width: 150,
       height: 150,
-      borderRadius: 75,
-      marginTop: 20,
-      marginBottom: 20,
+      borderRadius: 75,  
+      borderColor: COLORS.greyGreen,
+      borderWidth: 5,
     },
+
+    username: {
+      fontSize: SIZES.xLarge,
+      fontWeight: 'bold',
+      marginBottom:  hp(1),
+      marginTop: hp(3),
+    },
+
     infoContainer: {
       width: '80%',
       marginBottom: 20,

@@ -4,7 +4,7 @@ import {
   Image,
 } from "react-native";
 
-import { fetchingUserNameAndProfileImage } from "@/fetchingData/fetchingUserNameAndProfileImage";
+import { fetchingUserNameAndProfileImage } from "@/utils/dataProcessing/fetchingUserNameAndProfileImage";
 import styles from "./nameandprofile.style"
 
 

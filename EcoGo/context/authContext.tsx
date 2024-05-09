@@ -3,17 +3,18 @@ import { useState, useContext } from 'react';
 import { onAuthStateChanged, createUserWithEmailAndPassword , signInWithEmailAndPassword, signOut} from 'firebase/auth';
 import { auth, db } from '../FirebaseConfig';
 import { addDoc, doc, setDoc, getDoc } from 'firebase/firestore';
+import { getStorage, getDownloadURL, ref } from 'firebase/storage';
 
 interface User {
     email: string;
     password: string;
     username: string;
-    profileUrl: string;
+    profileImageUrl: string;
     
 }
 
 interface AuthContextInterface {
-    user: User | null;
+    user: User | null ;
     isAuthenticated: boolean | undefined;
     login: (email: string, password: string) => void;
     logout: () => void;
@@ -33,7 +34,7 @@ export const AuthContextProvider: FC<AuthContextProviderProps> = ({children}) =>
 
     useEffect(() => {
         const unsub = onAuthStateChanged(auth, (user) => {
-            // console.log('user: ', user);
+            console.log('user: ', user);
             if (user){
                 setIsAuthenticated(true);
                 setUser(user);
@@ -50,7 +51,7 @@ export const AuthContextProvider: FC<AuthContextProviderProps> = ({children}) =>
         const docSnap = await getDoc(docRef);
         if(docSnap.exists()){
             let data = docSnap.data();
-            setUser({...user, username: data.username, profileUrl: data.profileUrl, userId: data.userId});
+            setUser({...user, username: data.username, profileImageUrl: data.profileImageUrl, userId: data.userId});
         }
         
     }
@@ -87,10 +88,12 @@ export const AuthContextProvider: FC<AuthContextProviderProps> = ({children}) =>
         try{
             const response = await createUserWithEmailAndPassword(auth, email, password);
             console.log('response.user: ', response?.user);
+            const storage = getStorage();
+            const profileImageUrl = await getDownloadURL(ref(storage, profileUrl));
 
             await setDoc(doc(db, "users", response?.user?.uid, ), {
                 username,
-                profileUrl,
+                profileImageUrl,
                 userId: response?.user?.uid
             });
             return {sucess: true, data: response?.user};

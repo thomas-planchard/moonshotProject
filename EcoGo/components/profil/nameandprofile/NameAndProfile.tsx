@@ -3,21 +3,21 @@ import {
   Text,
   Image,
 } from "react-native";
+import { useAuth } from "@/context/authContext";
 
-import { fetchingUserNameAndProfileImage } from "@/utils/dataProcessing/fetchingUserNameAndProfileImage";
 import styles from "./nameandprofile.style"
 
 
 
 export default function NameAndProfile()  {
-  const {username, profileImage} = fetchingUserNameAndProfileImage();
+  const {user} = useAuth();
 
   return (
     <View style={styles.container}>
         <Text style={styles.welcomeMessage}>Profile,</Text>
         <View style={styles.header}>
-            {username ? <Text style={styles.userName}>{username}!</Text> : <Text>Chargement...</Text>}
-            {profileImage ? <Image source={{uri: profileImage}} style={styles.profileImage} /> : <Text>Chargement...</Text>}
+            {user?.username ? <Text style={styles.userName}>{user?.username}!</Text> : <Text>Chargement...</Text>}
+            {user?.profileImageUrl ? <Image source={{uri: user?.profileImageUrl}} style={styles.profileImage} /> : <Text>Chargement...</Text>}
         </View>
     </View>
   );

@@ -1,13 +1,28 @@
 import { ref, uploadBytesResumable, getDownloadURL} from "firebase/storage";
 import { storage } from "../../FirebaseConfig";
-import { useAuth } from "@/context/authContext";
+import { getAuth } from "firebase/auth";
 
 
+const auth = getAuth();
+const user = auth.currentUser;
 
+// Hashage
+const hashage = (str: string) => {
+    let hash = 0;
+    if (typeof str === 'undefined' || str.length === 0) {
+        return hash;
+    }
+    for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+    }
+    return hash;
+}
 
 // Generate Image Path
-export const generateImagePath = () => {
-    return `images/user/${new Date().toISOString()}`;
+const generateImagePath = () => {
+    return `images/user/${hashage(user?.uid)}.jpg`;
 }
 
 export const imagePath = generateImagePath();

@@ -3,7 +3,6 @@ import {
   View,
   Text,
   Image,
-  Touchable,
   TouchableOpacity,
 } from "react-native";
 import {Pedometer} from 'expo-sensors';
@@ -11,6 +10,9 @@ import {Pedometer} from 'expo-sensors';
 import styles from "./welcome.style";
 import { icons } from "../../../constants";
 import { useRouter } from "expo-router";
+import { getAuth } from "firebase/auth";
+import { getFirestore, doc, getDoc } from "firebase/firestore";
+import { useAuth } from "@/context/authContext";
 
 
 
@@ -19,9 +21,11 @@ import { useRouter } from "expo-router";
 const Welcome = () => {
 
   const routing = useRouter();
+  const { user } = useAuth();
+
 
   const goToinfoUser = () => {
-    routing.navigate("../screens/infoUser");
+    routing.navigate("screens/infoUser");
   }
 
   const [PedomaterAvailability, SetPedomaterAvailability] = useState("");
@@ -50,15 +54,17 @@ const Welcome = () => {
     );
   };
 
+  console.log('test', user?.username );
+  
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={{ flex: 1 }}>
           <Text style={styles.welcomeMessage}>Hello,</Text>
-          <Text style={styles.userName}>Planchard Thomas</Text>
+          {user?.username ? <Text style={styles.userName}>{user?.username}!</Text> : <Text>Chargement...</Text>}
         </View>
         <TouchableOpacity onPress={goToinfoUser}>
-          <Image source={require("../../../assets/images/avatar.png")} resizeMode='cover' style={styles.profil} />
+        {user?.profileImageUrl ? <Image source={{uri: user?.profileImageUrl}} style={styles.profil}/> : <Image source={{uri:'https://i0.wp.com/sbcf.fr/wp-content/uploads/2018/03/sbcf-default-avatar.png?ssl=1'}} style={styles.profil} />}
         </TouchableOpacity>
     </View>
       <View style={styles.containerStepCarbon}>

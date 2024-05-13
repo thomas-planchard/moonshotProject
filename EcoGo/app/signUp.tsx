@@ -1,4 +1,4 @@
-import {View, Text, Image, TextInput, TouchableOpacity, Pressable, Alert} from 'react-native';
+import {View, Text, Image, TextInput, TouchableOpacity, Pressable, Alert, Button} from 'react-native';
 import React, { useRef, useState } from 'react';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import { StatusBar } from 'expo-status-bar';
@@ -7,6 +7,8 @@ import { useRouter } from 'expo-router';
 import Loading from '@/components/loading';
 import CustomKeyboardView from '@/components/CustomKeyboardView';
 import { useAuth } from '@/context/authContext';
+import * as ImagePicker from 'expo-image-picker';
+
 
 
 export default function SignUp() {
@@ -17,18 +19,38 @@ export default function SignUp() {
     const emailRef = useRef("");
     const passwordRef = useRef("");
     const usernameRef = useRef("");
-    const profilerRef = useRef("");
+    
 
+    const [image, setImage] = useState(null);
+    const [uploading, setUploading] = useState(false);
+
+    const pickImage = async () => {
+      // No permissions request is necessary for launching the image library
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        allowsEditing: true,
+        aspect : [1, 1],
+        quality: 1,
+      });
+  
+      console.log(result);
+  
+      if (!result.canceled) {
+        setImage(result.assets[0].uri);
+      }
+    };
 
 
     const handleRegister = async () => {
-        if (!emailRef.current || !passwordRef.current || !usernameRef.current || !profilerRef.current) {
+        if (!emailRef.current || !passwordRef.current || !usernameRef.current || image == null) {
             Alert.alert('Error', 'Please fill all the fields');
             return;
         }
         setLoading(true);
+        
 
-        let response = await register(emailRef.current, passwordRef.current, usernameRef.current, profilerRef.current);
+        let response = await register(emailRef.current, passwordRef.current, usernameRef.current, image);
+
         setLoading(false);
 
         console.log('got result: ', response);
@@ -80,16 +102,23 @@ export default function SignUp() {
                         placeholder="Email address" 
                         placeholderTextColor={"grey"} />
                     </View>
-                    <View  style={{height: hp(7)}} className='flex-row gap-4 px-4 bg-neutral-100 items-center rounded-2xl'>
-                        <Feather name= "image" size={hp(2.7)} color="grey" />
+                    <TouchableOpacity  style={{height: hp(7)}} className='flex-row gap-4 px-4 bg-neutral-100 items-center rounded-2xl' onPress={pickImage}>
+                        {/* <Feather name= "image" size={hp(2.7)} color="grey" />
                         <TextInput 
                         onChangeText={value=>profilerRef.current=value}
                         style={{fontSize: hp(2)}} 
                         className='flex-1 font-semibold text-neutral-700'
                         placeholder="Profile url" 
-                        placeholderTextColor={"grey"} />
-                    </View>
-
+                        placeholderTextColor={"grey"} /> */}
+                    
+                         <Image source={{ uri: image || 'https://i0.wp.com/sbcf.fr/wp-content/uploads/2018/03/sbcf-default-avatar.png?ssl=1' }} style={{height:  hp(5), width: wp(10), borderRadius: 100}} />
+                        <Text 
+                        style={{fontSize: hp(2), color: 'grey'}}  
+                        className='flex-1 font-semibold'>
+                            {image ? 'Change Image' : 'Select Image'}
+                        </Text>
+                        
+                    </TouchableOpacity>
                     {/* submit button */}
                     <View>
                         {

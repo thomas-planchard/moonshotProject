@@ -19,13 +19,13 @@ const styles = StyleSheet.create({
   flexDirection: "row",
   alignItems: "center",
   padding: wp(5),
-  marginTop: hp(3),
+  marginTop: hp(5),
   
  },
   profil: {
     width: wp(16),
     height: hp(8),
-    borderRadius: SIZES.large,
+    borderRadius: 100,
 
   },
 
@@ -34,14 +34,12 @@ const styles = StyleSheet.create({
     fontSize: SIZES.medium,
     color: COLORS.gray2,
     marginTop:SIZES.xSmall,
-    width: wp(50),
     
   },
   userName: {
     fontFamily: "Montserrat-Bold",
     fontSize: SIZES.xLarge,
     color: COLORS.white,
-    width: wp(50),
   },
   stepImage: {
     width: SIZES.small,
@@ -64,7 +62,7 @@ const styles = StyleSheet.create({
   containerStepCarbon: {
     flexDirection: "row",
     justifyContent: "space-around",
-    marginTop: SIZES.medium,
+    marginTop: SIZES.xSmall,
   },
 
   imageBackground: {

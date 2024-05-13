@@ -3,16 +3,21 @@ import { useState, useContext } from 'react';
 import { onAuthStateChanged, createUserWithEmailAndPassword , signInWithEmailAndPassword, signOut} from 'firebase/auth';
 import { auth, db } from '../FirebaseConfig';
 import { addDoc, doc, setDoc, getDoc } from 'firebase/firestore';
+import { getStorage, getDownloadURL, ref } from 'firebase/storage';
+import {uploadImageToFirebase, generateImagePath}  from '@/utils/dataProcessing/uploadImageToFirebase';
+
 
 interface User {
+    username: string;
+    profileImageUrl: string;
+    userId: string;
     email: string;
     password: string;
-    username: string;
-    profileUrl: string;
+    
 }
 
 interface AuthContextInterface {
-    user: User | null;
+    user: User | null ;
     isAuthenticated: boolean | undefined;
     login: (email: string, password: string) => void;
     logout: () => void;
@@ -49,7 +54,8 @@ export const AuthContextProvider: FC<AuthContextProviderProps> = ({children}) =>
         const docSnap = await getDoc(docRef);
         if(docSnap.exists()){
             let data = docSnap.data();
-            setUser({...user, username: data.username, profileUrl: data.profileUrl, userId: data.userId});
+            setUser({username: data.username, profileImageUrl: data.profileImageUrl, userId: data.userId, email: "", password: ""});
+
         }
         
     }
@@ -82,22 +88,28 @@ export const AuthContextProvider: FC<AuthContextProviderProps> = ({children}) =>
         }
     };
 
-    const register = async (email: string, password: string, username: string, profileUrl: string) => {
+    const register = async (email: string, password: string, username: string, image: any) => {
         try{
             const response = await createUserWithEmailAndPassword(auth, email, password);
             console.log('response.user: ', response?.user);
+            await uploadImageToFirebase(image, generateImagePath(response?.user?.uid)); 
+            const storage = getStorage();
+            const profileImageUrl = await getDownloadURL(ref(storage, generateImagePath(response?.user?.uid)));
 
             await setDoc(doc(db, "users", response?.user?.uid, ), {
                 username,
-                profileUrl,
+                profileImageUrl,
                 userId: response?.user?.uid
             });
+            setUser(user);
+            updateUserData(response?.user?.uid);
             return {sucess: true, data: response?.user};
+
 
         }catch(e){
             let msg = e.message;
             if(msg.includes('(auth/invalid-email)')) msg = 'Invalid email'
-            if(msg.includes('(auth/email-already-in-use)')) msg = 'THis email is already in use'
+            if(msg.includes('(auth/email-already-in-use)')) msg = 'This email is already in use'
             return {sucess: false, message: msg};
 
         }

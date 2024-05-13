@@ -8,7 +8,7 @@ import Loading from '@/components/loading';
 import CustomKeyboardView from '@/components/CustomKeyboardView';
 import { useAuth } from '@/context/authContext';
 import * as ImagePicker from 'expo-image-picker';
-import {uploadImageToFirebase, imagePath}  from '@/utils/dataProcessing/uploadImageToFirebase';
+
 
 
 export default function SignUp() {
@@ -47,11 +47,9 @@ export default function SignUp() {
             return;
         }
         setLoading(true);
+        
 
-        await uploadImageToFirebase(image, imagePath); 
-
-
-        let response = await register(emailRef.current, passwordRef.current, usernameRef.current, imagePath);
+        let response = await register(emailRef.current, passwordRef.current, usernameRef.current, image);
 
         setLoading(false);
 

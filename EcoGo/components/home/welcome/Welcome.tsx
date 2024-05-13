@@ -23,10 +23,10 @@ const Welcome = () => {
   const routing = useRouter();
   const { user } = useAuth();
 
+
   const goToinfoUser = () => {
     routing.navigate("screens/infoUser");
   }
-
 
   const [PedomaterAvailability, SetPedomaterAvailability] = useState("");
 
@@ -53,7 +53,9 @@ const Welcome = () => {
       }
     );
   };
-  console.log('user', user?.username);
+
+  console.log('test', user?.username );
+  
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -62,7 +64,7 @@ const Welcome = () => {
           {user?.username ? <Text style={styles.userName}>{user?.username}!</Text> : <Text>Chargement...</Text>}
         </View>
         <TouchableOpacity onPress={goToinfoUser}>
-        {user?.profileImageUrl ? <Image source={{uri: user?.profileImageUrl}} style={styles.profil} /> : <Image source={{uri:'https://i0.wp.com/sbcf.fr/wp-content/uploads/2018/03/sbcf-default-avatar.png?ssl=1'}} style={styles.profil} />}
+        {user?.profileImageUrl ? <Image source={{uri: user?.profileImageUrl}} style={styles.profil}/> : <Image source={{uri:'https://i0.wp.com/sbcf.fr/wp-content/uploads/2018/03/sbcf-default-avatar.png?ssl=1'}} style={styles.profil} />}
         </TouchableOpacity>
     </View>
       <View style={styles.containerStepCarbon}>

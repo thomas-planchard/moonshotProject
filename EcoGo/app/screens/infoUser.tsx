@@ -1,4 +1,4 @@
-import { View, Text, Button, Image, TouchableOpacity } from 'react-native';
+import { View, Text, Button, Image, TouchableOpacity, RefreshControl, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { fetchingUserNameAndProfileImage } from "@/utils/dataProcessing/fetchingUserNameAndProfileImage";
 import  styles  from '../../components/screens/infoUser.style.ts';
@@ -7,21 +7,28 @@ import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-nativ
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import UploadModal from "@/utils/modal/uploadModal";
-import { uploadImageToFirebase, imagePath } from '@/utils/dataProcessing/uploadImageToFirebase';
+import { uploadImageToFirebase, generateImagePath } from '@/utils/dataProcessing/uploadImageToFirebase';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '@/context/authContext';
 import { SIZES, COLORS } from '@/constants/theme.ts';
 import { getAuth } from 'firebase/auth';
+
 
 const InfoUser = () => {
   const { user, logout } = useAuth();
   const auth = getAuth();
   const userLogin = auth.currentUser;
   const [image, setImage] = useState(null);
+  const [refresh, setRefresh] = useState(false);
   const router = useRouter();
-  
-
   const [modalVisible, setModalVisible] = useState(false);
+
+  const onRefresh = () => {
+    setRefresh(true);
+    setTimeout(() => {
+      setRefresh(false);
+    }, 2000);
+  }
 
 
   const handleLogout = async () => {
@@ -39,7 +46,7 @@ const InfoUser = () => {
     console.log(result);
 
     if (!result.canceled) {
-      uploadImageToFirebase(result.assets[0].uri, imagePath);
+      uploadImageToFirebase(result.assets[0].uri, generateImagePath(user?.userId));
     }
   };
 
@@ -59,16 +66,24 @@ const InfoUser = () => {
     console.log(result);
 
     if (!result.canceled) {
-      uploadImageToFirebase(result.assets[0].uri, imagePath);
+      uploadImageToFirebase(result.assets[0].uri, generateImagePath(user?.userId));
     }
   }
 
   const removeImage = async () => {
-    uploadImageToFirebase('https://static.vecteezy.com/system/resources/thumbnails/003/337/584/small/default-avatar-photo-placeholder-profile-icon-vector.jpg', user?.profileImageUrl);
+    uploadImageToFirebase('https://static.vecteezy.com/system/resources/thumbnails/003/337/584/small/default-avatar-photo-placeholder-profile-icon-vector.jpg', generateImagePath(user?.userId));
   }
+
+  console.log('image: ', generateImagePath(user?.userId));
 
   return (
     <CustomKeyboardView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl
+            refreshing={refresh}
+            onRefresh={onRefresh}/>
+        }>
       <View style ={{paddingTop : hp(7), paddingHorizontal: wp(5), backgroundColor: COLORS.greenWhite , height:hp(100)}} className='flex-1 gap-12'>
         <View style={styles.header}>
           <Text style={styles.title}>Your Profile</Text>
@@ -105,6 +120,7 @@ const InfoUser = () => {
         onGalleryPress={() => pickImage()}
         onRemovePress={() => removeImage()}
       />
+      </ScrollView>
     </CustomKeyboardView>
 
   );

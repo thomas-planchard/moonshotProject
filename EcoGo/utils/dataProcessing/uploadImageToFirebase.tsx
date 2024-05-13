@@ -1,10 +1,8 @@
 import { ref, uploadBytesResumable, getDownloadURL} from "firebase/storage";
 import { storage } from "../../FirebaseConfig";
 import { getAuth } from "firebase/auth";
+import { useAuth } from "@/context/authContext";
 
-
-const auth = getAuth();
-const user = auth.currentUser;
 
 // Hashage
 const hashage = (str: string) => {
@@ -20,12 +18,12 @@ const hashage = (str: string) => {
     return hash;
 }
 
+
 // Generate Image Path
-const generateImagePath = () => {
-    return `images/user/${hashage(user?.uid)}.jpg`;
+export const generateImagePath = (uid: string) => {
+    return `images/user/${hashage(uid)}.jpg`;
 }
 
-export const imagePath = generateImagePath();
 
   
   // Upload Image

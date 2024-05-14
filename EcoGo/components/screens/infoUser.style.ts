@@ -3,6 +3,7 @@
  import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
 import { COLORS, SIZES } from "../../constants/theme";
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 
 
@@ -39,9 +40,31 @@ const styles = StyleSheet.create({
     },
 
     infoContainer: {
-      width: '80%',
+      width: wp(90),
       marginBottom: 20,
     },
+
+    infoRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginBottom: hp(4),
+    },
+
+    infoTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+    },
+
+    editButton: {
+      color: COLORS.greenForest,
+      fontSize: 16,
+    },
+
+    userInfo : {
+      fontSize: 16,
+      color: Colors.black,
+    },
+
     infoLabel: {
       fontSize: 16,
       marginBottom: 10,
@@ -51,5 +74,6 @@ const styles = StyleSheet.create({
       paddingHorizontal: 20,
     },
   });
+
   
 export default styles;

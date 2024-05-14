@@ -1,6 +1,5 @@
-import { View, Text, Button, Image, TouchableOpacity, RefreshControl, ScrollView } from 'react-native';
+import { View, Text, Button, Image, TouchableOpacity, RefreshControl, ScrollView, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
-import { fetchingUserNameAndProfileImage } from "@/utils/dataProcessing/fetchingUserNameAndProfileImage";
 import  styles  from '../../components/screens/infoUser.style.ts';
 import CustomKeyboardView from '@/components/CustomKeyboardView';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
@@ -12,6 +11,8 @@ import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '@/context/authContext';
 import { SIZES, COLORS } from '@/constants/theme.ts';
 import { getAuth } from 'firebase/auth';
+import { Octicons } from '@expo/vector-icons';
+import { sendPasswordResetEmail } from 'firebase/auth';
 
 
 const InfoUser = () => {
@@ -74,7 +75,18 @@ const InfoUser = () => {
     uploadImageToFirebase('https://static.vecteezy.com/system/resources/thumbnails/003/337/584/small/default-avatar-photo-placeholder-profile-icon-vector.jpg', generateImagePath(user?.userId));
   }
 
-  console.log('image: ', generateImagePath(user?.userId));
+
+  const [email, setEmail] = useState('');
+
+  const handlePasswordReset = async () => {
+    try {
+      await sendPasswordResetEmail(auth, email);
+      console.log('Password reset email sent!');
+    } catch (error) {
+      console.error('Error sending password reset email:', error);
+    }
+  };
+
 
   return (
     <CustomKeyboardView>
@@ -106,9 +118,41 @@ const InfoUser = () => {
         </View>
 
         <View style={styles.infoContainer}>
-          <Text style={styles.infoLabel}>Email: {userLogin?.email}</Text>
-       
-          <Text style={styles.infoLabel}>Password: {userLogin?.uid} </Text>
+          <View style={styles.infoRow}>
+            <Text style={styles.infoTitle}>Personal Information</Text>
+            <TouchableOpacity>
+              <Text style={styles.editButton}>Edit</Text>
+            </TouchableOpacity>
+          </View>
+          <View className='gap-4'>
+          <View  style={{height: hp(7)}} className='flex-row gap-4 px-4 bg-neutral-200 items-center rounded-2xl'>
+                        <Octicons name= "mail" size={hp(2.7)} color={COLORS.greenForest} />
+                        <TextInput
+                        editable={false}
+                        style={{fontSize: hp(2)}} 
+                        className='flex-1 font-semibold text-neutral-400'
+                        placeholder="Email" 
+                        inputMode='email'
+                        placeholderTextColor={"grey"}>
+                        <Text style={styles.userInfo}>{userLogin?.email}</Text>
+                        </TextInput>
+            </View>
+              <View style={{height: hp(7)}} className='flex-row gap-4 px-4 bg-neutral-200 items-center rounded-2xl'>
+                <Octicons name="lock" size={hp(2.7)} color={COLORS.greenForest} />
+                <TextInput
+                  style={{fontSize: hp(2)}} 
+                  className='flex-1 font-semibold text-neutral-400'
+                  placeholder="Enter your email" 
+                  placeholderTextColor={"grey"}
+                  onChangeText={text => setEmail(text)}
+                  value={userLogin?.email}
+                />
+                <Button
+                  title="Reset Password"
+                  onPress={handlePasswordReset}
+                />
+              </View>
+            </View>
         </View>
 
         <Button title="Sign out" onPress={handleLogout} style={styles.logoutButton} />

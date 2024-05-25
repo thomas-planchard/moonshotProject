@@ -57,9 +57,7 @@ EcoGo offers the following key features:
 
 6. **Social Sharing:** Users can share their carbon footprint achievements with friends and family on social media, encouraging others to join the sustainability movement.
 
-7. **GPS Integration:** EcoGo is equipped with a GPS to allow the user to have a navigation system directly in the application, which also allows the application to retrieve this precious data to calculate the carbon footprint of the user.
-
-8. **Multi-language Support:** The app is available in both English and French to cater to a diverse user base.
+7. **Multi-language Support:** The app is available in both English and French to cater to a diverse user base.
 
 ## Getting Started
 

@@ -22,6 +22,7 @@ const Welcome = () => {
 
   const routing = useRouter();
   const { user } = useAuth();
+  const [imageLoaded, setImageLoaded] = useState(false);
 
 
   const goToinfoUser = () => {
@@ -64,7 +65,11 @@ const Welcome = () => {
           {user?.username ? <Text style={styles.userName}>{user?.username}!</Text> : <Text>Chargement...</Text>}
         </View>
         <TouchableOpacity onPress={goToinfoUser}>
-        {user?.profileImageUrl ? <Image source={{uri: user?.profileImageUrl}} style={styles.profil}/> : <Image source={{uri:'https://i0.wp.com/sbcf.fr/wp-content/uploads/2018/03/sbcf-default-avatar.png?ssl=1'}} style={styles.profil} />}
+          <Image
+                source={{ uri: imageLoaded ? user?.profileImageUrl : 'https://static.vecteezy.com/system/resources/thumbnails/003/337/584/small/default-avatar-photo-placeholder-profile-icon-vector.jpg' }}
+                onLoadEnd={() => setImageLoaded(true)}
+                style={styles.profil}
+            />
         </TouchableOpacity>
     </View>
       <View style={styles.containerStepCarbon}>

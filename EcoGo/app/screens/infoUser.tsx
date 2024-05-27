@@ -6,7 +6,7 @@ import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-nativ
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import UploadModal from "@/utils/modal/uploadModal";
-import { uploadImageToFirebase, generateImagePath } from '@/utils/dataProcessing/uploadImageToFirebase';
+import { uploadImageToFirebase, generateImagePath, updateImageToFirebase } from '@/utils/dataProcessing/uploadImageToFirebase';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '@/context/authContext';
 import { SIZES, COLORS } from '@/constants/theme.ts';
@@ -20,6 +20,7 @@ const InfoUser = () => {
   const auth = getAuth();
   const userLogin = auth.currentUser;
   const [image, setImage] = useState(null);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const [refresh, setRefresh] = useState(false);
   const router = useRouter();
   const [modalVisible, setModalVisible] = useState(false);
@@ -36,6 +37,8 @@ const InfoUser = () => {
     await logout();
   }
 
+
+
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -47,7 +50,8 @@ const InfoUser = () => {
     console.log(result);
 
     if (!result.canceled) {
-      uploadImageToFirebase(result.assets[0].uri, generateImagePath(user?.userId));
+      
+      updateImageToFirebase(result.assets[0].uri, generateImagePath(user?.userId), user?.userId);
     }
   };
 
@@ -67,12 +71,12 @@ const InfoUser = () => {
     console.log(result);
 
     if (!result.canceled) {
-      uploadImageToFirebase(result.assets[0].uri, generateImagePath(user?.userId));
+      updateImageToFirebase(result.assets[0].uri, generateImagePath(user?.userId), user?.userId);
     }
   }
 
   const removeImage = async () => {
-    uploadImageToFirebase('https://static.vecteezy.com/system/resources/thumbnails/003/337/584/small/default-avatar-photo-placeholder-profile-icon-vector.jpg', generateImagePath(user?.userId));
+    updateImageToFirebase('https://static.vecteezy.com/system/resources/thumbnails/003/337/584/small/default-avatar-photo-placeholder-profile-icon-vector.jpg', generateImagePath(user?.userId), user?.userId);
   }
 
 
@@ -87,10 +91,11 @@ const InfoUser = () => {
     }
   };
 
-
   return (
     <CustomKeyboardView>
       <ScrollView
+      showsVerticalScrollIndicator={false}
+      style={{backgroundColor: COLORS.greenWhite, height: hp(100)}}
         refreshControl={
           <RefreshControl
             refreshing={refresh}
@@ -106,10 +111,11 @@ const InfoUser = () => {
         </View>
         <View style={{alignItems:'center'}}>
           <View>
-            <Image
-              source={{ uri: user?.profileImageUrl || 'https://static.vecteezy.com/system/resources/thumbnails/003/337/584/small/default-avatar-photo-placeholder-profile-icon-vector.jpg' }}
-              style={styles.profileImage}
-            />
+              <Image
+                source={{ uri: imageLoaded ? user?.profileImageUrl : 'https://static.vecteezy.com/system/resources/thumbnails/003/337/584/small/default-avatar-photo-placeholder-profile-icon-vector.jpg' }}
+                onLoadEnd={() => setImageLoaded(true)}
+                style={styles.profileImage}
+              />
             <TouchableOpacity style={{backgroundColor: COLORS.lightWhite, borderRadius: 24, position: 'absolute', right: 5, bottom: 5, padding: 8}} onPress={() => setModalVisible(true)}>
                 <Ionicons name="camera" size={24} color={COLORS.greenForest}/>
             </TouchableOpacity> 
@@ -125,19 +131,18 @@ const InfoUser = () => {
             </TouchableOpacity>
           </View>
           <View className='gap-4'>
-          <View  style={{height: hp(7)}} className='flex-row gap-4 px-4 bg-neutral-200 items-center rounded-2xl'>
+          <View  style={{height: hp(7)}} className='flex-row gap-4 px-4 bg-neutral-100 items-center rounded-2xl'>
                         <Octicons name= "mail" size={hp(2.7)} color={COLORS.greenForest} />
                         <TextInput
                         editable={false}
                         style={{fontSize: hp(2)}} 
                         className='flex-1 font-semibold text-neutral-400'
-                        placeholder="Email" 
+                        placeholder={userLogin?.email || 'Not specified'} 
                         inputMode='email'
                         placeholderTextColor={"grey"}>
-                        <Text style={styles.userInfo}>{userLogin?.email}</Text>
                         </TextInput>
             </View>
-              <View style={{height: hp(7)}} className='flex-row gap-4 px-4 bg-neutral-200 items-center rounded-2xl'>
+              <View style={{height: hp(7)}} className='flex-row gap-4 px-4 bg-neutral-100 items-center rounded-2xl'>
                 <Octicons name="lock" size={hp(2.7)} color={COLORS.greenForest} />
                 <TextInput
                   style={{fontSize: hp(2)}} 

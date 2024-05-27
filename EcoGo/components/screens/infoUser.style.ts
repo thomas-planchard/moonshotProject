@@ -11,8 +11,7 @@ import { Colors } from 'react-native/Libraries/NewAppScreen';
 const styles = StyleSheet.create({
     container: {
       alignItems: 'center',
-      backgroundColor: '#F3F4F8',
-      marginTop: hp(5),
+      paddingTop: hp(7),
     },
     header: {
       flexDirection: 'row',
@@ -41,13 +40,13 @@ const styles = StyleSheet.create({
 
     infoContainer: {
       width: wp(90),
-      marginBottom: 20,
+      marginBottom: hp(1),
     },
 
     infoRow: {
       flexDirection: 'row',
       justifyContent: 'space-between',
-      marginBottom: hp(4),
+      marginBottom: hp(3),
     },
 
     infoTitle: {
@@ -62,7 +61,7 @@ const styles = StyleSheet.create({
 
     userInfo : {
       fontSize: 16,
-      color: Colors.black,
+      color: Colors.grey,
     },
 
     infoLabel: {
@@ -70,9 +69,25 @@ const styles = StyleSheet.create({
       marginBottom: 10,
     },
     logoutButton: {
-      paddingVertical: 10,
-      paddingHorizontal: 20,
+      paddingVertical: hp(1.5),
+      paddingHorizontal: wp(10),
+      backgroundColor: COLORS.greenForest,
+      borderRadius: 20,
+      marginBottom: hp(5),
     },
+    textInLogoutButton: {
+      color: COLORS.lightWhite, 
+      textAlign: 'center',
+      fontSize: 15,
+      fontWeight: 'bold',
+
+    },
+
+    textInTouchable: {
+      fontSize: hp(2),
+      color: 'grey',
+    },
+
   });
 
   

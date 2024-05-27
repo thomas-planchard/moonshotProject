@@ -1,6 +1,6 @@
-import { View, Text, Button, Image, TouchableOpacity, RefreshControl, ScrollView, TextInput } from 'react-native';
+import { View, Text, Button, Image, TouchableOpacity, RefreshControl, ScrollView, TextInput, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
-import  styles  from '../../components/screens/infoUser.style.ts';
+import  styles  from '@/components/screens/infoUser/infoUser.style.ts';
 import CustomKeyboardView from '@/components/CustomKeyboardView';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import { Ionicons } from '@expo/vector-icons';
@@ -13,17 +13,21 @@ import { SIZES, COLORS } from '@/constants/theme.ts';
 import { getAuth } from 'firebase/auth';
 import { Octicons } from '@expo/vector-icons';
 import { sendPasswordResetEmail } from 'firebase/auth';
+import PoliciesContainer from '@/components/screens/infoUser/policies.tsx';
+import PersonalInformation from '@/components/screens/infoUser/personalInfo';
 
 
 const InfoUser = () => {
-  const { user, logout } = useAuth();
+  const router = useRouter();
+  const { user, logout, updateUser } = useAuth();
   const auth = getAuth();
   const userLogin = auth.currentUser;
-  const [image, setImage] = useState(null);
+  var profileImageUrl = "";
+
   const [imageLoaded, setImageLoaded] = useState(false);
   const [refresh, setRefresh] = useState(false);
-  const router = useRouter();
   const [modalVisible, setModalVisible] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   const onRefresh = () => {
     setRefresh(true);
@@ -50,8 +54,10 @@ const InfoUser = () => {
     console.log(result);
 
     if (!result.canceled) {
-      
-      updateImageToFirebase(result.assets[0].uri, generateImagePath(user?.userId), user?.userId);
+       profileImageUrl = await updateImageToFirebase(result.assets[0].uri, generateImagePath(user?.userId), user?.userId).catch((error)=>{
+         Alert.alert('Error', 'Failed to upload image');
+       });
+      updateUser({ profileImageUrl: profileImageUrl });
     }
   };
 
@@ -71,12 +77,9 @@ const InfoUser = () => {
     console.log(result);
 
     if (!result.canceled) {
-      updateImageToFirebase(result.assets[0].uri, generateImagePath(user?.userId), user?.userId);
+       profileImageUrl = await updateImageToFirebase(result.assets[0].uri, generateImagePath(user?.userId), user?.userId);
+      updateUser({ profileImageUrl: profileImageUrl });
     }
-  }
-
-  const removeImage = async () => {
-    updateImageToFirebase('https://static.vecteezy.com/system/resources/thumbnails/003/337/584/small/default-avatar-photo-placeholder-profile-icon-vector.jpg', generateImagePath(user?.userId), user?.userId);
   }
 
 
@@ -95,80 +98,45 @@ const InfoUser = () => {
     <CustomKeyboardView>
       <ScrollView
       showsVerticalScrollIndicator={false}
-      style={{backgroundColor: COLORS.greenWhite, height: hp(100)}}
+      style={{backgroundColor: COLORS.greenWhite}}
         refreshControl={
           <RefreshControl
             refreshing={refresh}
             onRefresh={onRefresh}/>
         }>
-      <View style ={{paddingTop : hp(7), paddingHorizontal: wp(5), backgroundColor: COLORS.greenWhite , height:hp(100)}} className='flex-1 gap-12'>
-        <View style={styles.header}>
-          <Text style={styles.title}>Your Profile</Text>
-          <TouchableOpacity onPress={() => router.push('/home')} style={{flexDirection:"row"}}>
-            <Ionicons name="chevron-back" size={SIZES.xLarge} color="black"/>
-            <Text style={{fontSize:SIZES.large, textDecorationLine:'underline'}}>Back</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={{alignItems:'center'}}>
-          <View>
-              <Image
-                source={{ uri: imageLoaded ? user?.profileImageUrl : 'https://static.vecteezy.com/system/resources/thumbnails/003/337/584/small/default-avatar-photo-placeholder-profile-icon-vector.jpg' }}
-                onLoadEnd={() => setImageLoaded(true)}
-                style={styles.profileImage}
-              />
-            <TouchableOpacity style={{backgroundColor: COLORS.lightWhite, borderRadius: 24, position: 'absolute', right: 5, bottom: 5, padding: 8}} onPress={() => setModalVisible(true)}>
-                <Ionicons name="camera" size={24} color={COLORS.greenForest}/>
-            </TouchableOpacity> 
-          </View>
-          <Text style={styles.username}>{ user?.username|| 'Not specified'}</Text>
-        </View>
-
-        <View style={styles.infoContainer}>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoTitle}>Personal Information</Text>
-            <TouchableOpacity>
-              <Text style={styles.editButton}>Edit</Text>
+        <View style ={{paddingTop : hp(7), paddingHorizontal: wp(5), backgroundColor: COLORS.greenWhite}} className='flex-1 gap-12'>
+          <View style={styles.header}>
+            <Text style={styles.title}>Your Profile</Text>
+            <TouchableOpacity onPress={() => router.push('/home')} style={{flexDirection:"row"}}>
+              <Ionicons name="chevron-back" size={SIZES.xLarge} color="black"/>
+              <Text style={{fontSize:SIZES.large, textDecorationLine:'underline'}}>Back</Text>
             </TouchableOpacity>
           </View>
-          <View className='gap-4'>
-          <View  style={{height: hp(7)}} className='flex-row gap-4 px-4 bg-neutral-100 items-center rounded-2xl'>
-                        <Octicons name= "mail" size={hp(2.7)} color={COLORS.greenForest} />
-                        <TextInput
-                        editable={false}
-                        style={{fontSize: hp(2)}} 
-                        className='flex-1 font-semibold text-neutral-400'
-                        placeholder={userLogin?.email || 'Not specified'} 
-                        inputMode='email'
-                        placeholderTextColor={"grey"}>
-                        </TextInput>
-            </View>
-              <View style={{height: hp(7)}} className='flex-row gap-4 px-4 bg-neutral-100 items-center rounded-2xl'>
-                <Octicons name="lock" size={hp(2.7)} color={COLORS.greenForest} />
-                <TextInput
-                  style={{fontSize: hp(2)}} 
-                  className='flex-1 font-semibold text-neutral-400'
-                  placeholder="Enter your email" 
-                  placeholderTextColor={"grey"}
-                  onChangeText={text => setEmail(text)}
-                  value={userLogin?.email}
+          <View style={{alignItems:'center'}}>
+            <View>
+                <Image
+                  source={{ uri: imageLoaded ? user?.profileImageUrl : 'https://static.vecteezy.com/system/resources/thumbnails/003/337/584/small/default-avatar-photo-placeholder-profile-icon-vector.jpg' }}
+                  onLoadEnd={() => setImageLoaded(true)}
+                  style={styles.profileImage}
                 />
-                <Button
-                  title="Reset Password"
-                  onPress={handlePasswordReset}
-                />
-              </View>
+              <TouchableOpacity style={{backgroundColor: COLORS.lightWhite, borderRadius: 24, position: 'absolute', right: 5, bottom: 5, padding: 8}} onPress={() => setModalVisible(true)}>
+                  <Ionicons name="camera" size={24} color={COLORS.greenForest}/>
+              </TouchableOpacity> 
             </View>
+            <Text style={styles.username}>{ user?.username|| 'Not specified'}</Text>
+          </View>
+          <PersonalInformation user={user} sendPasswordResetEmail={handlePasswordReset} userLogin={userLogin}/>
+          <PoliciesContainer/>
+          <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+            <Text style={styles.textInLogoutButton}>Logout</Text>
+          </TouchableOpacity>
         </View>
-
-        <Button title="Sign out" onPress={handleLogout} style={styles.logoutButton} />
-      </View>
-      <UploadModal
-        modalVisible={modalVisible}
-        onBackPress={() => setModalVisible(false)}
-        onCameraPress={() => pickImagewithCamera()}
-        onGalleryPress={() => pickImage()}
-        onRemovePress={() => removeImage()}
-      />
+        <UploadModal
+          modalVisible={modalVisible}
+          onBackPress={() => setModalVisible(false)}
+          onCameraPress={() => pickImagewithCamera()}
+          onGalleryPress={() => pickImage()}
+        />
       </ScrollView>
     </CustomKeyboardView>
 

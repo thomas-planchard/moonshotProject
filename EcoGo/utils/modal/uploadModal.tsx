@@ -9,7 +9,6 @@ const UploadModal =({
     onBackPress,
     onCameraPress,
     onGalleryPress,
-    onRemovePress,
     isLoading = false,
 }) => {
     return (
@@ -30,11 +29,6 @@ const UploadModal =({
                                 <MaterialIcons name="photo-library" size={30} color={COLORS.greenForest} />
                                 <Text>Gallery</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.optionBtn} onPress={onRemovePress}>
-                                <FontAwesome name="trash" size={30} color={COLORS.greenForest} />
-                                <Text>Remove</Text>
-                            </TouchableOpacity>
-
                         </View>
                     </View>
                 )}

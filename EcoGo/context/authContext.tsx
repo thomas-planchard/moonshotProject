@@ -19,6 +19,7 @@ interface User {
 interface AuthContextInterface {
     user: User | null ;
     isAuthenticated: boolean | undefined;
+    updateUser: (newUserData: Partial<User>) => void;
     login: (email: string, password: string) => void;
     logout: () => void;
     register: (email: string, password: string, username: string, profileUrl: string) => Promise<{sucess: boolean, message?: string}>;
@@ -58,6 +59,10 @@ export const AuthContextProvider: FC<AuthContextProviderProps> = ({children}) =>
 
         }
         
+    }
+
+    const updateUser = (newUserData: Partial<User>) => {
+        setUser(prevUser => ({...prevUser, ...newUserData}));
     }
 
     const login = async (email: string, password : string) => {
@@ -116,7 +121,7 @@ export const AuthContextProvider: FC<AuthContextProviderProps> = ({children}) =>
     };
 
     return (
-        <AuthContext.Provider value={{user, isAuthenticated, login, logout, register}}>
+        <AuthContext.Provider value={{user, isAuthenticated, updateUser, login, logout, register}}>
             {children}
         </AuthContext.Provider>
     );

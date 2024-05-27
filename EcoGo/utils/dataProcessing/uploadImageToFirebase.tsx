@@ -3,6 +3,7 @@ import { storage, db } from "../../FirebaseConfig";
 import { getAuth } from "firebase/auth";
 import { useAuth } from "@/context/authContext";
 import { doc, updateDoc } from "firebase/firestore";
+import { Alert } from "react-native";
 
 
 
@@ -84,7 +85,10 @@ export const uploadImageToFirebase = async (uri: string, path: string) => {
 
     const uploadTask = uploadBytesResumable(imageRef, theBlob);
 
-    return imageRef && new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+            reject(new Error("your connection is too slow to upload the image"));
+        }, 10000);
         uploadTask.on('state_changed', 
         (snapshot) => {
             const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
@@ -99,12 +103,19 @@ export const uploadImageToFirebase = async (uri: string, path: string) => {
             }
         }, 
         (error) => {
+            clearTimeout(timeout);
             reject(error);
         }, 
         () => {
-            getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
+                clearTimeout(timeout);
+                getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
                 await updateDoc(docRef, {profileImageUrl: downloadURL});
+                
                 resolve(downloadURL);
+                Alert.alert("Image Upload Complete", "Your profile image has been updated.");
+
+
+                return downloadURL; 
             
             });
         });

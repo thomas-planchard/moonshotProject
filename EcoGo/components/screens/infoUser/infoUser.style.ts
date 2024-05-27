@@ -2,7 +2,7 @@
  
  import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
-import { COLORS, SIZES } from "../../constants/theme";
+import { COLORS, SIZES } from "../../../constants/theme";
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 
@@ -46,7 +46,6 @@ const styles = StyleSheet.create({
     infoRow: {
       flexDirection: 'row',
       justifyContent: 'space-between',
-      marginBottom: hp(3),
     },
 
     infoTitle: {
@@ -69,10 +68,11 @@ const styles = StyleSheet.create({
       marginBottom: 10,
     },
     logoutButton: {
+      width: wp(50),
       paddingVertical: hp(1.5),
-      paddingHorizontal: wp(10),
       backgroundColor: COLORS.greenForest,
       borderRadius: 20,
+      marginLeft: wp(20),
       marginBottom: hp(5),
     },
     textInLogoutButton: {

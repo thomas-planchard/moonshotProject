@@ -10,8 +10,7 @@ import {Pedometer} from 'expo-sensors';
 import styles from "./welcome.style";
 import { icons } from "../../../constants";
 import { useRouter } from "expo-router";
-import { getAuth } from "firebase/auth";
-import { getFirestore, doc, getDoc } from "firebase/firestore";
+import { ProfilImage } from "@/components/common/profilImage/profilImage";
 import { useAuth } from "@/context/authContext";
 
 
@@ -65,11 +64,7 @@ const Welcome = () => {
           {user?.username ? <Text style={styles.userName}>{user?.username}!</Text> : <Text>Chargement...</Text>}
         </View>
         <TouchableOpacity onPress={goToinfoUser}>
-          <Image
-                source={{ uri: imageLoaded ? user?.profileImageUrl : 'https://static.vecteezy.com/system/resources/thumbnails/003/337/584/small/default-avatar-photo-placeholder-profile-icon-vector.jpg' }}
-                onLoadEnd={() => setImageLoaded(true)}
-                style={styles.profil}
-            />
+          <ProfilImage imageState={imageLoaded} source={user?.profileImageUrl} style={styles.profil} setImageState={setImageLoaded} />
         </TouchableOpacity>
     </View>
       <View style={styles.containerStepCarbon}>

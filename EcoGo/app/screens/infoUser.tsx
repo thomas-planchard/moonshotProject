@@ -1,4 +1,4 @@
-import { View, Text, Button, Image, TouchableOpacity, RefreshControl, ScrollView, TextInput, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, RefreshControl, ScrollView, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import  styles  from '@/components/screens/infoUser/infoUser.style.ts';
 import CustomKeyboardView from '@/components/CustomKeyboardView';
@@ -6,14 +6,14 @@ import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-nativ
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import UploadModal from "@/utils/modal/uploadModal";
-import { uploadImageToFirebase, generateImagePath, updateImageToFirebase } from '@/utils/dataProcessing/uploadImageToFirebase';
+import { generateImagePath, updateImageToFirebase } from '@/utils/dataProcessing/uploadImageToFirebase';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '@/context/authContext';
 import { SIZES, COLORS } from '@/constants/theme.ts';
 import { getAuth } from 'firebase/auth';
-import { Octicons } from '@expo/vector-icons';
+import {ProfilImage} from '@/components/common/profilImage/profilImage';
 import { sendPasswordResetEmail } from 'firebase/auth';
-import PoliciesContainer from '@/components/screens/infoUser/policies.tsx';
+import PoliciesContainer from '@/components/screens/infoUser/policies';
 import PersonalInformation from '@/components/screens/infoUser/personalInfo';
 
 
@@ -114,22 +114,22 @@ const InfoUser = () => {
           </View>
           <View style={{alignItems:'center'}}>
             <View>
-                <Image
-                  source={{ uri: imageLoaded ? user?.profileImageUrl : 'https://static.vecteezy.com/system/resources/thumbnails/003/337/584/small/default-avatar-photo-placeholder-profile-icon-vector.jpg' }}
-                  onLoadEnd={() => setImageLoaded(true)}
-                  style={styles.profileImage}
-                />
-              <TouchableOpacity style={{backgroundColor: COLORS.lightWhite, borderRadius: 24, position: 'absolute', right: 5, bottom: 5, padding: 8}} onPress={() => setModalVisible(true)}>
+                <ProfilImage imageState={imageLoaded} source={user?.profileImageUrl} style={styles.profileImage}  setImageState={setImageLoaded}/>
+              <TouchableOpacity style={{backgroundColor: COLORS.lightWhite, borderRadius: 24, position: 'absolute', right: 5, bottom: 5, padding: 8}} 
+                onPress={() => setModalVisible(true)}>
                   <Ionicons name="camera" size={24} color={COLORS.greenForest}/>
               </TouchableOpacity> 
             </View>
             <Text style={styles.username}>{ user?.username|| 'Not specified'}</Text>
           </View>
+
           <PersonalInformation user={user} sendPasswordResetEmail={handlePasswordReset} userLogin={userLogin}/>
           <PoliciesContainer/>
+
           <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
             <Text style={styles.textInLogoutButton}>Logout</Text>
           </TouchableOpacity>
+
         </View>
         <UploadModal
           modalVisible={modalVisible}

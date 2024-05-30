@@ -93,7 +93,7 @@ For general inquiries or partnership opportunities, you can reach me at thomas.p
 [issues-shield]: https://img.shields.io/github/issues/thomas-planchard/moonshotProject.svg?style=for-the-badge
 [issues-url]: https://github.com/thomas-planchard/moonshotProject/issues
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/thomas-planchard
+[linkedin-url]: www.linkedin.com/in/thomas-planchard-461782221
 [React.js]: https://img.shields.io/badge/React-Native?style=for-the-badge&logo=react&logoColor=61DAFB&color=%23000000
 [React-url]: https://reactjs.org/
 [TypeScript.js]: https://img.shields.io/badge/typescript-20232A?style=for-the-badge&logo=typescript&logoColor=61DAFB&color=%23000000

@@ -7,7 +7,7 @@ import Activities from "./home/activities/Activities";
 
 
 // common
-import DealsCard from "./common/cards/dealscard/DealsCard";
+import DealsCard from "./home/dealscard/DealsCard";
 
 // map
 // import MapGoogle from "./map/MapGoogle";

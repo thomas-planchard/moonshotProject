@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
 } from "react-native";
 import {Pedometer} from 'expo-sensors';
-
 import styles from "./welcome.style";
 import { icons } from "../../../constants";
 import { useRouter } from "expo-router";

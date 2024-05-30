@@ -6,7 +6,7 @@ import {
   GoodDeals,
   Welcome,
 } from "../../../components";
-import styles from "../../../components/common/whitebackground/whitebackground.style";
+import styles from "@/components/home/whitebackground/whitebackground.style"
 import { COLORS } from "@/constants";
 
 

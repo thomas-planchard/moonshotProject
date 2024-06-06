@@ -1,9 +1,7 @@
 import { ref, uploadBytesResumable, getDownloadURL, getStorage} from "firebase/storage";
 import { storage, db } from "../../FirebaseConfig";
-import { getAuth } from "firebase/auth";
-import { useAuth } from "@/context/authContext";
 import { doc, updateDoc } from "firebase/firestore";
-import { Alert } from "react-native";
+
 
 
 
@@ -77,7 +75,14 @@ export const uploadImageToFirebase = async (uri: string, path: string) => {
     }
   }
 
-  export const updateImageToFirebase = async (uri: string, path: string, uid: string) => {
+export const updateImageToFirebase = async (
+    uri: string,
+    path: string,
+    uid: string,
+    setIsUploading: (value: boolean) => void,
+    setProgress: (value: number) => void
+): Promise<string> => {
+    setIsUploading(true);
     const fetchResponse = await fetch(uri);
     const theBlob = await fetchResponse.blob();
     const docRef = doc(db, 'users', uid);
@@ -85,40 +90,38 @@ export const uploadImageToFirebase = async (uri: string, path: string) => {
 
     const uploadTask = uploadBytesResumable(imageRef, theBlob);
 
-    return new Promise((resolve, reject) => {
+    return new Promise<string>((resolve, reject) => {
         const timeout = setTimeout(() => {
             reject(new Error("your connection is too slow to upload the image"));
         }, 10000);
         uploadTask.on('state_changed', 
-        (snapshot) => {
-            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            console.log(`Upload is ${progress}% done`);
-            switch (snapshot.state) {
-                case 'paused':
-                    console.log('Upload is paused');
-                    break;
-                case 'running':
-                    console.log('Upload is running');
-                    break;
-            }
-        }, 
-        (error) => {
-            clearTimeout(timeout);
-            reject(error);
-        }, 
-        () => {
+            (snapshot) => {
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                console.log(`Upload is ${progress}% done`);
+                setProgress(progress);
+                switch (snapshot.state) {
+                    case 'paused':
+                        console.log('Upload is paused');
+                        break;
+                    case 'running':
+                        console.log('Upload is running');
+                        break;
+                }
+            }, 
+            (error) => {
+                clearTimeout(timeout);
+                reject(error);
+            }, 
+            () => {
                 clearTimeout(timeout);
                 getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
-                await updateDoc(docRef, {profileImageUrl: downloadURL});
-                
-                resolve(downloadURL);
-                Alert.alert("Image Upload Complete", "Your profile image has been updated.");
-
-
-                return downloadURL; 
-            
-            });
-        });
+                    await updateDoc(docRef, {profileImageUrl: downloadURL});
+                    resolve(downloadURL);
+                    setProgress(0);
+                    setIsUploading(false);
+                });
+            }
+        );
     });
 }
 

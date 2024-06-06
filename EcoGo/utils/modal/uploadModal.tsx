@@ -6,6 +6,7 @@ import {COLORS} from '@/constants/theme.ts';
 
 const UploadModal =({
     modalVisible,
+    onRequestClose,
     onBackPress,
     onCameraPress,
     onGalleryPress,

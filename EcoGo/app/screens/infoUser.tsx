@@ -1,5 +1,6 @@
-import { View, Text, TouchableOpacity, RefreshControl, ScrollView, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, RefreshControl, ScrollView, Modal, Alert, ActivityIndicator, ProgressBarAndroid } from 'react-native';
 import { useRouter } from 'expo-router';
+import { ProgressBar} from 'react-native-paper';
 import  styles  from '@/components/screens/infoUser/infoUser.style.ts';
 import CustomKeyboardView from '@/components/CustomKeyboardView';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
@@ -28,6 +29,7 @@ const InfoUser = () => {
   const [refresh, setRefresh] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   const onRefresh = () => {
     setRefresh(true);
@@ -54,7 +56,8 @@ const InfoUser = () => {
     console.log(result);
 
     if (!result.canceled) {
-       profileImageUrl = await updateImageToFirebase(result.assets[0].uri, generateImagePath(user?.userId), user?.userId).catch((error)=>{
+       setModalVisible(false);
+       profileImageUrl = await updateImageToFirebase(result.assets[0].uri, generateImagePath(user?.userId), user?.userId, setIsUploading, setProgress).catch((error)=>{
          Alert.alert('Error', 'Failed to upload image');
        });
       updateUser({ profileImageUrl: profileImageUrl });
@@ -77,7 +80,8 @@ const InfoUser = () => {
     console.log(result);
 
     if (!result.canceled) {
-       profileImageUrl = await updateImageToFirebase(result.assets[0].uri, generateImagePath(user?.userId), user?.userId);
+      setModalVisible(false);
+       profileImageUrl = await updateImageToFirebase(result.assets[0].uri, generateImagePath(user?.userId), user?.userId, setIsUploading, setProgress);
       updateUser({ profileImageUrl: profileImageUrl });
     }
   }
@@ -119,6 +123,21 @@ const InfoUser = () => {
                 onPress={() => setModalVisible(true)}>
                   <Ionicons name="camera" size={24} color={COLORS.greenForest}/>
               </TouchableOpacity> 
+              <Modal
+                animationType="slide"
+                transparent={true}
+                visible={isUploading}
+                onRequestClose={() => {
+                    setIsUploading(false);
+                }}
+            >
+                <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+                    <View style={{backgroundColor: 'white', padding: 20, borderRadius: 10}}>
+                        <Text>Uploading Image: {Math.round(progress)}%</Text>
+                        <ProgressBar progress={progress/100} color= {COLORS.darkGreen} />
+                    </View>
+                </View>
+            </Modal>
             </View>
             <Text style={styles.username}>{ user?.username|| 'Not specified'}</Text>
           </View>
@@ -133,6 +152,7 @@ const InfoUser = () => {
         </View>
         <UploadModal
           modalVisible={modalVisible}
+          onRequestClose={() => setModalVisible(false)}
           onBackPress={() => setModalVisible(false)}
           onCameraPress={() => pickImagewithCamera()}
           onGalleryPress={() => pickImage()}

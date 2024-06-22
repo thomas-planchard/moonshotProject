@@ -1,5 +1,4 @@
 import React from "react";
-import { useRouter } from "expo-router";
 import { View, Text, TouchableOpacity, Image, Linking } from "react-native";
 
 import styles from "./gooddeals.style";

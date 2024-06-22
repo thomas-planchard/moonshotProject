@@ -16,7 +16,11 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.EcoGo"
+      "bundleIdentifier": "com.anonymous.EcoGo",
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app uses the camera to take photos.",
+        "NSPhotoLibraryUsageDescription": "This app uses the photo library to select photos."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -31,7 +35,17 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-router"
+      [
+        "expo-router"
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow $(PRODUCT_NAME) to access your photos",
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera"
+        }
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,

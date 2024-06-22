@@ -1,4 +1,5 @@
 import {StyleSheet, Dimensions} from 'react-native';
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
 import { COLORS, SIZES } from "../../../constants";
 
@@ -13,10 +14,11 @@ export default StyleSheet.create({
         alignItems: "center",
     },
     profileImage: {
-        width: 60,
-        height: 60,
+        width: wp(16),
+        height: hp(8),
         marginRight : SIZES.medium,
         marginBottom: SIZES.medium,
+        borderRadius: 100,
     },
     userName: {
         fontFamily: "Montserrat-Bold",

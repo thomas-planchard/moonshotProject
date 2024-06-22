@@ -23,7 +23,6 @@ const styles = StyleSheet.create({
   },
 
   imageDeals: { 
-    flex: 1,
     justifyContent: "center",
     alignItems: "center",
     flexDirection: "column",

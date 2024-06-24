@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import { View, Text, Image, TouchableOpacity, Alert } from "react-native";
 import { Pedometer } from "expo-sensors";
 import styles from "./welcome.style";
 import { icons } from "../../../constants";
@@ -14,18 +14,36 @@ const Welcome = () => {
   const [isPedometerAvailable, setPedometerAvailability] = useState(false);
   const [stepCount, setStepCount] = useState(0);
 
-  const distanceCovered = (stepCount / 1400).toFixed(2);
-  const caloriesBurnt = (stepCount / 25).toFixed(2);
+  // Assuming an average stride length (in meters). Consider allowing the user to input their stride length.
+  const strideLength = 0.78; // meters
+  const userWeight = 70; // kg, consider allowing the user to input their weight
+  
+  // Distance covered in kilometers
+  const distanceCovered = ((stepCount * strideLength) / 1000).toFixed(2);
+  
+  // MET value for walking
+  const metValue = 3.5;
+  
+  // Duration in hours (assuming a constant step rate)
+  const durationInHours = stepCount / (5000); // assuming 5000 steps/hour
+  
+  // Calories burnt calculation
+  const caloriesBurnt = ((metValue * userWeight * durationInHours)).toFixed(2);
 
   useEffect(() => {
-    let subscription: { remove: any; };
+    let subscription;
+
     const subscribe = async () => {
-      subscription = Pedometer.watchStepCount((result) => {
-        setStepCount(result.steps);
-      });
       try {
         const result = await Pedometer.isAvailableAsync();
         setPedometerAvailability(result);
+        if (result) {
+          subscription = Pedometer.watchStepCount((result) => {
+            setStepCount(result.steps);
+          });
+        } else {
+          Alert.alert("Pedometer not available", "Your device does not support the Pedometer sensor.");
+        }
       } catch (error) {
         setPedometerAvailability(false);
         console.error("Pedometer availability check failed:", error);
@@ -38,7 +56,7 @@ const Welcome = () => {
       subscription && subscription.remove();
     };
   }, []);
-
+  
   const goToInfoUser = () => {
     routing.navigate("screens/infoUser");
   };

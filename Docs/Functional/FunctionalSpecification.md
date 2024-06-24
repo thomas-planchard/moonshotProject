@@ -98,15 +98,32 @@ The development of EcoGo is driven by the global need for actionable steps towar
 
 ## 5. Target Audience:
 
-EcoGo targets tech-savvy individuals who extensively use their smartphones
-for daily activities and are committed to environmental sustainability.
-This audience actively seeks mobile solutions to monitor and reduce their 
-carbon footprint and values intuitive, seamless app experiences. They are 
-motivated by rewards that align with their eco-friendly lifestyle choices 
-and are accustomed to integrating new apps into their daily routines. This 
-group primarily includes young adults to middle-aged users who are 
-environmentally aware and looking for ways to contribute to sustainability 
-efforts through technology.
+**Persona 1 -Sarah Thompson:**
+
+![Persona 1](./Img/persona1.png)
+
+
+**Persona 1 -Chris Iddleton:**
+
+![Persona 2](./Img/persona2.png)
+
+
+**Persona 1 -Sam Rotter:**
+
+![Persona 3](./Img/persona3.png)
+
+
+**Persona 1 -Carla Joy:**
+
+![Persona 4](./Img/persona4.png)
+
+
+**Persona 1 -Fred Parker:**
+
+![Persona 5](./Img/persona5.png)
+
+
+  
 
 ## 6. Exclusions:
 - The initial release of EcoGo will focus exclusively on iOS devices, with 
@@ -759,26 +776,26 @@ The initial design of the app was done using Figma. Figma facilitated the creati
 
    - **Navigation and Menu**: The app's navigation is intuitive, with a bottom menu bar that provides quick access to all the pages of the app tracking, challenges, profile, and the EcoGo store. The menu bar ensures that users can easily navigate between sections without losing context.
   
-  ![Home Screen](../../EcoGoMockUp/02_home.jpg)
+  ![Home Screen](../../EcoGoMockUp/02Home.jpg)
 
 ---   
 
 - **Store Screen Design**: The store screen showcases the available offers from eco-friendly brands and restaurants. Users can browse through the offers, view details, and redeem them using the coins they've earned.
 
-  ![store Screen](../../EcoGoMockUp/03_store.jpg)
+  ![store Screen](../../EcoGoMockUp/03Store.jpg)
 
 
 --- 
 
 - **Profile Screen Design**: The profile screen provides users with an overview of their total carbon footprint reduction, coins earned, and challenges completed. It also includes a section for user settings, notifications, and transportation preferences. They have access to a graph that shows their carbon footprint reduction over time.
 
-  ![profile Screen](../../EcoGoMockUp/09_profile.jpg)
+  ![profile Screen](../../EcoGoMockUp/09Profile.jpg)
 
 --- 
 
 - **Splash Screen Design**: The splash screen is the first visual users see when launching the app. It features the EcoGo logo and a simple, clean design that sets the tone of the app.
   
-  ![splasshscreen Screen](../../EcoGoMockUp/01_Charging%20page.jpg)
+  ![splash screen Screen](../../EcoGoMockUp/01ChargingPage.jpg)
 
 
 

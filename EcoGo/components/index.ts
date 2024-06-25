@@ -2,15 +2,14 @@
 
 // home screen
 import Welcome from "./home/welcome/Welcome";
-import GoodDeals from "./home/gooddeals/GoodDeals";
+import Recommendation from "./home/recommendation/Recommendation";
 import Activities from "./home/activities/Activities";
 
 
-// common
-import DealsCard from "./home/dealscard/DealsCard";
+
 
 // map
-// import MapGoogle from "./map/MapGoogle";
+
 
 // profile
 import NameAndProfile from "./profil/nameandprofile/NameAndProfile";
@@ -27,8 +26,7 @@ import Spotlight from "./store/spotlight/Spotlight";
 export {
   Welcome,
   Activities,
-  GoodDeals,
-  DealsCard,
+  Recommendation,
   // MapGoogle,
   NameAndProfile,
   FriendsNumber,

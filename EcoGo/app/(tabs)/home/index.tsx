@@ -3,7 +3,7 @@ import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-nativ
 
 import {
   Activities,
-  GoodDeals,
+  Recommendation,
   Welcome,
 } from "../../../components";
 import styles from "@/components/home/whitebackground/whitebackground.style"
@@ -20,7 +20,7 @@ export default function Home() {
           <Welcome/>
           <View style = {styles.whiteBackground}>
           <Activities />
-          <GoodDeals />
+          <Recommendation />
           </View>
       </ScrollView>
     </View>

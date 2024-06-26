@@ -17,50 +17,49 @@
   - [4.1. Objectives:](#41-objectives)
 - [5. Target Audience:](#5-target-audience)
 - [6. Exclusions:](#6-exclusions)
-- [7. Functional Requirements](#7-functional-requirements)
-  - [7.1. User Roles and Permissions](#71-user-roles-and-permissions)
-  - [7.2. Features and Functionality](#72-features-and-functionality)
-    - [7.2.1. Account Creation and Management](#721-account-creation-and-management)
-    - [7.2.2. Dashboard](#722-dashboard)
-    - [7.2.3. Activity Tracking](#723-activity-tracking)
-    - [7.2.4. Emission Calculation](#724-emission-calculation)
-      - [7.2.4.1. Calculating System Carbon Emissions (Car)](#7241-calculating-system-carbon-emissions-car)
-      - [7.2.4.2. Calculating System Carbon Emissions (Electric Car)](#7242-calculating-system-carbon-emissions-electric-car)
-      - [7.2.4.3. Calculating System Carbon Emissions (Bus, Bicycle, and Subway)](#7243-calculating-system-carbon-emissions-bus-bicycle-and-subway)
-    - [7.2.5. Rewards System](#725-rewards-system)
-      - [7.2.5.1. Eco-Challenges](#7251-eco-challenges)
-      - [7.2.5.2. Coin Allocation](#7252-coin-allocation)
-      - [7.2.5.3. Adjustments and Flexibility](#7253-adjustments-and-flexibility)
-    - [7.2.6. EcoGo Store](#726-ecogo-store)
-    - [7.2.7. Social Sharing](#727-social-sharing)
-    - [7.2.8. User Settings](#728-user-settings)
-  - [7.3. Use Cases](#73-use-cases)
-- [8. Non-Functional Requirements](#8-non-functional-requirements)
-  - [8.1. Performance](#81-performance)
-    - [8.1.1. User Interface (UI) Responsiveness](#811-user-interface-ui-responsiveness)
-    - [8.1.2. Scalability](#812-scalability)
-  - [8.2. Security](#82-security)
-    - [8.2.1. Secure Authentication](#821-secure-authentication)
-    - [8.2.2. Data Encryption](#822-data-encryption)
-    - [8.2.3. Compliance and Data Protection](#823-compliance-and-data-protection)
-    - [8.2.4. GDPR Compliance](#824-gdpr-compliance)
-    - [8.2.5. Privacy Policy for EcoGo](#825-privacy-policy-for-ecogo)
-        - [8.2.5.0.1. Information We Collect](#82501-information-we-collect)
-        - [8.2.5.0.2. How We Use Your Information](#82502-how-we-use-your-information)
-        - [8.2.5.0.3. Sharing Your Information](#82503-sharing-your-information)
-        - [8.2.5.0.4. Data Security](#82504-data-security)
-        - [8.2.5.0.5. Your Rights](#82505-your-rights)
-        - [8.2.5.0.6. International Data Transfers](#82506-international-data-transfers)
-        - [8.2.5.0.7. Changes to This Privacy Policy](#82507-changes-to-this-privacy-policy)
-        - [8.2.5.0.8. Contact Us](#82508-contact-us)
-  - [8.3. Market Analysis: Competitors and Differentiators](#83-market-analysis-competitors-and-differentiators)
-    - [8.3.1. Market Landscape](#831-market-landscape)
-    - [8.3.2. Differentiators](#832-differentiators)
-- [9. Preliminary Design](#9-preliminary-design)
-- [10. Technical Requirements](#10-technical-requirements)
-  - [10.1. Risks and Assumptions](#101-risks-and-assumptions)
-    - [10.1.1. Assumptions](#1011-assumptions)
-- [11. Glossary](#11-glossary)
+- [7. Glossary](#7-glossary)
+- [8. Functional Requirements](#8-functional-requirements)
+  - [8.1. User Roles and Permissions](#81-user-roles-and-permissions)
+  - [8.2. Features and Functionality](#82-features-and-functionality)
+    - [8.2.1. Account Creation and Management](#821-account-creation-and-management)
+    - [8.2.2. Dashboard](#822-dashboard)
+    - [8.2.3. Activity Tracking](#823-activity-tracking)
+    - [8.2.4. Emission Calculation](#824-emission-calculation)
+      - [➭ Calculating System Carbon Emissions (Car)](#-calculating-system-carbon-emissions-car)
+      - [➭ Calculating System Carbon Emissions (Electric Car)](#-calculating-system-carbon-emissions-electric-car)
+      - [➭ Calculating System Carbon Emissions (Bus, Bicycle, and Subway)](#-calculating-system-carbon-emissions-bus-bicycle-and-subway)
+    - [8.2.5. Rewards System](#825-rewards-system)
+      - [➭ Coin Allocation](#-coin-allocation)
+      - [➭ Adjustments and Flexibility](#-adjustments-and-flexibility)
+    - [8.2.6. EcoGo Store](#826-ecogo-store)
+    - [8.2.7. Social Sharing](#827-social-sharing)
+    - [8.2.8. User Settings](#828-user-settings)
+  - [8.3. Use Cases](#83-use-cases)
+- [9. Non-Functional Requirements](#9-non-functional-requirements)
+  - [9.1. Performance](#91-performance)
+    - [9.1.1. User Interface (UI) Responsiveness](#911-user-interface-ui-responsiveness)
+    - [9.1.2. Scalability](#912-scalability)
+  - [9.2. Security](#92-security)
+    - [9.2.1. Secure Authentication](#921-secure-authentication)
+    - [9.2.2. Data Encryption](#922-data-encryption)
+    - [9.2.3. Compliance and Data Protection](#923-compliance-and-data-protection)
+    - [9.2.4. GDPR Compliance](#924-gdpr-compliance)
+    - [9.2.5. Privacy Policy for EcoGo](#925-privacy-policy-for-ecogo)
+        - [➭ Information We Collect](#-information-we-collect)
+        - [➭ How We Use Your Information](#-how-we-use-your-information)
+        - [➭ Sharing Your Information](#-sharing-your-information)
+        - [➭ Data Security](#-data-security)
+        - [➭ Your Rights](#-your-rights)
+        - [➭ International Data Transfers](#-international-data-transfers)
+        - [➭ Changes to This Privacy Policy](#-changes-to-this-privacy-policy)
+        - [➭ Contact Us](#-contact-us)
+  - [9.3. Market Analysis: Competitors and Differentiators](#93-market-analysis-competitors-and-differentiators)
+    - [9.3.1. Market Landscape](#931-market-landscape)
+    - [9.3.2. Differentiators](#932-differentiators)
+- [10. Preliminary Design](#10-preliminary-design)
+- [11. Technical Requirements](#11-technical-requirements)
+  - [11.1. Risks and Assumptions](#111-risks-and-assumptions)
+    - [➭ Assumptions](#-assumptions)
 
 
 
@@ -135,29 +134,51 @@ The development of EcoGo is driven by the global need for actionable steps towar
 - The application will not support store and social network sharing in its 
   initial version; these features are considered superficial for the first version.
 
-## 7. Functional Requirements
 
-### 7.1. User Roles and Permissions
+## 7. Glossary
+
+| Term                             | Definition                                                                                                                          |
+|----------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
+| **CO2 (Carbon Dioxide)**         | A colorless, odorless gas produced by burning carbon and organic compounds and by respiration. It is naturally present in the air and is absorbed by plants in photosynthesis.|
+| **GPS (Global Positioning System)** | A satellite-based radio navigation system owned by the United States government and operated by the United States Space Force which provides geolocation and time information.  |
+| **UI (User Interface)**          | The space where interactions between humans and machines occur. The goal of this interaction is to allow effective operation and control of the machine from the human end.      |
+| **MVP (Minimum Viable Product)** | A product with just enough features to attract early-adopter customers and validate a product idea early in the product development cycle.                                   |
+| **React Native**                 | An open-source mobile application framework created by Facebook used to develop applications for Android, iOS, Web, and UWP by enabling developers to use React along with native platform capabilities.|
+| **TypeScript**                   | An open-source programming language developed and maintained by Microsoft. It is a strict syntactical superset of JavaScript and adds optional static typing to the language.    |
+| **Expo framework**               | An open-source platform for making universal native apps for Android, iOS, and the web with JavaScript and React.                                                        |
+| **Firebase**                     | Google's mobile application development platform that helps developers build, improve, and grow their app. The platform includes functionalities like analytics, databases, messaging and crash reporting. |
+| **Firestore**                    | A flexible, scalable database for mobile, web, and server development from Firebase and Google Cloud Platform. It's a NoSQL database service for storing, syncing, and querying data.|
+| **NoSQL database**               | A mechanism for storage and retrieval of data that is modeled in means other than the tabular relations used in relational databases. Such databases have existed since the late 1960s.|
+| **TLS (Transport Layer Security)**| A cryptographic protocol designed to provide communications security over a computer network. It's widely used for internet communications and online transactions.                 |
+| **GDPR (General Data Protection Regulation)** | A regulation in EU law on data protection and privacy in the European Union and the European Economic Area. It also addresses the transfer of personal data outside the EU and EEA areas.  |
+| **DPI (Dots Per Inch)**          | A measure of spatial printing, video or image scanner dot density, in particular the number of individual dots that can be placed in a line within the span of 1 inch (2.54 cm).    |
+| **API (Application Programming Interface)** | A set of functions and procedures allowing the creation of applications that access the features or data of an operating system, application, or other service.                      |
+| **2FA (Two-Factor Authentication)** | A security process in which the user provides two different authentication factors to verify themselves. This process is done to better protect both the user's credentials and the resources the user can access. |
+| **SCC (Standard Contractual Clauses)** | Legal contracts designed to ensure that companies protect personal data when transferred outside the European Economic Area to countries which do not have an adequacy decision.     |
+
+## 8. Functional Requirements
+
+### 8.1. User Roles and Permissions
 
 - **User:** Can create an account, log in, track emissions, view statistics, earn and spend coins, and receive offers.
 
 ![User Roles and Permissions](./Img/userAllow.png)
 
-### 7.2. Features and Functionality
+### 8.2. Features and Functionality
 
-####  7.2.1. Account Creation and Management
+####  8.2.1. Account Creation and Management
 - Users can create an account using their email address, setting up a password and profile information (name, surname, picture).
 ![Account Creation and Management](./Img/accountDiagram.png)
 
-####  7.2.2. Dashboard
-- Presents current carbon footprint statistics, steps (number), calories burned (kcal), distance traveled (km) and coins earned.
+####  8.2.2. Dashboard
+- Presents current carbon footprint statistics, steps (number), calories burnt (kcal), distance traveled (km) and coins earned.
 - Displays offers based on user activity and location. Those offers will be in partnership with eco-responsible brands and regional services. The user will be able to see the offers only if he is in the region where the offer is available. Nevertheless, this feature will be simulated in the first version of the app.
 
 - The dashboard will be the first screen that the user will see when he opens the app.
 
 ![Dashboard](./Img/dashboardDiagram.png)
 
-####  7.2.3. Activity Tracking
+####  8.2.3. Activity Tracking
 
 Activity Tracking is a core feature of the application, serving as the primary data source for CO2 emission calculations. Two choices will be submitted to the user: automatic detection and manual entry.
 
@@ -168,7 +189,7 @@ Activity Tracking is a core feature of the application, serving as the primary d
 Upon detecting a trip, the application generates a pop-up notification the next time the user opens the app. This notification confirms the details of the trip, such as duration (e.g., 20 minutes), distance traveled (e.g., 20 km), and the estimated CO2 emissions (e.g., 30 kg CO2). The user is prompted to confirm these details, ensuring tracking and awareness of their carbon footprint on each trip. 
 
 ![Activity Tracking](./Img/activityDiagram.png)
-####  7.2.4. Emission Calculation
+####  8.2.4. Emission Calculation
 The emission calculation forms the core of the application. This function operates by:
 
 - **Accurate CO2 Emission Estimation**: 
@@ -180,7 +201,7 @@ EcoGo calculates CO2 emissions by looking at how users travel and how far they g
 ![Emission Calculation](./Img/EmissionCalculationProcess.png)
 
 
-##### 7.2.4.1. Calculating System Carbon Emissions (Car)
+#####  ➭ Calculating System Carbon Emissions (Car)
 Calculating System CO2 emissions for car travel involves understanding the amount of fuel the car consumes and then converting that fuel consumption into CO2 emissions. The calculation can vary depending on the type of fuel (e.g., gasoline, diesel, electric) and the vehicle's efficiency. Here's a basic approach for gasoline and diesel vehicles:
 
 ---
@@ -204,7 +225,7 @@ Different types of fuel emit different amounts of CO2 per liter burned. On avera
 - For gasoline: *CO2 Emissions (kg)=Fuel Used (liters)×2.31*
 - For diesel: *CO2 Emissions (kg)=Fuel Used (liters)×2.68*
 
-##### 7.2.4.2. Calculating System Carbon Emissions (Electric Car)
+##### ➭ Calculating System Carbon Emissions (Electric Car)
 For electric vehicles (EVs), the calculation is different and generally involves the following steps:
 
 1. **Electricity Consumption:** Determine how much electricity (in kilowatt-hours, kWh) the vehicle consumes per 100 kilometers or per mile. Same as for gasoline cars, this information should be asked when the user enters the car's details at the creation of the account.
@@ -230,7 +251,7 @@ For electric vehicles (EVs), the calculation is different and generally involves
 
 ---
 
-##### 7.2.4.3. Calculating System Carbon Emissions (Bus, Bicycle, and Subway)
+##### ➭ Calculating System Carbon Emissions (Bus, Bicycle, and Subway)
 
 1. **Bus:** The average CO2 emission factor for a bus is approximately **0.101 kg** CO2 per passenger kilometer. This factor can vary based on the bus type, occupancy, and fuel efficiency. However, the average value provides a reasonable estimate for emission calculations.
 
@@ -240,7 +261,7 @@ For electric vehicles (EVs), the calculation is different and generally involves
 
 ---
 
-####  7.2.5. Rewards System
+####  8.2.5. Rewards System
 
 Within the app, users accumulate coins as a reward for reducing their carbon footprint. The reward system is structured around several key criteria that directly relate to eco-friendly behaviors and choices:
 
@@ -258,25 +279,8 @@ Within the app, users accumulate coins as a reward for reducing their carbon foo
 ![Rewards System](./Img/RewardsSystemCoinAllocation.png)
 
 
-##### 7.2.5.1. Eco-Challenges
-Here's a table listing several eco-challenges along with their associated rewards:
 
-| Eco-Challenge                               | Reward (Coins) |
-|---------------------------------------------|----------------|
-| **No Car Day** - Avoid using a car for a day.                     | 50             |
-| **Bike to Work Week** - Use a bicycle for commuting every day for a week. | 100            |
-| **Public Transit Pro** - Use public transportation exclusively for a week.  | 70             |
-| **Walk-a-Thon** - Walk at least 10,000 steps every day for a week.         | 80             |
-| **Zero Emission Day** - Only use zero-emission transportation modes for a day. | 60             |
-| **Local Explorer** - Use only walking or cycling for all travel within a 5km radius for a week. | 120           |
-| **Eco-Shopper** - Make all shopping trips by foot, bike, or public transit for a month. | 150           |
-| **Green Commuter** - Replace car commuting with any eco-friendly transportation for a month. | 200           |
-| **Carbon Saver** - Achieve the highest CO2 savings in a month among all users. | 250           |
-| **Eco-Warrior** - Complete all other challenges within a specified time frame. | 300           |
-
-The app will display these challenges to users, allowing them to select and participate in the ones that align with their preferences and lifestyles. Completing these challenges will not only earn users coins but also contribute to their overall carbon footprint reduction efforts. Those challenges might be updated regularly to keep the app engaging and motivating for users.
-
-##### 7.2.5.2. Coin Allocation
+##### ➭ Coin Allocation
 
 1. **Eco-Friendly Transportation Choices:**
    - Walking or Cycling: Earn 10 coins for every kilometer.
@@ -298,20 +302,20 @@ The app will display these challenges to users, allowing them to select and part
    - Consistent use of eco-friendly transportation for a week: 100 bonus coins.
    - Consistent use for a month: 500 bonus coins.
 
-##### 7.2.5.3. Adjustments and Flexibility
+##### ➭ Adjustments and Flexibility
 
 - The number of coins awarded for each action is designed to encourage the use of the most sustainable transportation options available and to reward users for making significant contributions to reducing their carbon footprint.
 - This reward system is subject to adjustments based on user feedback, the app's economic model, and the overarching goal of promoting sustainable behaviors. Future updates may refine coin values to better align with these objectives, ensuring the system remains effective and motivating for users.
 
 
-#### 7.2.6. EcoGo Store
+#### 8.2.6. EcoGo Store
 
 The EcoGo Store is a virtual marketplace within the app, showcasing offers from eco-conscious brands and restaurants. Users can spend their earned coins to redeem discounts and vouchers, engaging directly with businesses that share EcoGo's commitment to sustainability.
 
 While the implementation of this feature in the current version will be simulated, due to its status as a school project. 
 
 
-#### 7.2.7. Social Sharing
+#### 8.2.7. Social Sharing
 Within the app, the profile page features a dedicated "Share" button, enabling users to effortlessly create and post content to their social media accounts. Clicking this button generates a pre-populated post that highlights key information from the user's profile, such as the amount of CO2 they've reduced over the day, week, and month, along with their preferred mode of eco-friendly transportation. This feature encourages users to share their environmental achievements, promoting awareness and inspiring others to join in making more sustainable transportation choices.
 
 ![Social Wireframe](./Img/wireframeSocial.png)
@@ -321,7 +325,7 @@ Above is a wireframe of the social sharing feature. It is only a wireframe, the 
 ![Social Sharing](./Img/share.png)
 
 
-#### 7.2.8. User Settings
+#### 8.2.8. User Settings
 
 - **Account Management:** Users can update their account details. 
   - **Profile Updates:** Users can modify their profile information, such as name, surname, profile picture, and contact details.
@@ -401,7 +405,7 @@ Above is a wireframe of the social sharing feature. It is only a wireframe, the 
 - **Privacy Controls:** In line with GDPR requirements, users can manage their privacy settings, including opting in or out of data-sharing features. This aspect will be developed in the [Security](#52-security) section of this document.
  
 
-### 7.3. Use Cases
+### 8.3. Use Cases
 
 - **Use Case 1: User Account Creation**
 
@@ -602,13 +606,13 @@ Above is a wireframe of the social sharing feature. It is only a wireframe, the 
 
 
 
-## 8. Non-Functional Requirements
+## 9. Non-Functional Requirements
 
-###  8.1. Performance
+###  9.1. Performance
 
 Performance objectives are structured around responsiveness, efficiency, and reliability to ensure a seamless experience for all users.
 
-#### 8.1.1. User Interface (UI) Responsiveness
+#### 9.1.1. User Interface (UI) Responsiveness
 
 - **Adaptive UI Scaling:** The goal is to deliver a consistent and accessible experience for users on screens of any size, from small smartphones to large tablets.
 
@@ -633,7 +637,7 @@ Performance objectives are structured around responsiveness, efficiency, and rel
   - **User-Centric Design:** Recognizing that a smooth visual experience is crucial to user satisfaction, the app prioritizes frame rate consistency not only as a technical goal but also as a core aspect of user-centric design. This commitment to performance ensures that users experience the benefits of a responsive interface, regardless of their device's specifications.
    
 
-#### 8.1.2. Scalability
+#### 9.1.2. Scalability
 
 - **Objective:** Strategically scale the application to efficiently manage an expanding user base and increasing data volumes. Initially targeting a smaller audience for product testing, the system is architected to transition to accommodate larger user groups as adoption grows.
 
@@ -644,30 +648,30 @@ Performance objectives are structured around responsiveness, efficiency, and rel
   - **Load Balancing:** A load balancer is deployed to distribute incoming app traffic and data processing requests across multiple servers, preventing any single server from becoming a bottleneck. This is essential for maintaining application responsiveness as the number of simultaneous users increases.
 
 
-###  8.2. Security
+###  9.2. Security
 
  Implementing robust security measures to protect user information from unauthorized access, alteration, and destruction. Our approach encompasses secure authentication practices, data encryption, compliance with GDPR standards, and regular security assessments.
 
-#### 8.2.1. Secure Authentication
+#### 9.2.1. Secure Authentication
 
 - **Authentication Mechanisms:** EcoGo integrates Firebase Authentication to manage user sign-ins and identity verification efficiently. This service supports various authentication methods, including email and password, social media accounts, and phone authentication, providing flexibility and ease of use for our users. For the initial version, email and password authentication will be the primary method.
 - **Password Management:** Through Firebase Authentication, passwords are securely hashed and salted using industry-standard cryptographic algorithms, ensuring they are never stored in plaintext. Firebase enforces strong password practices, requiring passwords to meet specific length and complexity criteria. Additionally, users can reset their passwords securely through email verification.
 - **Two-Factor Authentication (2FA):** For users seeking additional security, EcoGo, via Firebase, offers the option to enable two-factor authentication. This added security layer requires users to verify their identity through a secondary method upon login, significantly reducing the risk of unauthorized access.
 
-#### 8.2.2. Data Encryption
+#### 9.2.2. Data Encryption
 
 - **Data In Transit:** EcoGo ensures that all data transmitted between the user's device and Firebase servers is encrypted using TLS (Transport Layer Security). This encryption protects users' data from being intercepted by unauthorized parties.
   
 - **Data At Rest:** Firebase securely encrypts sensitive data at rest, including personal information and usage data stored within Firebase's databases. Utilizing advanced encryption algorithms, Firebase provides a secure storage solution that protects against data breaches and unauthorized access.
 
-#### 8.2.3. Compliance and Data Protection
+#### 9.2.3. Compliance and Data Protection
 
 - **Firebase and GDPR:** Firebase's infrastructure and services are designed to comply with the General Data Protection Regulation (GDPR) and other relevant privacy laws. EcoGo benefits from Firebase's commitment to data protection and privacy, ensuring that user data is handled in compliance with legal standards.
 - **User Data Management:** Users can manage their data directly within the app. This includes options to access, update, or delete their personal information, in line with GDPR rights. All user data management actions are facilitated through Firebase's secure backend services, ensuring transparent and secure data handling practices.
 - **Data Processing Agreement (DPA):** Firebase includes data processing terms that detail the obligations and responsibilities regarding data protection and security. This ensures that data processing on behalf of EcoGo adheres to GDPR standards, with Google acting as a data processor.
 - **Compliance with Data Transfer Regulations:** Firebase uses Standard Contractual Clauses (SCCs) for international data transfers, aligning with GDPR requirements. This ensures that user data is protected according to European Union standards, even when data is transferred outside the EU.
 
-#### 8.2.4. GDPR Compliance
+#### 9.2.4. GDPR Compliance
 
 EcoGo is fully committed to complying with the General Data Protection Regulation (GDPR) to protect the privacy and security of our users within the European Union and beyond. Key aspects include:
 
@@ -677,11 +681,11 @@ EcoGo is fully committed to complying with the General Data Protection Regulatio
 - **Data Portability:** Users can request a copy of their data in a structured, commonly used, and machine-readable format.
 - **Privacy by Design:** EcoGo incorporates privacy into the development and operation of our services, ensuring that user data protection is a core consideration.
 
-#### 8.2.5. Privacy Policy for EcoGo
+#### 9.2.5. Privacy Policy for EcoGo
 
 Welcome to EcoGo! We are committed to protecting your privacy and ensuring you have a positive experience on our app. This Privacy Policy outlines how we collect, use, share, and protect your information when you use our services.
 
-###### 8.2.5.0.1. Information We Collect
+###### ➭ Information We Collect
 
 **a. Personal Information:** When you create an account with EcoGo, we collect personal information such as your name, email address, and profile picture. This information is essential for providing you with personalized services.
 
@@ -689,7 +693,7 @@ Welcome to EcoGo! We are committed to protecting your privacy and ensuring you h
 
 **c. Location Data:** With your permission, we collect precise location data from your device to accurately track your transportation activities and calculate your carbon footprint.
 
-###### 8.2.5.0.2. How We Use Your Information
+###### ➭ How We Use Your Information
 
 We use the information we collect to:
 
@@ -699,7 +703,7 @@ We use the information we collect to:
 - Monitor and analyze trends, usage, and activities.
 - Ensure the security and integrity of our app.
 
-###### 8.2.5.0.3. Sharing Your Information
+###### ➭ Sharing Your Information
 
 We do not share your personal information with third parties except in the following circumstances:
 
@@ -707,23 +711,23 @@ We do not share your personal information with third parties except in the follo
 - **Compliance and Protection:** If required by law or to protect our rights, we may disclose information about you. This includes responding to legal processes or to prevent fraud and abuse.
 - **With Your Consent:** We may share information with other parties when we have your explicit consent to do so.
 
-###### 8.2.5.0.4. Data Security
+###### ➭ Data Security
 
 EcoGo employs a range of security measures designed to protect your personal information from unauthorized access and disclosure. While we strive to use commercially acceptable means to protect your information, please be aware that no security measures are entirely foolproof.
 
-###### 8.2.5.0.5. Your Rights
+###### ➭ Your Rights
 
 You have the right to access, correct, delete, or transfer your personal information. You can also object to or restrict certain processing of your data. These rights can be exercised through the app's settings or by contacting us directly.
 
-###### 8.2.5.0.6. International Data Transfers
+###### ➭ International Data Transfers
 
 EcoGo is based on Firebase, a Google service, which means your information may be processed on servers located outside of your country. We ensure that international data transfers comply with applicable laws and regulations, including GDPR.
 
-###### 8.2.5.0.7. Changes to This Privacy Policy
+###### ➭ Changes to This Privacy Policy
 
 We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Effective Date" at the top.
 
-###### 8.2.5.0.8. Contact Us
+###### ➭ Contact Us
 
 If you have any questions or concerns about this Privacy Policy or our data practices, please contact us at:
 
@@ -732,9 +736,9 @@ If you have any questions or concerns about this Privacy Policy or our data prac
 Your privacy is of utmost importance to us, and we are committed to protecting it as we empower you to reduce your carbon footprint with EcoGo.
 
 
-### 8.3. Market Analysis: Competitors and Differentiators
+### 9.3. Market Analysis: Competitors and Differentiators
 
-####  8.3.1. Market Landscape
+####  9.3.1. Market Landscape
 
 Upon thorough analysis, it appears that no direct competitors are occupying the niche of individual carbon footprint tracking combined with a gamification strategy. While various apps focus on aspects of environmental awareness and sustainability, none offer a direct comparison to EcoGo.
 While EcoGo focuses on individual carbon footprint tracking, numerous companies and platforms target carbon footprint management and sustainability efforts at the corporate or organizational level. Here’s a list of some notable companies in this space:
@@ -754,7 +758,7 @@ While EcoGo focuses on individual carbon footprint tracking, numerous companies 
 | Normative         | Sweden            | Offers software that automates carbon reporting for businesses, helping them to calculate their carbon footprint and identify ways to reduce it.                    | ![Logo](https://normative.io/wp-content/uploads/2021/10/normative-thumbnail-logo.jpg) |
 
 
-####  8.3.2. Differentiators
+####  9.3.2. Differentiators
 
 EcoGo distinguishes itself with a unique proposition in the market:
 
@@ -765,7 +769,7 @@ EcoGo distinguishes itself with a unique proposition in the market:
 - **Applicable to Daily Life:** EcoGo's emphasis on everyday transportation choices and activities makes it highly relevant to users' daily lives. By integrating seamlessly into users' routines, EcoGo encourages sustainable behavior changes that are practical and impactful.
 
 
-## 9. Preliminary Design
+## 10. Preliminary Design
 The initial design of the app was done using Figma. Figma facilitated the creation of the first draft of the app's interface.
 
 - **Home Screen Design**: The home screen is structured to captivate users immediately. It showcases all important information at the forefront, such as current carbon footprint stats, recent activities, and their duration, enabling users to see their environmental impact instantly.
@@ -800,13 +804,13 @@ The initial design of the app was done using Figma. Figma facilitated the creati
 
 
 
-## 10. Technical Requirements
+## 11. Technical Requirements
 
 - **Development Platform:** The application will be developed using React Native and TypeScript, utilizing the Expo framework. This choice supports cross-platform compatibility and streamlines development.
 - **Backend Services:** Firebase will be used for authentication and data storage, offering scalability and security.
 - **Database:** Firestore, a NoSQL database provided by Firebase, will store user data, carbon footprint information, and activity tracking details.
 
-### 10.1. Risks and Assumptions
+### 11.1. Risks and Assumptions
 
 
 | Name | Risk | Mitigation Strategy |
@@ -823,7 +827,7 @@ The initial design of the app was done using Figma. Figma facilitated the creati
 
 
 
-#### 10.1.1. Assumptions
+#### ➭ Assumptions
 
 | Assumptions | Validation |
 | --- | --- |
@@ -840,23 +844,3 @@ The initial design of the app was done using Figma. Figma facilitated the creati
 
 
 
-## 11. Glossary
-
-| Term                             | Definition                                                                                                                          |
-|----------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
-| **CO2 (Carbon Dioxide)**         | A colorless, odorless gas produced by burning carbon and organic compounds and by respiration. It is naturally present in the air and is absorbed by plants in photosynthesis.|
-| **GPS (Global Positioning System)** | A satellite-based radio navigation system owned by the United States government and operated by the United States Space Force which provides geolocation and time information.  |
-| **UI (User Interface)**          | The space where interactions between humans and machines occur. The goal of this interaction is to allow effective operation and control of the machine from the human end.      |
-| **MVP (Minimum Viable Product)** | A product with just enough features to attract early-adopter customers and validate a product idea early in the product development cycle.                                   |
-| **React Native**                 | An open-source mobile application framework created by Facebook used to develop applications for Android, iOS, Web, and UWP by enabling developers to use React along with native platform capabilities.|
-| **TypeScript**                   | An open-source programming language developed and maintained by Microsoft. It is a strict syntactical superset of JavaScript and adds optional static typing to the language.    |
-| **Expo framework**               | An open-source platform for making universal native apps for Android, iOS, and the web with JavaScript and React.                                                        |
-| **Firebase**                     | Google's mobile application development platform that helps developers build, improve, and grow their app. The platform includes functionalities like analytics, databases, messaging and crash reporting. |
-| **Firestore**                    | A flexible, scalable database for mobile, web, and server development from Firebase and Google Cloud Platform. It's a NoSQL database service for storing, syncing, and querying data.|
-| **NoSQL database**               | A mechanism for storage and retrieval of data that is modeled in means other than the tabular relations used in relational databases. Such databases have existed since the late 1960s.|
-| **TLS (Transport Layer Security)**| A cryptographic protocol designed to provide communications security over a computer network. It's widely used for internet communications and online transactions.                 |
-| **GDPR (General Data Protection Regulation)** | A regulation in EU law on data protection and privacy in the European Union and the European Economic Area. It also addresses the transfer of personal data outside the EU and EEA areas.  |
-| **DPI (Dots Per Inch)**          | A measure of spatial printing, video or image scanner dot density, in particular the number of individual dots that can be placed in a line within the span of 1 inch (2.54 cm).    |
-| **API (Application Programming Interface)** | A set of functions and procedures allowing the creation of applications that access the features or data of an operating system, application, or other service.                      |
-| **2FA (Two-Factor Authentication)** | A security process in which the user provides two different authentication factors to verify themselves. This process is done to better protect both the user's credentials and the resources the user can access. |
-| **SCC (Standard Contractual Clauses)** | Legal contracts designed to ensure that companies protect personal data when transferred outside the European Economic Area to countries which do not have an adequacy decision.     |

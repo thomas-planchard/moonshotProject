@@ -1,18 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
+// LocationTracker.js
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 
-const vehicles = {
-  car: require('./assets/car.png'), // Add your own vehicle icons here
-  bike: require('./assets/bike.png'),
-  walk: require('./assets/walk.png'),
-};
-
 const MapScreen = () => {
   const [location, setLocation] = useState(null);
-  const [speed, setSpeed] = useState(0);
-  const [vehicle, setVehicle] = useState('car');
   const [errorMsg, setErrorMsg] = useState(null);
 
   useEffect(() => {
@@ -23,28 +16,27 @@ const MapScreen = () => {
         return;
       }
 
-      Location.watchPositionAsync({
-        accuracy: Location.Accuracy.High,
-        timeInterval: 1000,
-        distanceInterval: 1,
-      }, (newLocation) => {
-        setLocation(newLocation.coords);
-        setSpeed(newLocation.coords.speed);
-      });
+      Location.watchPositionAsync(
+        {
+          accuracy: Location.Accuracy.High,
+          timeInterval: 1000,
+          distanceInterval: 1,
+        },
+        (newLocation) => {
+          setLocation(newLocation);
+        }
+      );
     })();
   }, []);
 
-  const handleVehicleChange = (selectedVehicle) => {
-    setVehicle(selectedVehicle);
-  };
+  let text = 'Waiting..';
+  let speed = 0;
 
-  if (!location) {
-    return (
-      <View style={styles.container}>
-        <Text>Loading...</Text>
-        {errorMsg ? <Text>{errorMsg}</Text> : null}
-      </View>
-    );
+  if (errorMsg) {
+    text = errorMsg;
+  } else if (location) {
+    text = JSON.stringify(location.coords);
+    speed = location.coords.speed;
   }
 
   return (
@@ -52,29 +44,25 @@ const MapScreen = () => {
       <MapView
         style={styles.map}
         initialRegion={{
-          latitude: location.latitude,
-          longitude: location.longitude,
+          latitude: location?.coords?.latitude || 37.78825,
+          longitude: location?.coords?.longitude || -122.4324,
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
         }}
-        showsUserLocation
-        followsUserLocation
+        showsUserLocation={true}
+        followsUserLocation={true}
       >
-        <Marker
-          coordinate={{
-            latitude: location.latitude,
-            longitude: location.longitude,
-          }}
-          image={vehicles[vehicle]}
-        />
+        {location && (
+          <Marker
+            coordinate={{
+              latitude: location.coords.latitude,
+              longitude: location.coords.longitude,
+            }}
+          />
+        )}
       </MapView>
       <View style={styles.infoContainer}>
-        <Text style={styles.speedText}>Speed: {speed ? (speed * 3.6).toFixed(2) : '0'} km/h</Text>
-        <View style={styles.buttonContainer}>
-          <Button title="Car" onPress={() => handleVehicleChange('car')} />
-          <Button title="Bike" onPress={() => handleVehicleChange('bike')} />
-          <Button title="Walk" onPress={() => handleVehicleChange('walk')} />
-        </View>
+        <Text style={styles.infoText}>Speed: {speed ? (speed * 3.6).toFixed(2) : 0} km/h</Text>
       </View>
     </View>
   );
@@ -90,20 +78,17 @@ const styles = StyleSheet.create({
   infoContainer: {
     position: 'absolute',
     bottom: 20,
-    left: 20,
-    right: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(255,255,255,0.8)',
     padding: 10,
-    borderRadius: 8,
+    borderRadius: 10,
+    marginHorizontal: 20,
+    alignItems: 'center',
   },
-  speedText: {
-    fontSize: 18,
-    textAlign: 'center',
-    marginBottom: 10,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+  infoText: {
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 

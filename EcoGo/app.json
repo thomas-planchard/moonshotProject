@@ -48,7 +48,13 @@
           "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera"
         }
       ],
-      "expo-secure-store"
+      [
+      "expo-location",
+      {
+        "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to access your location"
+      }
+      ]
+      
     ],
     "experiments": {
       "typedRoutes": true,

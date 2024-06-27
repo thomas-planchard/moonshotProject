@@ -1,5 +1,4 @@
 
-
 // home screen
 import Welcome from "./home/welcome/Welcome";
 import Recommendation from "./home/recommendation/Recommendation";
@@ -9,7 +8,7 @@ import Activities from "./home/activities/Activities";
 
 
 // map
-
+import MapScreen from "./map/Map";
 
 // profile
 import NameAndProfile from "./profil/nameandprofile/NameAndProfile";
@@ -27,7 +26,7 @@ export {
   Welcome,
   Activities,
   Recommendation,
-  // MapGoogle,
+  MapScreen,
   NameAndProfile,
   FriendsNumber,
   TotalData,

@@ -11,16 +11,14 @@ import { generateImagePath, updateImageToFirebase } from '@/utils/dataProcessing
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '@/context/authContext';
 import { SIZES, COLORS } from '@/constants/theme';
-import { getAuth, sendPasswordResetEmail } from 'firebase/auth';
 import { ProfilImage } from '@/components/common/profilImage/profilImage';
-import PoliciesContainer from '@/components/screens/infoUser/policies';
-import PersonalInformation from '@/components/screens/infoUser/personalInfo';
+import PoliciesContainer from '@/components/screens/infoUser/Policies';
+import PersonalInformation from '@/components/screens/infoUser/PersonalInfo';
 
 const InfoUser = () => {
   const router = useRouter();
-  const { user, logout, updateUser } = useAuth();
-  const auth = getAuth();
-  const userLogin = auth.currentUser;
+  const { logout, updateUser, user } = useAuth();
+  
 
   const [imageLoaded, setImageLoaded] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -75,15 +73,6 @@ const InfoUser = () => {
     }
   };
 
-  const handlePasswordReset = async () => {
-    try {
-      await sendPasswordResetEmail(auth, email);
-      Alert.alert('Success', 'Password reset email sent!');
-    } catch (error) {
-      console.error('Error sending password reset email:', error);
-      Alert.alert('Error', 'Failed to send password reset email');
-    }
-  };
 
   return (
     <CustomKeyboardView>
@@ -126,7 +115,7 @@ const InfoUser = () => {
             <Text style={styles.username}>{user?.username || 'Not specified'}</Text>
           </View>
 
-          <PersonalInformation user={user} sendPasswordResetEmail={handlePasswordReset} userLogin={userLogin} />
+          <PersonalInformation />
           <PoliciesContainer />
 
           <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>

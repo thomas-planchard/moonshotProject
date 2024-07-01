@@ -1,6 +1,6 @@
 
 // home screen
-import Welcome from "./home/welcome/Welcome";
+import Dashboard from "./home/dashboard/Dashboard";
 import Recommendation from "./home/recommendation/Recommendation";
 import Activities from "./home/activities/Activities";
 
@@ -23,7 +23,7 @@ import Sales from "./store/sales/Sales";
 import Spotlight from "./store/spotlight/Spotlight";
 
 export {
-  Welcome,
+  Dashboard,
   Activities,
   Recommendation,
   MapScreen,

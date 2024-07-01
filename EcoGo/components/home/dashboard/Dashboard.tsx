@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, Image, TouchableOpacity, Alert } from "react-native";
 import { Pedometer } from "expo-sensors";
-import styles from "./welcome.style";
+import styles from "./dashboard.style";
 import { icons } from "../../../constants";
 import { useRouter } from "expo-router";
 import { ProfilImage } from "@/components/common/profilImage/profilImage";
 import { useAuth } from "@/context/authContext";
 
-const Welcome = () => {
+const Dashboard = () => {
   const routing = useRouter();
   const { user } = useAuth();
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -118,4 +118,4 @@ const Welcome = () => {
   );
 };
 
-export default Welcome;
+export default Dashboard;

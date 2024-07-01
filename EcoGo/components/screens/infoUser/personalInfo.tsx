@@ -1,18 +1,36 @@
-import React from 'react';
+import {useState} from 'react';
 import { View, TextInput, TouchableOpacity, Text, Alert } from 'react-native';
 import { Octicons } from '@expo/vector-icons';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import EditProfileModal from '@/components/screens/infoUser/EditProfileComponent'; 
 import { COLORS } from '@/constants/theme.ts';
-import { getAuth } from 'firebase/auth';
+import { getAuth, sendPasswordResetEmail } from 'firebase/auth';
+import { useAuth } from '@/context/authContext';
 import styles from './infoUser.style';
 
-const PersonalInformation = ({ user, sendPasswordResetEmail, userLogin }) => {
+const PersonalInformation = () => {
     const auth = getAuth();
+    const userLogin = auth.currentUser;
+    const { updateUser, user } = useAuth();   
+
+  const [editModalVisible, setEditModalVisible] = useState(false);
+
+  const handlePasswordReset = async (auth, email) => {
+    try {
+      await sendPasswordResetEmail(auth, email);
+      Alert.alert('Success', 'Password reset email sent!');
+    } catch (error) {
+      console.error('Error sending password reset email:', error);
+      Alert.alert('Error', 'Failed to send password reset email');
+    }
+  };
+
+
     return (
         <View style={styles.infoContainer}>
             <View style={styles.infoRow}>
             <Text style={{fontSize: hp(2.5), color: COLORS.greenForest, fontWeight: 'bold', marginBottom: hp(2)}}>Personal Information</Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => setEditModalVisible(true)}>
                 <Text style={styles.editButton}>Edit</Text>
             </TouchableOpacity>
             </View>
@@ -42,7 +60,7 @@ const PersonalInformation = ({ user, sendPasswordResetEmail, userLogin }) => {
                 <Octicons name="key" size={hp(2.7)} color={COLORS.greenForest} />
                 <TouchableOpacity
                     onPress={() => {
-                        sendPasswordResetEmail(auth, user?.email || '')
+                        handlePasswordReset(auth, user?.email || '')
                             .then(() => {
                                 Alert.alert("Password Reset Email Sent", "Please check your email for instructions to reset your password.");
                             })
@@ -55,6 +73,12 @@ const PersonalInformation = ({ user, sendPasswordResetEmail, userLogin }) => {
                 </TouchableOpacity>
             </View>
         </View>
+        <EditProfileModal
+        modalVisible={editModalVisible}
+        onRequestClose={() => setEditModalVisible(false)}
+        user={user}
+        updateUser={updateUser}
+      />
     </View>
     );
 }

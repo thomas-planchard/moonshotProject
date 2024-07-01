@@ -16,6 +16,8 @@ export default function SignIn() {
   const emailRef = useRef("");
   const passwordRef = useRef("");
 
+  const [showPassword, setShowPassword] = useState(false);
+
   const handleLogin = async () => {
     if (!emailRef.current || !passwordRef.current) {
         Alert.alert('Error', 'Please fill all the fields');
@@ -62,9 +64,12 @@ export default function SignIn() {
                   style={{ fontSize: hp(2) }}
                   className='flex-1 font-semibold text-neutral-700'
                   placeholder="Password"
-                  secureTextEntry
+                  secureTextEntry={!showPassword}
                   placeholderTextColor="grey"
                 />
+                <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                <Octicons name={showPassword ? "eye" : "eye-closed"} size={hp(2.7)} color="grey" />
+              </TouchableOpacity>
               </View>
               <Text style={{ fontSize: hp(1.8) }} className='font-semibold text-right text-neutral-500'>Forgot password?</Text>
             </View>

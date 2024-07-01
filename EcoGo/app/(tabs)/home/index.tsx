@@ -4,7 +4,7 @@ import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-nativ
 import {
   Activities,
   Recommendation,
-  Welcome,
+  Dashboard,
 } from "../../../components";
 import styles from "@/components/home/whitebackground/whitebackground.style"
 import { COLORS } from "@/constants";
@@ -17,7 +17,7 @@ export default function Home() {
     
     <View style={{backgroundColor:COLORS.blueGreen}}>
       <ScrollView showsVerticalScrollIndicator={false} style={{height: hp(100) }}>
-          <Welcome/>
+          <Dashboard/>
           <View style = {styles.whiteBackground}>
           <Activities />
           <Recommendation />

@@ -4,8 +4,8 @@ import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-nat
 import { StatusBar } from 'expo-status-bar';
 import { Feather, Octicons, MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import Loading from '@/components/loading';
-import CustomKeyboardView from '@/components/CustomKeyboardView';
+import Loading from '@/components/common/Loading';
+import CustomKeyboardView from '@/components/common/CustomKeyboardView';
 import { useAuth } from '@/context/authContext';
 import * as ImagePicker from 'expo-image-picker';
 import { typeOfCars, sizeOfCars } from '@/constants/index';

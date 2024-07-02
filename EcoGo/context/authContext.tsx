@@ -88,23 +88,26 @@ export const AuthContextProvider: FC<AuthContextProviderProps> = ({ children }) 
   const updateUser = async (newUserData: Partial<User>) => {
     if (!user) return;
 
-    const userUpdates = {
-      username: newUserData.username,
-      email: newUserData.email,
-    };
+    const userUpdates: Partial<User> = {};
+    const userDataUpdates: Partial<User> = {};
 
-    const userDataUpdates = {
-      carType: newUserData.carType,
-      carSize: newUserData.carSize,
-      consumption: newUserData.consumption
-    };
+    if (newUserData.username) userUpdates.username = newUserData.username;
+    if (newUserData.email) userUpdates.email = newUserData.email;
+    if (newUserData.profileImageUrl) userUpdates.profileImageUrl = newUserData.profileImageUrl;
+    if (newUserData.carType) userDataUpdates.carType = newUserData.carType;
+    if (newUserData.carSize) userDataUpdates.carSize = newUserData.carSize;
+    if (newUserData.consumption !== undefined) userDataUpdates.consumption = newUserData.consumption;
 
     const userDocRef = doc(db, 'users', user.userId);
     const userDataDocRef = doc(db, 'userData', user.userId);
 
     try {
-      await updateDoc(userDocRef, userUpdates);
-      await updateDoc(userDataDocRef, userDataUpdates);
+      if (Object.keys(userUpdates).length > 0) {
+        await updateDoc(userDocRef, userUpdates);
+      }
+      if (Object.keys(userDataUpdates).length > 0) {
+        await updateDoc(userDataDocRef, userDataUpdates);
+      }
       setUser((prevUser) => ({
         ...prevUser,
         ...newUserData

@@ -5,7 +5,7 @@ import {
 } from "react-native";
 import { useAuth } from "@/context/authContext";
 import { useState } from "react";
-import { ProfilImage } from "@/components/common/profilImage/profilImage";
+import { ProfilImage } from "@/components/common/ProfilImage";
 
 import styles from "./nameandprofile.style"
 

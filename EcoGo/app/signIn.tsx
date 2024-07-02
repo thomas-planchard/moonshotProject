@@ -4,8 +4,8 @@ import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-nat
 import { StatusBar } from 'expo-status-bar';
 import { Octicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import Loading from '@/components/loading';
-import CustomKeyboardView from '@/components/CustomKeyboardView';
+import Loading from '@/components/common/Loading';
+import CustomKeyboardView from '@/components/common/CustomKeyboardView';
 import { useAuth } from '@/context/authContext';
 
 export default function SignIn() {

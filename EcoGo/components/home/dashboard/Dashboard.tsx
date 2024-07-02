@@ -4,7 +4,7 @@ import { Pedometer } from "expo-sensors";
 import styles from "./dashboard.style";
 import { icons } from "../../../constants";
 import { useRouter } from "expo-router";
-import { ProfilImage } from "@/components/common/profilImage/profilImage";
+import { ProfilImage } from "@/components/common/ProfilImage";
 import { useAuth } from "@/context/authContext";
 
 const Dashboard = () => {

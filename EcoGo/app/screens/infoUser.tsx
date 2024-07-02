@@ -1,9 +1,9 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, TouchableOpacity, RefreshControl, ScrollView, Modal, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, RefreshControl, ScrollView, Modal, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ProgressBar } from 'react-native-paper';
 import styles from '@/components/screens/infoUser/infoUser.style';
-import CustomKeyboardView from '@/components/CustomKeyboardView';
+import CustomKeyboardView from '@/components/common/CustomKeyboardView';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { Ionicons } from '@expo/vector-icons';
 import UploadModal from '@/utils/modal/uploadModal';
@@ -11,7 +11,7 @@ import { generateImagePath, updateImageToFirebase } from '@/utils/dataProcessing
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '@/context/authContext';
 import { SIZES, COLORS } from '@/constants/theme';
-import { ProfilImage } from '@/components/common/profilImage/profilImage';
+import { ProfilImage } from '@/components/common/ProfilImage';
 import PoliciesContainer from '@/components/screens/infoUser/Policies';
 import PersonalInformation from '@/components/screens/infoUser/PersonalInfo';
 

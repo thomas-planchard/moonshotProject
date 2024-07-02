@@ -2,7 +2,7 @@ import { FC, ReactNode, createContext, useEffect } from 'react';
 import { useState, useContext } from 'react';
 import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { auth, db } from '../FirebaseConfig';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { getStorage, getDownloadURL, ref } from 'firebase/storage';
 import { uploadImageToFirebase, generateImagePath } from '@/utils/dataProcessing/uploadImageToFirebase';
 
@@ -20,7 +20,7 @@ interface User {
 interface AuthContextInterface {
   user: User | null;
   isAuthenticated: boolean | undefined;
-  updateUser: (newUserData: Partial<User>) => void;
+  updateUser: (newUserData: Partial<User>) => Promise<void>;
   login: (email: string, password: string) => Promise<{ success: boolean; message?: string }>;
   logout: () => Promise<{ success: boolean; message?: string }>;
   register: (email: string, password: string, username: string, image: any, userData: any) => Promise<{ success: boolean; message?: string }>;
@@ -85,8 +85,33 @@ export const AuthContextProvider: FC<AuthContextProviderProps> = ({ children }) 
     }
   }
 
-  const updateUser = (newUserData: Partial<User>) => {
-    setUser(prevUser => ({ ...prevUser, ...newUserData }));
+  const updateUser = async (newUserData: Partial<User>) => {
+    if (!user) return;
+
+    const userUpdates = {
+      username: newUserData.username,
+      email: newUserData.email,
+    };
+
+    const userDataUpdates = {
+      carType: newUserData.carType,
+      carSize: newUserData.carSize,
+      consumption: newUserData.consumption
+    };
+
+    const userDocRef = doc(db, 'users', user.userId);
+    const userDataDocRef = doc(db, 'userData', user.userId);
+
+    try {
+      await updateDoc(userDocRef, userUpdates);
+      await updateDoc(userDataDocRef, userDataUpdates);
+      setUser((prevUser) => ({
+        ...prevUser,
+        ...newUserData
+      }));
+    } catch (error) {
+      console.error('Error updating user data: ', error);
+    }
   }
 
   const login = async (email: string, password: string) => {

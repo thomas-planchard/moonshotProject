@@ -231,7 +231,7 @@ export default function SignUp() {
             {/* Car Size */}
             <TouchableOpacity style={{ height: hp(7) }} className="flex-row gap-4 px-4 bg-neutral-100 items-center rounded-2xl" onPress={openPickerCarSize}>
               <MaterialCommunityIcons name="car-multiple" size={hp(2.7)} color="grey" />
-              <Text style={{ fontSize: hp(2), color: carType==null? "grey": "black" }} className="flex-1 font-semibold">{carSize==null? "Select Car Size": carSize}</Text>
+              <Text style={{ fontSize: hp(2), color: carSize==null? "grey": "black" }} className="flex-1 font-semibold">{carSize==null? "Select Car Size": carSize}</Text>
             </TouchableOpacity>
             {carSizeModalVisible && (
               <Modal

@@ -59,17 +59,6 @@ export const uploadImageToFirebase = async (uri: string, path: string): Promise<
     });
 }
 
-export const changeProfileImageUrl = async (uid: string): Promise<void> => {
-    const storage = getStorage();
-    try {
-        const imageUrl = await getDownloadURL(ref(storage, generateImagePath(uid)));
-        console.log('imageUrl: ', imageUrl);  
-        const docRef = doc(db, 'users', uid);
-        await updateDoc(docRef, { profileImageUrl: imageUrl });
-    } catch (error) {
-        console.error("Failed to fetch profile image URL: ", error);
-    }
-}
 
 export const updateImageToFirebase = async (
     uri: string,

@@ -2,11 +2,13 @@ import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Modal, Alert } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { useAuth } from '@/context/authContext';
 import { typeOfCars, sizeOfCars } from '@/constants/index';
 import styles from './editProfile.style'; 
 
-const EditProfileModal = ({ modalVisible, onRequestClose, user, updateUser }) => {
+const EditProfileModal = ({ modalVisible, onRequestClose, user }) => {
 
+  const { updateUser } = useAuth();  
 
   const [username, setUsername] = useState(user?.username || '');
   const [email, setEmail] = useState(user?.email || '');
@@ -25,7 +27,7 @@ const EditProfileModal = ({ modalVisible, onRequestClose, user, updateUser }) =>
   }, [user]);
 
   const handleSave = async () => {
-    if (!username || !email || (carType === 'fuel' && !consumption)) {
+    if (!username || !email || ((carType === 'Fuel'|| carType === 'Gazoil') && !consumption)) {
       Alert.alert('Error', 'Please fill all the fields');
       return;
     }

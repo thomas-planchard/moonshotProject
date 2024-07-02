@@ -11,7 +11,7 @@ import styles from './infoUser.style';
 const PersonalInformation = () => {
     const auth = getAuth();
     const userLogin = auth.currentUser;
-    const { updateUser, user } = useAuth();   
+    const { user } = useAuth();   
 
   const [editModalVisible, setEditModalVisible] = useState(false);
 
@@ -77,7 +77,6 @@ const PersonalInformation = () => {
         modalVisible={editModalVisible}
         onRequestClose={() => setEditModalVisible(false)}
         user={user}
-        updateUser={updateUser}
       />
     </View>
     );

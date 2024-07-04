@@ -25,7 +25,6 @@ const InfoUser = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [email, setEmail] = useState('');
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);

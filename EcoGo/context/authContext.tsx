@@ -157,6 +157,7 @@ export const AuthContextProvider: FC<AuthContextProviderProps> = ({ children }) 
       // Save additional user data to 'userData' collection
       await setDoc(doc(db, "userData", response?.user?.uid), {
         ...userData,
+        carbonFootprint: 0,
         userId: response?.user?.uid
       });
 

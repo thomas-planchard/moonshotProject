@@ -3,6 +3,8 @@ import { View, Text, Image, TouchableOpacity, Alert } from "react-native";
 import { Pedometer } from "expo-sensors";
 import styles from "./dashboard.style";
 import { icons } from "../../../constants";
+import { doc, onSnapshot} from  'firebase/firestore';
+import {db} from '../../../FirebaseConfig';
 import { useRouter } from "expo-router";
 import { ProfilImage } from "@/components/common/ProfilImage";
 import { useAuth } from "@/context/authContext";
@@ -12,7 +14,9 @@ const Dashboard = () => {
   const { user } = useAuth();
   const [imageLoaded, setImageLoaded] = useState(false);
   const [isPedometerAvailable, setPedometerAvailability] = useState(false);
+  const [carbonFootprint, setCarbonFootprint] = useState(0);
   const [stepCount, setStepCount] = useState(0);
+
 
   // Assuming an average stride length (in meters). Consider allowing the user to input their stride length.
   const strideLength = 0.78; // meters
@@ -56,10 +60,42 @@ const Dashboard = () => {
       subscription && subscription.remove();
     };
   }, []);
+
+
+  useEffect(() => {
+    let unsubscribe;
+    const fetchCarbonFootprint = async () => {
+      try {
+        if (user && user.userId) {
+          const userDataRef = doc(db, "userData", user.userId);
+          unsubscribe = onSnapshot(userDataRef, (doc) => {
+            if (doc.exists()) {
+              const userData = doc.data();
+              setCarbonFootprint(userData.carbonFootprint || 0);
+            }
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching carbon footprint:", error);
+      }
+    };
+
+    fetchCarbonFootprint();
+
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
+  }, [user]);
   
   const goToInfoUser = () => {
     routing.navigate("screens/infoUser");
   };
+
+  
+
+
 
   return (
     <View style={styles.container}>
@@ -90,7 +126,7 @@ const Dashboard = () => {
           </Text>
         </View>
         <View style={styles.infoContainer}>
-          <Text style={styles.userInformationMain}>952 LBS</Text>
+          <Text style={styles.userInformationMain}>{carbonFootprint}</Text>
           <Text style={styles.userInformationSecondary}>
             <Image source={icons.carbon} resizeMode="contain" style={styles.carbonImage} />
             Carbon Footprint

@@ -1,6 +1,7 @@
 import { Stack, useSegments, Slot, useRouter } from "expo-router";
 import { useAuth, AuthContextProvider } from "../context/authContext";
 import { useEffect } from "react";
+import ConnectionCheck from "@/components/common/CheckConnection";
 import "../global.css";
 
 
@@ -28,9 +29,11 @@ const MainLayout = () => {
 
 export default function RootLayout() {
     return (
+        <ConnectionCheck>
         <AuthContextProvider>
                 <MainLayout />
         </AuthContextProvider>
+        </ConnectionCheck>
     );
 };
 

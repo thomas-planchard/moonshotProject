@@ -15,6 +15,7 @@
   "dependencies": {
     "@expo/vector-icons": "^14.0.0",
     "@react-native-async-storage/async-storage": "1.21.0",
+    "@react-native-community/netinfo": "^11.3.2",
     "@react-native-picker/picker": "^2.7.7",
     "@react-navigation/native": "^6.0.2",
     "expo": "~50.0.19",
@@ -24,6 +25,7 @@
     "expo-image-picker": "~14.7.1",
     "expo-linking": "~6.2.2",
     "expo-location": "^17.0.1",
+    "expo-network": "^6.0.1",
     "expo-router": "~3.4.7",
     "expo-secure-store": "~12.8.1",
     "expo-sensors": "^12.9.1",

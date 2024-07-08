@@ -1,16 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, View, Alert, Text, Image, TouchableOpacity, Modal, Button, TextInput } from 'react-native';
+import { View, Alert, Text, Image, TouchableOpacity } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE, Polyline } from 'react-native-maps';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
-import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import axios from 'axios';
 import { GOOGLE_MAPS_APIKEY } from '@env';
-import {styles, customMapStyle} from './map.style';
+import { styles, customMapStyle } from './map.style';
+import DestinationModal from './DestinationModal';
 
 const MAX_ZOOM_OUT = 8; // Maximum zoom out level
 const REGULAR_ZOOM = 19.5; // Regular zoom level
-
 
 const Map = () => {
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
@@ -35,10 +34,7 @@ const Map = () => {
   }, []);
 
   const centerMapOnLocation = async () => {
-    console.log('Center button clicked');
     if (location && mapRef.current) {
-      console.log('Centering map to:', location.coords.latitude, location.coords.longitude);
-
       const camera = await mapRef.current?.getCamera();
 
       if (camera) {
@@ -52,12 +48,10 @@ const Map = () => {
         camera.altitude = 400;
         mapRef.current?.animateCamera(camera, { duration: 1000 });
       }
-    } else {
-      console.log('Location or mapRef not available');
     }
   };
 
-  const getRoute = async (destination: string) => {
+  const getRoute = async () => {
     if (!location) return;
     const origin = `${location.coords.latitude},${location.coords.longitude}`;
     try {
@@ -164,36 +158,23 @@ const Map = () => {
           />
         )}
       </MapView>
+      {modalVisible && (
+        <DestinationModal
+          modalVisible={modalVisible}
+          setModalVisible={setModalVisible}
+          destination={destination}
+          setDestination={setDestination}
+          getRoute={getRoute}
+        />
+      )}
       <TouchableOpacity style={styles.centerButton} onPress={centerMapOnLocation}>
-        <MaterialIcons name="gps-fixed" size={34} color="black" />
+        <MaterialIcons name="gps-fixed" size={34} color="white" />
       </TouchableOpacity>
       <TouchableOpacity style={styles.menuButton} onPress={() => setModalVisible(true)}>
         <Text style={styles.menuButtonText}>Menu</Text>
       </TouchableOpacity>
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Enter Destination</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter address"
-              value={destination}
-              onChangeText={setDestination}
-            />
-            <Button title="Get Route" onPress={() => getRoute(destination)} />
-            <Button title="Close" onPress={() => setModalVisible(false)} />
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 };
-
-
 
 export default Map;

@@ -16,10 +16,10 @@ const MainLayout = () => {
        const inApp = segments[0] =='(tabs)';
        if(isAuthenticated && !inApp){
         //redirect to home
-        router.replace('/(tabs)/home/')
+        router.replace('/(tabs)/Gps/')
        }else if(isAuthenticated == false ){
         //redirect to signIn
-        router.replace('/signIn')
+        router.replace('/SignIn')
        }
     }, [isAuthenticated]);
 

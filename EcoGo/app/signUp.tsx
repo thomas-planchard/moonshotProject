@@ -297,7 +297,7 @@ export default function SignUp() {
               <Text style={{ fontSize: hp(1.8) }} className="font-semibold text-neutral-500">
                 Already have an account?{' '}
               </Text>
-              <Pressable onPress={() => router.push('/signIn')}>
+              <Pressable onPress={() => router.push('/SignIn')}>
                 <Text style={{ fontSize: hp(1.8) }} className="font-bold text-green-400">
                   Sign in
                 </Text>

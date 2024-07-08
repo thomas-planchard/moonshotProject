@@ -95,7 +95,7 @@ export default function SignIn() {
             {/* Sign Up Text */}
             <View className='flex-row justify-center'>
               <Text style={{ fontSize: hp(1.8) }} className='font-semibold text-neutral-500'>Don't have an account? </Text>
-              <Pressable onPress={() => router.push('/signUp')}>
+              <Pressable onPress={() => router.push('/SignUp')}>
                 <Text style={{ fontSize: hp(1.8) }} className='font-bold text-green-400'>Sign up</Text>
               </Pressable>
             </View>

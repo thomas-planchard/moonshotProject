@@ -31,7 +31,6 @@ const styles = StyleSheet.create({
       backgroundColor: 'rgba(0, 0, 0, 0.2)', // Black background with light opacity
       borderRadius: 50, 
       padding: 20,
-      elevation: 5,
     },
     menuButton: {
       position: 'absolute',
@@ -70,6 +69,26 @@ const styles = StyleSheet.create({
       borderWidth: 1,
       marginBottom: 10,
       paddingHorizontal: 10,
+      },
+      carbonContainer: {
+        position: 'absolute',
+        top: hp(10), 
+        right: wp(5),
+        backgroundColor: 'rgba(0, 0, 0, 0.5)', // Black background with light opacity
+        borderRadius: 50, 
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+      carbonText:{
+        position: 'absolute',
+        fontSize: 14,
+        fontWeight: "bold",
+        
+      },
+      speedometer: {
+        width: wp(22),
+        height: hp(10),
+        resizeMode: 'contain',
       },
   });
 

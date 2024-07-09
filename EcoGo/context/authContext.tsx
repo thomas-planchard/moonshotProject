@@ -4,7 +4,7 @@ import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndP
 import { auth, db } from '../FirebaseConfig';
 import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { getStorage, getDownloadURL, ref } from 'firebase/storage';
-import { uploadImageToFirebase, generateImagePath } from '@/utils/dataProcessing/uploadImageToFirebase';
+import { uploadImageToFirebase, generateImagePath } from '@/utils/uploadImageToFirebase';
 
 interface User {
   username: string;

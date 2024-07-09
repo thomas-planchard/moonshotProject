@@ -5,14 +5,19 @@ import { MaterialIcons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import axios from 'axios';
 import { GOOGLE_MAPS_APIKEY } from '@env';
-import { styles, customMapStyle } from './map.style';
+import  decode  from '@/utils/decodePolyline';
+import CarbonFootprintDisplay from './CarbonFootprintDisplay';
 import DestinationModal from './DestinationModal';
+import { styles, customMapStyle } from './map.style';
+import { COLORS } from '@/constants';
 
 const MAX_ZOOM_OUT = 8; // Maximum zoom out level
 const REGULAR_ZOOM = 19.5; // Regular zoom level
 
-const Map = () => {
+const Map: React.FC = () => {
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
+  const [speed, setSpeed] = useState<number>(0);
+  const [carbonFootprint, setCarbonFootprint] = useState<number>(150);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [destination, setDestination] = useState<string>('');
@@ -30,6 +35,11 @@ const Map = () => {
 
       let location = await Location.getCurrentPositionAsync({});
       setLocation(location);
+      setSpeed(location.coords.speed || 0);
+      const calculatedCarbonFootprint = calculateCarbonFootprint(location.coords.speed || 0);
+      if (calculatedCarbonFootprint > 0) {
+        setCarbonFootprint(calculatedCarbonFootprint);
+      }
     })();
   }, []);
 
@@ -68,38 +78,6 @@ const Map = () => {
     }
   };
 
-  const decode = (t: string) => {
-    let points: Array<{ latitude: number; longitude: number }> = [];
-    let index = 0,
-      len = t.length;
-    let lat = 0,
-      lng = 0;
-
-    while (index < len) {
-      let b, shift = 0,
-        result = 0;
-      do {
-        b = t.charCodeAt(index++) - 63;
-        result |= (b & 0x1f) << shift;
-        shift += 5;
-      } while (b >= 0x20);
-      let dlat = result & 1 ? ~(result >> 1) : result >> 1;
-      lat += dlat;
-
-      shift = 0;
-      result = 0;
-      do {
-        b = t.charCodeAt(index++) - 63;
-        result |= (b & 0x1f) << shift;
-        shift += 5;
-      } while (b >= 0x20);
-      let dlng = result & 1 ? ~(result >> 1) : result >> 1;
-      lng += dlng;
-
-      points.push({ latitude: lat / 1e5, longitude: lng / 1e5 });
-    }
-    return points;
-  };
 
   const handleZoomChange = async () => {
     if (mapRef.current) {
@@ -113,6 +91,11 @@ const Map = () => {
     }
   };
 
+  const calculateCarbonFootprint = (speed: number): number => {
+    const baseEmissions = 0.2; // kg CO2 per km
+    return baseEmissions * speed; // assuming speed in km/h for a 1-hour trip
+  };
+
   if (!location) {
     return (
       <View style={styles.containerLoading}>
@@ -120,6 +103,7 @@ const Map = () => {
       </View>
     );
   }
+
 
   return (
     <View style={styles.container}>
@@ -158,7 +142,10 @@ const Map = () => {
           />
         )}
       </MapView>
-      {modalVisible && (
+        {carbonFootprint > 0 && (
+          <CarbonFootprintDisplay carbonFootprint={carbonFootprint} />
+        )}
+         {modalVisible && (
         <DestinationModal
           modalVisible={modalVisible}
           setModalVisible={setModalVisible}

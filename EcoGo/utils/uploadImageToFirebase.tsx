@@ -1,5 +1,5 @@
 import { ref, uploadBytesResumable, getDownloadURL, getStorage } from "firebase/storage";
-import { storage, db } from "../../FirebaseConfig";
+import { storage, db } from "../FirebaseConfig";
 import { doc, updateDoc } from "firebase/firestore";
 
 // Hashage

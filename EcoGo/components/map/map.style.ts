@@ -112,6 +112,21 @@ const styles = StyleSheet.create({
         modeButtonText: {
         fontSize: 9,
         },
+        infoContainer: {
+            position: 'absolute',
+            top: hp(10),
+            left: wp(5),
+            backgroundColor: 'rgba(0, 0, 0, 0.5)', // Black background with light opacity
+            borderRadius: 25,
+            padding: 10,
+            elevation: 5,
+            justifyContent: 'center',
+            alignItems: 'center',
+            },
+        infoText: {
+            fontSize: 16,
+            color: '#fff',
+        },
         
   });
 

@@ -20,10 +20,13 @@ const Map: React.FC = () => {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [destination, setDestination] = useState<string>('');
+  const [distance, setDistance] = useState<string>('');
+  const [duration, setDuration] = useState<string>('');
   const [routeCoords, setRouteCoords] = useState<Array<{ latitude: number; longitude: number }>>([]);
   const [selectedMode, setSelectedMode] = useState<string>('TRAVEL_MODE_UNSPECIFIED');
   const mapRef = useRef<MapView>(null);
 
+ 
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -72,6 +75,22 @@ const Map: React.FC = () => {
       const coords = decodePolyline(points);
       setRouteCoords(coords);
       setModalVisible(false);
+
+      // Fit the map to the route coordinates
+      if (mapRef.current) {
+        mapRef.current.fitToCoordinates(coords, {
+          edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+          animated: true,
+        });
+      }
+
+      // Fetch distance and duration
+      const route = response.data.routes[0].legs[0];
+      setDistance(route.distance.text);
+      setDuration(route.duration.text);
+      
+      // third-party API to fetch toll prices
+
     } catch (error) {
       console.error('Error fetching route:', error);
       Alert.alert('Error', 'Failed to fetch route');
@@ -156,6 +175,12 @@ const Map: React.FC = () => {
         setDestination={setDestination}
         destination={destination}
       />
+      {distance && duration && (
+        <View style={styles.infoContainer}>
+          <Text style={styles.infoText}>Distance: {distance}</Text>
+          <Text style={styles.infoText}>Duration: {duration}</Text>
+        </View>
+      )}
     </View>
   );
 };

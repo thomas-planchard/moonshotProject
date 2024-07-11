@@ -1,16 +1,14 @@
 
-
 // home screen
-import Welcome from "./home/welcome/Welcome";
-import GoodDeals from "./home/gooddeals/GoodDeals";
+import Dashboard from "./home/dashboard/Dashboard";
+import Recommendation from "./home/recommendation/Recommendation";
 import Activities from "./home/activities/Activities";
 
 
-// common
-import DealsCard from "./common/cards/dealscard/DealsCard";
+
 
 // map
-// import MapGoogle from "./map/MapGoogle";
+import MapScreen from "./map/Map";
 
 // profile
 import NameAndProfile from "./profil/nameandprofile/NameAndProfile";
@@ -25,11 +23,10 @@ import Sales from "./store/sales/Sales";
 import Spotlight from "./store/spotlight/Spotlight";
 
 export {
-  Welcome,
+  Dashboard,
   Activities,
-  GoodDeals,
-  DealsCard,
-  // MapGoogle,
+  Recommendation,
+  MapScreen,
   NameAndProfile,
   FriendsNumber,
   TotalData,

@@ -1,45 +1,131 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "expo-router";
 import {
   ScrollView,
   View,
   Text,
   Image,
+  TouchableOpacity,
+  Modal,
+  TextInput,
+  Button,
 } from "react-native";
-
+import { Picker } from "@react-native-picker/picker";
 import styles from "./activities.style";
 
-export default function Activities ()  {
+const predefinedActivities = [
+  { label: "Car", value: "Car", icon: require('../../../assets/icons/car.png') },
+  { label: "Bus", value: "Bus", icon: require('../../../assets/icons/front-bus.png') },
+  { label: "Plane", value: "Plane", icon: require('../../../assets/icons/black-plane.png') },
+  { label: "Cycling", value: "Cycling", icon: require('../../../assets/icons/man-cycling.png') },
+];
+
+export default function Activities() {
+  const [modalVisible, setModalVisible] = useState(false);
+  const [pickerVisible, setPickerVisible] = useState(false);
+  const [selectedActivity, setSelectedActivity] = useState(predefinedActivities[0].value);
+  const [time, setTime] = useState('');
+  const [distance, setDistance] = useState('');
+  const [activities, setActivities] = useState([]);
+
+  const openModal = () => {
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+    setPickerVisible(false);
+  };
+
+  const handleAddActivity = () => {
+    const activityIcon = predefinedActivities.find(activity => activity.value === selectedActivity)?.icon;
+    setActivities([...activities, { name: selectedActivity, time, distance, icon: activityIcon }]);
+    closeModal();
+  };
+
+  const openPicker = () => {
+    setPickerVisible(true);
+  };
+
+  const closePicker = () => {
+    setPickerVisible(false);
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Activities</Text>
-    </View>
+        <TouchableOpacity onPress={openModal} style={styles.plusButton}>
+          <Text style={styles.plusButtonText}>+</Text>
+        </TouchableOpacity>
+      </View>
       <ScrollView showsHorizontalScrollIndicator={true} horizontal style={styles.cardsContainer}>
-        <View style={styles.card}>
-           <Image style={styles.icons} source={require('../../../assets/icons/car.png')}></Image>
-           <Text style={styles.activityTime}>34 min</Text>
-           <Text style={styles.activityName}>Car</Text> 
-        </View>
-        <View style={styles.card}>
-           <Image style={styles.icons} source={require('../../../assets/icons/front-bus.png')}></Image>
-           <Text style={styles.activityTime}>30 min</Text>
-           <Text style={styles.activityName}>Bus</Text> 
-        </View>
-        <View style={styles.card}>
-            <Image style={styles.icons} source={require('../../../assets/icons/black-plane.png')}></Image>
-           <Text style={styles.activityTime}>240 min</Text>
-           <Text style={styles.activityName}>Plane</Text> 
-        </View>
-        <View style={styles.card}>
-            <Image style={styles.icons} source={require('../../../assets/icons/man-cycling.png')}></Image>
-           <Text style={styles.activityTime}>12 min</Text>
-           <Text style={styles.activityName}>Cycling</Text>  
-        </View>
+        {activities.map((activity, index) => (
+          <View key={index} style={styles.card}>
+            <Image style={styles.icons} source={activity.icon} />
+            <Text style={styles.activityTime}>{activity.time} min</Text>
+            <Text style={styles.activityName}>{activity.name}</Text>
+          </View>
+        ))}
       </ScrollView>
+      
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={closeModal}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Add Activity</Text>
+            <TouchableOpacity style={styles.input} onPress={openPicker}>
+              <Text>{selectedActivity}</Text>
+            </TouchableOpacity>
+            {pickerVisible && (
+              <Modal
+                transparent={true}
+                animationType="fade"
+                visible={pickerVisible}
+                onRequestClose={closePicker}
+              >
+                <View style={styles.pickerModalContainer}>
+                  <View style={styles.pickerModalContent}>
+                    <Picker
+                      selectedValue={selectedActivity}
+                      style={styles.picker}
+                      onValueChange={(itemValue) => {
+                        setSelectedActivity(itemValue);
+                        closePicker();
+                      }}
+                    >
+                      {predefinedActivities.map((activity) => (
+                        <Picker.Item key={activity.value} label={activity.label} value={activity.value} />
+                      ))}
+                    </Picker>
+                  </View>
+                </View>
+              </Modal>
+            )}
+            <TextInput
+              style={styles.input}
+              placeholder="Time (min)"
+              value={time}
+              onChangeText={setTime}
+              keyboardType="numeric"
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Distance (km)"
+              value={distance}
+              onChangeText={setDistance}
+              keyboardType="numeric"
+            />
+            <Button title="Add Activity" onPress={handleAddActivity} />
+            <Button title="Cancel" onPress={closeModal} />
+          </View>
+        </View>
+      </Modal>
     </View>
   );
-};
-
+}
 

@@ -1,21 +1,20 @@
 import { SafeAreaView, ScrollView, View, ActivityIndicator, Text } from "react-native";
-import { Stack, useRouter } from "expo-router";
-// import { MapGoogle } from "../../components";
+import {widthPercentageToDP as wp, heightPercentageToDP as hp, heightPercentageToDP} from 'react-native-responsive-screen';
+import { MapScreen } from "../../components";
 
 
 
-import {
-    Footer,
-  } from "../../components";
+
 
 
 export default function Gps(){
     return (
-        <SafeAreaView>
-            <ScrollView >
-                {/* <MapGoogle /> */}
-            </ScrollView>
-        </SafeAreaView>
+        <View style={{height: heightPercentageToDP(100)}} >
+            <MapScreen />
+        </View>
 
     );
 };
+
+
+

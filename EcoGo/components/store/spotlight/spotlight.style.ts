@@ -18,11 +18,10 @@ export default StyleSheet.create({
         flexDirection: "row",
         marginLeft: SIZES.medium,
         
-        
       },
       card: {
-        width: 200,
-        height: 260,
+        width: 150,
+        height: 150,
         marginRight: SIZES.medium,
         borderRadius: 10,
         resizeMode: 'stretch',

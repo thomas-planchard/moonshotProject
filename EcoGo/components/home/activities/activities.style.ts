@@ -1,4 +1,5 @@
 import { StyleSheet } from "react-native";
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
 
 import { SIZES, COLORS } from "../../../constants";
 
@@ -10,6 +11,8 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
+    marginHorizontal: SIZES.medium,
   },
   headerTitle: {
     marginLeft: SIZES.medium,
@@ -52,6 +55,62 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: SIZES.medium,
     fontFamily: "Montserrat-Bold",
+  },
+
+  plusButton: {
+    backgroundColor: COLORS.greenForest,
+    borderRadius: 20,
+    padding: 10,
+  },
+  plusButtonText: {
+    color: '#fff',
+    fontSize: 24,
+    lineHeight: 24,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: 300,
+    padding: 20,
+    backgroundColor: COLORS.greenWhite,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  input: {
+    width: '100%',
+    padding: 10,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 5,
+    marginBottom: 20,
+  },
+
+  picker: {
+    width: wp(60),
+    height: hp(5),
+    marginBottom: hp(20),
+  },
+  pickerModalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  pickerModalContent: {
+    backgroundColor: COLORS.greenWhite,
+    borderRadius: 10,
+    margin: 20,
+    padding: 20,
+  
   },
 });
 

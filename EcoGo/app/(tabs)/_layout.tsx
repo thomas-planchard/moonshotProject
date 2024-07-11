@@ -45,7 +45,7 @@ export default function layout_ () {
                 
                 }
             />
-            <Tabs.Screen name="store"
+            <Tabs.Screen name="Store"
                 options={
                     {
                         tabBarIcon: ({focused}) => (
@@ -64,7 +64,7 @@ export default function layout_ () {
                     }
                 }
             />
-            <Tabs.Screen name="gps" 
+            <Tabs.Screen name="Gps" 
                 options={
                     {
                         tabBarIcon: ({focused}) => (
@@ -79,7 +79,7 @@ export default function layout_ () {
                 
                 }
             />
-            <Tabs.Screen name="settings"
+            <Tabs.Screen name="Settings"
                 options = {
                     {
                         tabBarIcon: ({focused}) => (
@@ -98,7 +98,7 @@ export default function layout_ () {
                     }
                 }
                 />
-            <Tabs.Screen name="profile"
+            <Tabs.Screen name="Profile"
                 options={
                     {
                         tabBarIcon: ({focused}) => (

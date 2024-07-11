@@ -6,6 +6,8 @@ import {
   Spotlight,
 } from "../../components";
 
+import { COLORS } from "@/constants";
+
 
 
 
@@ -14,7 +16,7 @@ export default function Store(){
   return (
     
     <SafeAreaView>
-      <ScrollView style={{height: "100%"}} showsVerticalScrollIndicator={false}>
+      <ScrollView style={{height: "100%", backgroundColor: COLORS.greenWhite}} showsVerticalScrollIndicator={false}>
         <PopularCategories />
         <Sales />
         <Spotlight />

@@ -1,15 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Alert, Text, Image, TouchableOpacity } from 'react-native';
+import { View, Alert, Text, TouchableOpacity, Image } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE, Polyline } from 'react-native-maps';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import axios from 'axios';
 import { GOOGLE_MAPS_APIKEY } from '@env';
-import  decode  from '@/utils/decodePolyline';
-import CarbonFootprintDisplay from './CarbonFootprintDisplay';
-import DestinationModal from './DestinationModal';
 import { styles, customMapStyle } from './map.style';
-import { COLORS } from '@/constants';
+import CarbonFootprintDisplay from './CarbonFootprintDisplay';
+import decodePolyline from '@/utils/decodePolyline';
+import DestinationModal from './DestinationModal';
 
 const MAX_ZOOM_OUT = 8; // Maximum zoom out level
 const REGULAR_ZOOM = 19.5; // Regular zoom level
@@ -22,6 +21,7 @@ const Map: React.FC = () => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [destination, setDestination] = useState<string>('');
   const [routeCoords, setRouteCoords] = useState<Array<{ latitude: number; longitude: number }>>([]);
+  const [selectedMode, setSelectedMode] = useState<string>('TRAVEL_MODE_UNSPECIFIED');
   const mapRef = useRef<MapView>(null);
 
   useEffect(() => {
@@ -66,10 +66,10 @@ const Map: React.FC = () => {
     const origin = `${location.coords.latitude},${location.coords.longitude}`;
     try {
       const response = await axios.get(
-        `https://maps.googleapis.com/maps/api/directions/json?origin=${origin}&destination=${destination}&key=${GOOGLE_MAPS_APIKEY}`
+        `https://maps.googleapis.com/maps/api/directions/json?origin=${origin}&destination=${destination}&mode=${selectedMode}&key=${GOOGLE_MAPS_APIKEY}`
       );
       const points = response.data.routes[0].overview_polyline.points;
-      const coords = decode(points);
+      const coords = decodePolyline(points);
       setRouteCoords(coords);
       setModalVisible(false);
     } catch (error) {
@@ -77,7 +77,6 @@ const Map: React.FC = () => {
       Alert.alert('Error', 'Failed to fetch route');
     }
   };
-
 
   const handleZoomChange = async () => {
     if (mapRef.current) {
@@ -103,7 +102,6 @@ const Map: React.FC = () => {
       </View>
     );
   }
-
 
   return (
     <View style={styles.container}>
@@ -142,24 +140,22 @@ const Map: React.FC = () => {
           />
         )}
       </MapView>
-        {carbonFootprint > 0 && (
-          <CarbonFootprintDisplay carbonFootprint={carbonFootprint} />
-        )}
-         {modalVisible && (
-        <DestinationModal
-          modalVisible={modalVisible}
-          setModalVisible={setModalVisible}
-          destination={destination}
-          setDestination={setDestination}
-          getRoute={getRoute}
-        />
-      )}
+      <CarbonFootprintDisplay carbonFootprint={carbonFootprint} />
       <TouchableOpacity style={styles.centerButton} onPress={centerMapOnLocation}>
         <MaterialIcons name="gps-fixed" size={34} color="white" />
       </TouchableOpacity>
       <TouchableOpacity style={styles.menuButton} onPress={() => setModalVisible(true)}>
         <Text style={styles.menuButtonText}>Menu</Text>
       </TouchableOpacity>
+      <DestinationModal
+        modalVisible={modalVisible}
+        setModalVisible={setModalVisible}
+        getRoute={getRoute}
+        selectedMode={selectedMode}
+        setSelectedMode={setSelectedMode}
+        setDestination={setDestination}
+        destination={destination}
+      />
     </View>
   );
 };

@@ -90,6 +90,29 @@ const styles = StyleSheet.create({
         height: hp(10),
         resizeMode: 'contain',
       },
+
+      modeButtonsContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        marginBottom: 10,
+        },
+        modeButton: {
+        padding: 6,
+        borderRadius: 5,
+        borderWidth: 1,
+        borderColor:'gray',
+        },
+        modeButtonSelected: {
+        padding: 6,
+        borderRadius: 5,
+        borderWidth: 1,
+        borderColor: 'gray',
+        backgroundColor: 'lightblue',
+        },
+        modeButtonText: {
+        fontSize: 9,
+        },
+        
   });
 
 

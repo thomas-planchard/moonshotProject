@@ -19,7 +19,7 @@ export default function layout_ () {
                         right: 20,
                         borderRadius: 15,
                         height: 50,
-                        ...styles.shadow,
+                        
 
                     },
                 }

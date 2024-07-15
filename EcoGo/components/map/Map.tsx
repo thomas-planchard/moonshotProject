@@ -8,6 +8,7 @@ import { GOOGLE_MAPS_APIKEY } from '@env';
 import { styles, customMapStyle } from './map.style';
 import CarbonFootprintDisplay from './CarbonFootprintDisplay';
 import decodePolyline from '@/utils/decodePolyline';
+import FooterMap from './FooterMap';
 import DestinationModal from './DestinationModal';
 
 const MAX_ZOOM_OUT = 8; // Maximum zoom out level
@@ -20,15 +21,14 @@ const Map: React.FC = () => {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [destination, setDestination] = useState<string>('');
+  const [routeCoords, setRouteCoords] = useState<Array<{ latitude: number; longitude: number }>>([]);
   const [distance, setDistance] = useState<string>('');
   const [duration, setDuration] = useState<string>('');
-  const [routeCoords, setRouteCoords] = useState<Array<{ latitude: number; longitude: number }>>([]);
   const [selectedMode, setSelectedMode] = useState<string>('TRAVEL_MODE_UNSPECIFIED');
   const [instructions, setInstructions] = useState<string>('');
   const mapRef = useRef<MapView>(null);
   const stepsRef = useRef<any[]>([]);
 
- 
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -217,16 +217,13 @@ const Map: React.FC = () => {
           <Polyline
             coordinates={routeCoords}
             strokeColor="blue" // Line color
-            strokeWidth={15} // Line width
+            strokeWidth={10} // Line width
           />
         )}
       </MapView>
       <CarbonFootprintDisplay carbonFootprint={carbonFootprint} />
       <TouchableOpacity style={styles.centerButton} onPress={centerMapOnLocation}>
-        <MaterialIcons name="gps-fixed" size={34} color="white" />
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.menuButton} onPress={() => setModalVisible(true)}>
-        <Text style={styles.menuButtonText}>Menu</Text>
+        <MaterialIcons name="gps-fixed" size={50} color="white" />
       </TouchableOpacity>
       <DestinationModal
         modalVisible={modalVisible}
@@ -236,6 +233,9 @@ const Map: React.FC = () => {
         setSelectedMode={setSelectedMode}
         setDestination={setDestination}
         destination={destination}
+      />
+      <FooterMap
+        setModalVisible={setModalVisible}
       />
       {distance && duration && (
         <View style={styles.infoContainer}>

@@ -26,26 +26,11 @@ const styles = StyleSheet.create({
     },
     centerButton: {
       position: 'absolute',
-      bottom: hp(10), 
+      bottom: hp(20.5), 
       right: wp(5),
       backgroundColor: 'rgba(0, 0, 0, 0.2)', // Black background with light opacity
       borderRadius: 50, 
-      padding: 20,
-    },
-    menuButton: {
-      position: 'absolute',
-      top: hp(5),
-      left: wp(5),
-      backgroundColor: 'rgba(0, 0, 0, 0.5)', // Black background with light opacity
-      borderRadius: 25,
-      padding: 10,
-      elevation: 5,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    menuButtonText: {
-      fontSize: 16,
-      color: '#fff',
+      padding: 25,
     },
     modalContainer: {
       flex: 1,
@@ -72,7 +57,7 @@ const styles = StyleSheet.create({
       },
       carbonContainer: {
         position: 'absolute',
-        bottom: hp(10), 
+        bottom: hp(20), 
         left: wp(5),
         backgroundColor: 'rgba(0, 0, 0, 0.5)', // Black background with light opacity
         borderRadius: 50, 
@@ -86,8 +71,8 @@ const styles = StyleSheet.create({
         
       },
       speedometer: {
-        width: wp(22),
-        height: hp(10),
+        width: wp(24),
+        height: hp(11),
         resizeMode: 'contain',
       },
 
@@ -141,6 +126,23 @@ const styles = StyleSheet.create({
             fontSize: 16,
             color: '#fff',
         },
+        magnifierButton: {
+            backgroundColor: COLORS.lightWhite, 
+            borderRadius: 50,
+            padding: 5,
+            justifyContent: 'center',
+            alignItems: 'center',
+            width: wp(12),
+            height: hp(6),
+            top: hp(3),
+            left: wp(6),
+          },
+          footerContainer:{
+            width: wp(100),
+            height: hp(20),
+            backgroundColor: COLORS.greenWhite,
+            top: hp(80),
+          }
         
   });
 

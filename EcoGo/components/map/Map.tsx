@@ -24,7 +24,9 @@ const Map: React.FC = () => {
   const [duration, setDuration] = useState<string>('');
   const [routeCoords, setRouteCoords] = useState<Array<{ latitude: number; longitude: number }>>([]);
   const [selectedMode, setSelectedMode] = useState<string>('TRAVEL_MODE_UNSPECIFIED');
+  const [instructions, setInstructions] = useState<string>('');
   const mapRef = useRef<MapView>(null);
+  const stepsRef = useRef<any[]>([]);
 
  
   useEffect(() => {
@@ -44,6 +46,22 @@ const Map: React.FC = () => {
         setCarbonFootprint(calculatedCarbonFootprint);
       }
     })();
+
+    const subscription = Location.watchPositionAsync(
+      {
+        accuracy: Location.Accuracy.High,
+        distanceInterval: 10, // Update every 10 meters
+        timeInterval: 1000, // Update every second
+      },
+      (newLocation) => {
+        setLocation(newLocation);
+        updateInstructions(newLocation);
+      }
+    );
+
+    return () => {
+      subscription.then((sub) => sub.remove());
+    };
   }, []);
 
   const centerMapOnLocation = async () => {
@@ -88,13 +106,57 @@ const Map: React.FC = () => {
       const route = response.data.routes[0].legs[0];
       setDistance(route.distance.text);
       setDuration(route.duration.text);
-      
-      // third-party API to fetch toll prices
+
+      // Set navigation steps
+      stepsRef.current = route.steps;
+      updateInstructions(location);
 
     } catch (error) {
       console.error('Error fetching route:', error);
       Alert.alert('Error', 'Failed to fetch route');
     }
+  };
+
+  const updateInstructions = (newLocation: Location.LocationObject) => {
+    if (stepsRef.current.length === 0) return;
+
+    const currentStep = stepsRef.current[0];
+    const currentLatLng = {
+      latitude: newLocation.coords.latitude,
+      longitude: newLocation.coords.longitude,
+    };
+
+    const stepEndLatLng = {
+      latitude: currentStep.end_location.lat,
+      longitude: currentStep.end_location.lng,
+    };
+
+    const distanceToStepEnd = getDistance(currentLatLng, stepEndLatLng);
+
+    if (distanceToStepEnd < 20) { // Assuming 20 meters as the threshold to consider step completed
+      stepsRef.current.shift(); // Remove completed step
+      if (stepsRef.current.length > 0) {
+        const nextStep = stepsRef.current[0];
+        setInstructions(`${nextStep.html_instructions.replace(/<[^>]+>/g, '')} in ${nextStep.distance.text}`);
+      } else {
+        setInstructions('You have arrived at your destination');
+      }
+    } else {
+      setInstructions(`${currentStep.html_instructions.replace(/<[^>]+>/g, '')} in ${currentStep.distance.text}`);
+    }
+  };
+
+  const getDistance = (point1: { latitude: number, longitude: number }, point2: { latitude: number, longitude: number }) => {
+    const rad = (x: number) => x * Math.PI / 180;
+    const R = 6378137; // Earth’s mean radius in meters
+    const dLat = rad(point2.latitude - point1.latitude);
+    const dLong = rad(point2.longitude - point1.longitude);
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(rad(point1.latitude)) * Math.cos(rad(point2.latitude)) *
+      Math.sin(dLong / 2) * Math.sin(dLong / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = R * c;
+    return distance; // returns the distance in meter
   };
 
   const handleZoomChange = async () => {
@@ -155,7 +217,7 @@ const Map: React.FC = () => {
           <Polyline
             coordinates={routeCoords}
             strokeColor="blue" // Line color
-            strokeWidth={10} // Line width
+            strokeWidth={15} // Line width
           />
         )}
       </MapView>
@@ -179,6 +241,11 @@ const Map: React.FC = () => {
         <View style={styles.infoContainer}>
           <Text style={styles.infoText}>Distance: {distance}</Text>
           <Text style={styles.infoText}>Duration: {duration}</Text>
+        </View>
+      )}
+      {instructions && (
+        <View style={styles.instructionContainer}>
+          <Text style={styles.instructionsText}>{instructions}</Text>
         </View>
       )}
     </View>

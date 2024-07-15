@@ -72,8 +72,8 @@ const styles = StyleSheet.create({
       },
       carbonContainer: {
         position: 'absolute',
-        top: hp(10), 
-        right: wp(5),
+        bottom: hp(10), 
+        left: wp(5),
         backgroundColor: 'rgba(0, 0, 0, 0.5)', // Black background with light opacity
         borderRadius: 50, 
         alignItems: 'center',
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
         infoContainer: {
             position: 'absolute',
             top: hp(10),
-            left: wp(5),
+            right: wp(5),
             backgroundColor: 'rgba(0, 0, 0, 0.5)', // Black background with light opacity
             borderRadius: 25,
             padding: 10,
@@ -124,6 +124,20 @@ const styles = StyleSheet.create({
             alignItems: 'center',
             },
         infoText: {
+            fontSize: 16,
+            color: '#fff',
+        },
+        instructionContainer : {
+            position: 'absolute',
+            top: hp(10),
+            left: wp(5),
+            backgroundColor: 'rgba(0, 0, 0, 0.5)', // Black background with light opacity
+            borderRadius: 25,
+            padding: 10,
+            height: hp(15),
+            width: wp(35),
+            },
+        instructionsText: {
             fontSize: 16,
             color: '#fff',
         },

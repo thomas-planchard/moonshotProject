@@ -17,7 +17,7 @@ const REGULAR_ZOOM = 19.5; // Regular zoom level
 const Map: React.FC = () => {
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
   const [speed, setSpeed] = useState<number>(0);
-  const [carbonFootprint, setCarbonFootprint] = useState<number>(150);
+  const [carbonFootprint, setCarbonFootprint] = useState<number>(500);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [destination, setDestination] = useState<string>('');
@@ -25,6 +25,7 @@ const Map: React.FC = () => {
   const [distance, setDistance] = useState<string>('');
   const [duration, setDuration] = useState<string>('');
   const [selectedMode, setSelectedMode] = useState<string>('TRAVEL_MODE_UNSPECIFIED');
+  const [arrivalTime, setArrivalTime] = useState<string>('');
   const [instructions, setInstructions] = useState<string>('');
   const mapRef = useRef<MapView>(null);
   const stepsRef = useRef<any[]>([]);
@@ -102,10 +103,20 @@ const Map: React.FC = () => {
         });
       }
 
-      // Fetch distance and duration
-      const route = response.data.routes[0].legs[0];
-      setDistance(route.distance.text);
-      setDuration(route.duration.text);
+    // Fetch distance, duration, and arrival time
+    const route = response.data.routes[0].legs[0];
+    setDistance(route.distance.text);
+
+    // Format duration to "3h34"
+    const durationInSeconds = route.duration.value;
+    const hours = Math.floor(durationInSeconds / 3600);
+    const minutes = Math.floor((durationInSeconds % 3600) / 60);
+    const formattedDuration = `${hours}h${minutes < 10 ? '0' : ''}${minutes}`;
+    setDuration(formattedDuration);
+
+    const arrivalTime = new Date(Date.now() + durationInSeconds * 1000);
+    setArrivalTime(arrivalTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+
 
       // Set navigation steps
       stepsRef.current = route.steps;
@@ -221,10 +232,12 @@ const Map: React.FC = () => {
           />
         )}
       </MapView>
-      <CarbonFootprintDisplay carbonFootprint={carbonFootprint} />
-      <TouchableOpacity style={styles.centerButton} onPress={centerMapOnLocation}>
-        <MaterialIcons name="gps-fixed" size={50} color="white" />
-      </TouchableOpacity>
+      <View style={styles.infoContainer}>
+        <CarbonFootprintDisplay carbonFootprint={carbonFootprint} />
+        <TouchableOpacity style={styles.centerButton} onPress={centerMapOnLocation}>
+          <MaterialIcons name="gps-fixed" size={70} color="white" />
+        </TouchableOpacity>
+      </View>
       <DestinationModal
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
@@ -235,14 +248,11 @@ const Map: React.FC = () => {
         destination={destination}
       />
       <FooterMap
+        distance={distance}
+        duration={duration}
+        arrivalTime={arrivalTime}
         setModalVisible={setModalVisible}
       />
-      {distance && duration && (
-        <View style={styles.infoContainer}>
-          <Text style={styles.infoText}>Distance: {distance}</Text>
-          <Text style={styles.infoText}>Duration: {duration}</Text>
-        </View>
-      )}
       {instructions && (
         <View style={styles.instructionContainer}>
           <Text style={styles.instructionsText}>{instructions}</Text>

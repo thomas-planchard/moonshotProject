@@ -10,9 +10,10 @@ import CarbonFootprintDisplay from './CarbonFootprintDisplay';
 import decodePolyline from '@/utils/decodePolyline';
 import FooterMap from './FooterMap';
 import DestinationModal from './DestinationModal';
+import Instructions from './instructions/Instructions';
 
 const MAX_ZOOM_OUT = 8; // Maximum zoom out level
-const REGULAR_ZOOM = 19.5; // Regular zoom level
+const REGULAR_ZOOM = 18.5; // Regular zoom level
 
 const Map: React.FC = () => {
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
@@ -254,9 +255,9 @@ const Map: React.FC = () => {
         setModalVisible={setModalVisible}
       />
       {instructions && (
-        <View style={styles.instructionContainer}>
-          <Text style={styles.instructionsText}>{instructions}</Text>
-        </View>
+        <Instructions
+          instructions={instructions}
+        />
       )}
     </View>
   );

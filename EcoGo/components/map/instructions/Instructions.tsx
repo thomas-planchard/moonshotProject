@@ -24,7 +24,7 @@ const getTurnDirection = (instruction: string) => {
         return <MaterialCommunityIcons name="arrow-u-down-left" size={80} color="white" />;
     } else if (instruction.toLowerCase().includes('uturn right')) {
         return <MaterialCommunityIcons name="arrow-u-down-right" size={80} color="white" />;
-    } else if (instruction.toLowerCase().includes('straight')) {
+    } else if (instruction.toLowerCase().includes('straight'||'continue'||'head')) {
         return <MaterialCommunityIcons name="arrow-up" size={80} color="white" />;
     } else if (instruction.toLowerCase().includes('merge')) {
         return <MaterialCommunityIcons name="merge" size={80} color="white" />;
@@ -47,17 +47,21 @@ const getTurnDirection = (instruction: string) => {
 };
 
 const getDistance = (instruction: string) => {
-    const regex = /in (\d+) m/;
+    const regex = /(?:in|for) (\d+\.?\d*) (m|km)/;
+    const match = instruction.match(regex);
+    if (match) {
+      const value = parseFloat(match[1]);
+      const unit = match[2];
+      return unit === 'km' ? `${(value * 1000).toFixed(0)} m` : `${value.toFixed(0)} m`;
+    }
+    return '';
+  };
+  
+  const getStreetName = (instruction: string) => {
+    const regex = /(?:onto|on|toward|to|at) (.+?)(?: in \d+ m| for \d+ m|$)/;
     const match = instruction.match(regex);
     return match ? match[1] : '';
-};
-
-const getStreetName = (instruction: string) => {
-    const regex = /on (.+?) in \d+ m/;
-    const match = instruction.match(regex);
-    return match ? match[1] : '';
-};
-
+  };
 
 export const Instructions: React.FC<InstructionsProps> = ({ instructions }) => {
     console.log(instructions);
@@ -69,7 +73,7 @@ export const Instructions: React.FC<InstructionsProps> = ({ instructions }) => {
         <View style={styles.instructionContainer}>
             {turnDirection && turnDirection}
             <View style={styles.textContainer}>
-                <Text style={styles.instructionsText}>{distance} m</Text>
+                <Text style={styles.instructionsText}>{distance}</Text>
                 <Text style={styles.streetNameText} numberOfLines={3}>{streetName}</Text>
             </View>
         </View>

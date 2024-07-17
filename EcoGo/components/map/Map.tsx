@@ -30,6 +30,8 @@ const Map: React.FC = () => {
   const [instructions, setInstructions] = useState<string>('');
   const mapRef = useRef<MapView>(null);
   const stepsRef = useRef<any[]>([]);
+  const mockLocationRef = useRef<NodeJS.Timeout | null>(null);
+  const followingUser = useRef(true);
 
   useEffect(() => {
     (async () => {
@@ -47,24 +49,42 @@ const Map: React.FC = () => {
       if (calculatedCarbonFootprint > 0) {
         setCarbonFootprint(calculatedCarbonFootprint);
       }
+
+      const subscription = await Location.watchPositionAsync(
+        {
+          accuracy: Location.Accuracy.High,
+          distanceInterval: 10, // Update every 10 meters
+          timeInterval: 1000, // Update every second
+        },
+        (newLocation) => {
+          setLocation(newLocation);
+          updateInstructions(newLocation);
+        }
+      );
+
+      return () => {
+        subscription.remove();
+      };
     })();
-
-    const subscription = Location.watchPositionAsync(
-      {
-        accuracy: Location.Accuracy.High,
-        distanceInterval: 10, // Update every 10 meters
-        timeInterval: 1000, // Update every second
-      },
-      (newLocation) => {
-        setLocation(newLocation);
-        updateInstructions(newLocation);
-      }
-    );
-
-    return () => {
-      subscription.then((sub) => sub.remove());
-    };
   }, []);
+
+  useEffect(() => {
+    if (location && followingUser.current && mapRef.current) {
+      mapRef.current.animateCamera({
+        center: {
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        },
+        zoom: REGULAR_ZOOM,
+        heading: 0,
+        pitch: 65,
+        altitude: 400,
+      }, { duration: 1000 });
+      
+    }
+  }, [location]);
+
+
 
   const centerMapOnLocation = async () => {
     if (location && mapRef.current) {
@@ -80,6 +100,7 @@ const Map: React.FC = () => {
         camera.pitch = 65;
         camera.altitude = 400;
         mapRef.current?.animateCamera(camera, { duration: 1000 });
+        followingUser.current = true;
       }
     }
   };
@@ -109,7 +130,7 @@ const Map: React.FC = () => {
     const route = response.data.routes[0].legs[0];
     setDistance(route.distance.text);
 
-    // Format duration to "3h34"
+    // Format duration to "**h**" format
     const durationInSeconds = route.duration.value;
     const hours = Math.floor(durationInSeconds / 3600);
     const minutes = Math.floor((durationInSeconds % 3600) / 60);
@@ -122,7 +143,11 @@ const Map: React.FC = () => {
 
       // Set navigation steps
       stepsRef.current = route.steps;
+      console.log('Steps:', route.steps);
       updateInstructions(location);
+
+          // Start mock location updates
+          mockLocation(coords);
 
     } catch (error) {
       console.error('Error fetching route:', error);
@@ -159,6 +184,8 @@ const Map: React.FC = () => {
     }
   };
 
+
+
   const getDistance = (point1: { latitude: number, longitude: number }, point2: { latitude: number, longitude: number }) => {
     const rad = (x: number) => x * Math.PI / 180;
     const R = 6378137; // Earth’s mean radius in meters
@@ -183,6 +210,35 @@ const Map: React.FC = () => {
       }
     }
   };
+
+  
+  const mockLocation = (coords: Array<{ latitude: number; longitude: number }>) => {
+    if (mockLocationRef.current) {
+      clearInterval(mockLocationRef.current);
+    }
+    let index = 0;
+    mockLocationRef.current = setInterval(() => {
+      if (index < coords.length) {
+        const newLocation = {
+          coords: {
+            latitude: coords[index].latitude,
+            longitude: coords[index].longitude,
+            altitude: 0,
+            accuracy: 5,
+            heading: 0,
+            speed: 0,
+          },
+          timestamp: Date.now(),
+        };
+        setLocation(newLocation as Location.LocationObject);
+        index++;
+      } else {
+        clearInterval(mockLocationRef.current!);
+      }
+    }, 2000); // Move the marker every 2 seconds
+  };
+
+
 
   const calculateCarbonFootprint = (speed: number): number => {
     const baseEmissions = 0.2; // kg CO2 per km

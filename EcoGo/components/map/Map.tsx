@@ -91,6 +91,7 @@ const Map: React.FC = () => {
       const response = await axios.get(
         `https://maps.googleapis.com/maps/api/directions/json?origin=${origin}&destination=${destination}&mode=${selectedMode}&key=${GOOGLE_MAPS_APIKEY}`
       );
+      console.log('Route response:', response.data);
       const points = response.data.routes[0].overview_polyline.points;
       const coords = decodePolyline(points);
       setRouteCoords(coords);

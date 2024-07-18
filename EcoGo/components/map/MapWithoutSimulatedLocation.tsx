@@ -23,17 +23,14 @@ const Map: React.FC = () => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [destination, setDestination] = useState<string>('');
   const [routeCoords, setRouteCoords] = useState<Array<{ latitude: number; longitude: number }>>([]);
-  const [totalDistance, setTotalDistance] = useState<string>('');
-  const [distance, setDistance] = useState<number>(0);
+  const [distance, setDistance] = useState<string>('');
   const [duration, setDuration] = useState<string>('');
   const [selectedMode, setSelectedMode] = useState<string>('TRAVEL_MODE_UNSPECIFIED');
   const [arrivalTime, setArrivalTime] = useState<string>('');
-  const [instructions, setInstructions] = useState<object | null>(null);
+  const [instructions, setInstructions] = useState<string>('');
   const mapRef = useRef<MapView>(null);
   const stepsRef = useRef<any[]>([]);
   const followingUser = useRef(true);
-
-
 
   useEffect(() => {
     (async () => {
@@ -51,6 +48,22 @@ const Map: React.FC = () => {
       if (calculatedCarbonFootprint > 0) {
         setCarbonFootprint(calculatedCarbonFootprint);
       }
+
+      const subscription = await Location.watchPositionAsync(
+        {
+          accuracy: Location.Accuracy.High,
+          distanceInterval: 10, // Update every 10 meters
+          timeInterval: 1000, // Update every second
+        },
+        (newLocation) => {
+          setLocation(newLocation);
+          updateInstructions(newLocation);
+        }
+      );
+
+      return () => {
+        subscription.remove();
+      };
     })();
   }, []);
 
@@ -66,35 +79,9 @@ const Map: React.FC = () => {
         pitch: 65,
         altitude: 400,
       }, { duration: 1000 });
+      
     }
   }, [location]);
-
-  const startRouteSimulation = (routeCoords) => {
-    let index = 0;
-
-    const intervalId = setInterval(() => {
-      if (index < routeCoords.length) {
-        const newLocation = {
-          coords: {
-            latitude: routeCoords[index].latitude,
-            longitude: routeCoords[index].longitude,
-            speed: 5, // Set a fixed speed for simulation
-            heading: 0,
-            accuracy: 5,
-            altitude: 5,
-          },
-          timestamp: Date.now(),
-        };
-        setLocation(newLocation as Location.LocationObject);
-        updateInstructions(newLocation as Location.LocationObject);
-        index++;
-      } else {
-        clearInterval(intervalId);
-        Alert.alert('Navigation', 'You have arrived at your destination');
-      }
-    }, 10000); // Change location every 3 seconds
-  };
-
 
   const centerMapOnLocation = async () => {
     if (location && mapRef.current) {
@@ -122,6 +109,7 @@ const Map: React.FC = () => {
       const response = await axios.get(
         `https://maps.googleapis.com/maps/api/directions/json?origin=${origin}&destination=${destination}&mode=${selectedMode}&key=${GOOGLE_MAPS_APIKEY}`
       );
+      console.log('Route response:', response.data);
       const points = response.data.routes[0].overview_polyline.points;
       const coords = decodePolyline(points);
       setRouteCoords(coords);
@@ -137,7 +125,7 @@ const Map: React.FC = () => {
 
       // Fetch distance, duration, and arrival time
       const route = response.data.routes[0].legs[0];
-      setTotalDistance(route.distance.text);
+      setDistance(route.distance.text);
 
       // Format duration to "**h**" format
       const durationInSeconds = route.duration.value;
@@ -152,55 +140,44 @@ const Map: React.FC = () => {
       // Set navigation steps
       stepsRef.current = route.steps;
       console.log('Steps:', route.steps);
-      startRouteSimulation(coords);
       updateInstructions(location);
+
+
     } catch (error) {
       console.error('Error fetching route:', error);
       Alert.alert('Error', 'Failed to fetch route');
     }
   };
 
+  const updateInstructions = (newLocation: Location.LocationObject) => {
+    if (stepsRef.current.length === 0) return;
 
-const updateInstructions = (newLocation) => {
-  if (stepsRef.current.length === 0) {
-    setInstructions('You have arrived at your destination');
-    return;
-  }
+    const currentStep = stepsRef.current[0];
+    const currentLatLng = {
+      latitude: newLocation.coords.latitude,
+      longitude: newLocation.coords.longitude,
+    };
 
-  const currentStep = stepsRef.current[0];
-  console.log('Current step:', currentStep);
-  const currentLatLng = {
-    latitude: newLocation.coords.latitude,
-    longitude: newLocation.coords.longitude,
-  };
+    const stepEndLatLng = {
+      latitude: currentStep.end_location.lat,
+      longitude: currentStep.end_location.lng,
+    };
 
-  const stepEndLatLng = {
-    latitude: currentStep.end_location.lat,
-    longitude: currentStep.end_location.lng,
-  };
+    const distanceToStepEnd = getDistance(currentLatLng, stepEndLatLng);
 
-  const distanceToStepEnd = getDistance(currentLatLng, stepEndLatLng);
-  setDistance(distanceToStepEnd);
-  console.log('Distance to step end:', distanceToStepEnd);
-
-  // Consider adjusting the threshold if GPS accuracy is an issue
-  const completionThreshold = 25; // Adjusted threshold to 10 meters
-
-  if (distanceToStepEnd <= completionThreshold) {
-    console.log('Step completed. Remaining steps:', stepsRef.current.length - 1);
-    stepsRef.current.shift(); // Remove completed step
-
-    if (stepsRef.current.length === 0) {
-      setInstructions('You have arrived at your destination');
+    if (distanceToStepEnd < 5) { // Assuming 5 meters as the threshold to consider step completed
+      stepsRef.current.shift(); // Remove completed step
+      if (stepsRef.current.length > 0) {
+        const nextStep = stepsRef.current[0];
+        setInstructions(`${nextStep.html_instructions.replace(/<[^>]+>/g, '')} in ${nextStep.distance.text}`);
+      } else {
+        setInstructions('You have arrived at your destination');
+      }
     } else {
-      const nextStep = stepsRef.current[0];
-      setInstructions(nextStep);
+      setInstructions(`${currentStep.html_instructions.replace(/<[^>]+>/g, '')} in ${currentStep.distance.text}`);
     }
-  } else {
-    setInstructions(currentStep);
-  }
-};
-  
+  };
+
   const getDistance = (point1: { latitude: number, longitude: number }, point2: { latitude: number, longitude: number }) => {
     const rad = (x: number) => x * Math.PI / 180;
     const R = 6378137; // Earth’s mean radius in meters
@@ -294,7 +271,7 @@ const updateInstructions = (newLocation) => {
         destination={destination}
       />
       <FooterMap
-        distance={totalDistance}
+        distance={distance}
         duration={duration}
         arrivalTime={arrivalTime}
         setModalVisible={setModalVisible}
@@ -302,7 +279,6 @@ const updateInstructions = (newLocation) => {
       {instructions && (
         <Instructions
           instructions={instructions}
-          distance={distance}
         />
       )}
     </View>

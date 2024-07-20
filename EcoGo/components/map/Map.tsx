@@ -3,7 +3,6 @@ import { View, Alert, Text, TouchableOpacity, Image } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE, Polyline } from 'react-native-maps';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
-import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import axios from 'axios';
 import { GOOGLE_MAPS_APIKEY } from '@env';
 import { styles, customMapStyle } from './map.style';
@@ -13,7 +12,7 @@ import decodePolyline from '@/utils/decodePolyline';
 import FooterMap from './FooterMap';
 import DestinationModal from './DestinationModal';
 import Instructions from './instructions/Instructions';
-import { heightPercentageToDP } from 'react-native-responsive-screen';
+import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 const MAX_ZOOM_OUT = 8; // Maximum zoom out level
 const REGULAR_ZOOM = 18.5; // Regular zoom level
@@ -36,8 +35,6 @@ const Map: React.FC = () => {
   const stepsRef = useRef<any[]>([]);
   const followingUser = useRef(true);
 
-
-
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -54,6 +51,22 @@ const Map: React.FC = () => {
       if (calculatedCarbonFootprint > 0) {
         setCarbonFootprint(calculatedCarbonFootprint);
       }
+
+      const subscription = await Location.watchPositionAsync(
+        {
+          accuracy: Location.Accuracy.High,
+          distanceInterval: 10, // Update every 10 meters
+          timeInterval: 1000, // Update every second
+        },
+        (newLocation) => {
+          console.log('Location updated:', newLocation.coords);
+          updateLocation(newLocation);
+        }
+      );
+
+      return () => {
+        subscription.remove();
+      };
     })();
   }, []);
 
@@ -65,12 +78,17 @@ const Map: React.FC = () => {
           longitude: location.coords.longitude,
         },
         zoom: REGULAR_ZOOM,
-        heading: 0,
+        heading: location.coords.heading, // Use the heading to rotate the map
         pitch: 65,
         altitude: 400,
       }, { duration: 1000 });
     }
   }, [location]);
+
+  const updateLocation = (newLocation: Location.LocationObject) => {
+    setLocation(newLocation);
+    updateInstructions(newLocation);
+  };
 
   const startRouteSimulation = (routeCoords) => {
     let index = 0;
@@ -82,7 +100,9 @@ const Map: React.FC = () => {
             latitude: routeCoords[index].latitude,
             longitude: routeCoords[index].longitude,
             speed: 5, // Set a fixed speed for simulation
-            heading: 0,
+            heading: routeCoords[index + 1]
+              ? calculateHeading(routeCoords[index], routeCoords[index + 1])
+              : 0,
             accuracy: 5,
             altitude: 5,
           },
@@ -93,11 +113,26 @@ const Map: React.FC = () => {
         index++;
       } else {
         clearInterval(intervalId);
-        Alert.alert('Navigation', 'You have arrived at your destination');
       }
-    }, 10000); // Change location every 3 seconds
+    }, 5000); // Change location every 10 seconds
   };
 
+  const calculateHeading = (from, to) => {
+    const lat1 = (from.latitude * Math.PI) / 180;
+    const lon1 = (from.longitude * Math.PI) / 180;
+    const lat2 = (to.latitude * Math.PI) / 180;
+    const lon2 = (to.longitude * Math.PI) / 180;
+
+    const dLon = lon2 - lon1;
+    const y = Math.sin(dLon) * Math.cos(lat2);
+    const x =
+      Math.cos(lat1) * Math.sin(lat2) -
+      Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
+    let brng = Math.atan2(y, x);
+    brng = (brng * 180) / Math.PI;
+    brng = (brng + 360) % 360;
+    return brng;
+  };
 
   const centerMapOnLocation = async () => {
     if (location && mapRef.current) {
@@ -109,7 +144,7 @@ const Map: React.FC = () => {
           longitude: location.coords.longitude,
         };
         camera.zoom = REGULAR_ZOOM;
-        camera.heading = 0;
+        camera.heading = location.coords.heading;
         camera.pitch = 65;
         camera.altitude = 400;
         mapRef.current?.animateCamera(camera, { duration: 1000 });
@@ -164,45 +199,62 @@ const Map: React.FC = () => {
   };
 
 
-const updateInstructions = (newLocation) => {
-  if (stepsRef.current.length === 0) {
-    setInstructions('You have arrived at your destination');
-    return;
-  }
+  const updateInstructions = (newLocation) => {
+    if (!destination) return; // No destination set
+  
+    const currentStep = stepsRef.current[0];
+    const nextStep = stepsRef.current[1] || { html_instructions: destination, distance: currentStep.distance, maneuver: 'straight' };
+    
+    const instruction = {
+      ...nextStep,
+      distance: currentStep.distance
+    };
+  
+    const currentLatLng = {
+      latitude: newLocation.coords.latitude,
+      longitude: newLocation.coords.longitude,
+    };
+  
+    const stepEndLatLng = {
+      latitude: currentStep.end_location.lat,
+      longitude: currentStep.end_location.lng,
+    };
+  
+    const distanceToStepEnd = getDistance(currentLatLng, stepEndLatLng);
+    setDistance(distanceToStepEnd);
+  
+    const completionThreshold = 25; // Adjusted threshold to 25 meters
+  
+    if (distanceToStepEnd <= completionThreshold) {
+      stepsRef.current.shift(); // Remove completed step
+  
+      if (stepsRef.current.length === 0) {
+        setInstructions({
+          html_instructions: destination,
+          distance: currentStep.distance,
+          maneuver: 'straight'
+        });
+        Alert.alert('Navigation', 'You have arrived at your destination');
 
-  const currentStep = stepsRef.current[0];
-  console.log('Current step:', currentStep);
-  const currentLatLng = {
-    latitude: newLocation.coords.latitude,
-    longitude: newLocation.coords.longitude,
-  };
-
-  const stepEndLatLng = {
-    latitude: currentStep.end_location.lat,
-    longitude: currentStep.end_location.lng,
-  };
-
-  const distanceToStepEnd = getDistance(currentLatLng, stepEndLatLng);
-  setDistance(distanceToStepEnd);
-  console.log('Distance to step end:', distanceToStepEnd);
-
-  // Consider adjusting the threshold if GPS accuracy is an issue
-  const completionThreshold = 25; // Adjusted threshold to 10 meters
-
-  if (distanceToStepEnd <= completionThreshold) {
-    console.log('Step completed. Remaining steps:', stepsRef.current.length - 1);
-    stepsRef.current.shift(); // Remove completed step
-
-    if (stepsRef.current.length === 0) {
-      setInstructions('You have arrived at your destination');
+      } else if (stepsRef.current.length === 1) {
+        setInstructions({
+          ...stepsRef.current[0],
+          html_instructions: destination,
+          distance: currentStep.distance,
+          maneuver: 'straight'
+        });
+      } else {
+        setInstructions({
+          ...stepsRef.current[0],
+          distance: currentStep.distance
+        });
+      }
     } else {
-      const nextStep = stepsRef.current[0];
-      setInstructions(nextStep);
+      setInstructions(instruction);
     }
-  } else {
-    setInstructions(currentStep);
-  }
-};
+  };
+
+
   
   const getDistance = (point1: { latitude: number, longitude: number }, point2: { latitude: number, longitude: number }) => {
     const rad = (x: number) => x * Math.PI / 180;

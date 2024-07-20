@@ -65,10 +65,16 @@ const getTurnDirection = (maneuver: string) => {
 };
 
 const getStreetName = (instruction: string) => {
-    const regex = /<b>(.*?)<\/b>/g;
-    const matches = [...instruction.matchAll(regex)];
-    return matches.length > 1 ? matches[1][1] : '';
-  };
+  // Check if the instruction contains any HTML tag
+  if (!/<\/?[a-z][\s\S]*>/i.test(instruction)) {
+    // If no HTML tags are found, return the instruction itself 
+    return instruction; 
+  }
+
+  const regex = /<b>(.*?)<\/b>/g;
+  const matches = [...instruction.matchAll(regex)];
+  return matches.length > 1 ? matches[1][1] : '';
+};
 
 export const Instructions: React.FC<InstructionsProps> = ({ instructions, distance }) => {
   const maneuver = getManeuver(instructions);

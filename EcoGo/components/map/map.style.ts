@@ -10,6 +10,7 @@ const styles = StyleSheet.create({
       width: wp(100),
     },
     containerLoading: {
+      backgroundColor: 'white',
       justifyContent: 'center',
       alignItems: 'center',
       flex: 1,

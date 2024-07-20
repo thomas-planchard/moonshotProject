@@ -7,7 +7,6 @@ import { useRouter } from 'expo-router';
 import Loading from '@/components/common/Loading';
 import CustomKeyboardView from '@/components/common/CustomKeyboardView';
 import { useAuth } from '@/context/authContext';
-import { COLORS } from '@/constants/theme';
 
 export default function SignIn() {
   const router = useRouter();
@@ -27,7 +26,7 @@ export default function SignIn() {
     setLoading(true);
     const response = await login(emailRef.current, passwordRef.current);
     setLoading(false);
-    if (!response.sucess) {
+    if (!response.success) {
         Alert.alert('Sign In Erreur', response.msg);
     }
 };

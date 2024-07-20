@@ -3,14 +3,17 @@ import { View, Alert, Text, TouchableOpacity, Image } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE, Polyline } from 'react-native-maps';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
+import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import axios from 'axios';
 import { GOOGLE_MAPS_APIKEY } from '@env';
 import { styles, customMapStyle } from './map.style';
+import LoadingMap from '../common/LoadingMap';
 import CarbonFootprintDisplay from './CarbonFootprintDisplay';
 import decodePolyline from '@/utils/decodePolyline';
 import FooterMap from './FooterMap';
 import DestinationModal from './DestinationModal';
 import Instructions from './instructions/Instructions';
+import { heightPercentageToDP } from 'react-native-responsive-screen';
 
 const MAX_ZOOM_OUT = 8; // Maximum zoom out level
 const REGULAR_ZOOM = 18.5; // Regular zoom level
@@ -236,7 +239,8 @@ const updateInstructions = (newLocation) => {
   if (!location) {
     return (
       <View style={styles.containerLoading}>
-        <Text>Loading...</Text>
+        <LoadingMap size={300} />
+        <Text style={{fontFamily:'bold', fontSize:hp(3)}}>Loading...</Text>
       </View>
     );
   }

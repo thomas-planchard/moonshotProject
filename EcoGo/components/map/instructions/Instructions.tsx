@@ -79,7 +79,7 @@ export const Instructions: React.FC<InstructionsProps> = ({ instructions, distan
     <View style={styles.instructionContainer}>
       {turnDirection && turnDirection}
       <View style={styles.textContainer}>
-        <Text style={styles.instructionsText}>{distance.toFixed(0)} m</Text>
+        <Text style={styles.instructionsText}>{distance > 1000 ? `${(distance / 1000).toFixed(1)} km` : `${distance.toFixed(0)} m`}</Text>
         <Text style={styles.streetNameText} numberOfLines={3}>{streetName}</Text>
       </View>
     </View>

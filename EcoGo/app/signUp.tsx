@@ -112,7 +112,7 @@ export default function SignUp() {
   return (
     <CustomKeyboardView>
       <StatusBar style="dark" />
-      <ScrollView style={{ paddingTop: hp(7), paddingHorizontal: wp(5), height: hp(120) }} className="flex-1 gap-12">
+      <ScrollView style={{ paddingTop: hp(7), paddingHorizontal: wp(5), height: hp(120) , backgroundColor:'white' }} className="flex-1 gap-12">
         <View className="items-center">
           <Image source={require('../assets/images/register.jpg')} resizeMode="contain" style={{ height: hp(20), alignSelf: 'center' }} />
         </View>

@@ -7,6 +7,7 @@ import { useRouter } from 'expo-router';
 import Loading from '@/components/common/Loading';
 import CustomKeyboardView from '@/components/common/CustomKeyboardView';
 import { useAuth } from '@/context/authContext';
+import { COLORS } from '@/constants/theme';
 
 export default function SignIn() {
   const router = useRouter();
@@ -34,7 +35,7 @@ export default function SignIn() {
   return (
     <CustomKeyboardView>
       <StatusBar style="dark" />
-      <View style={{ paddingTop: hp(8), paddingHorizontal: wp(5) }} className='flex-1 gap-12'>
+      <View style={{ paddingTop: hp(8), paddingHorizontal: wp(5), backgroundColor: 'white', height:hp(100)}} className='flex-1 gap-12'>
         <View className='items-center'>
           <Image source={require('../assets/images/login.png')} resizeMode='contain' style={{ height: hp(30), alignSelf: 'center' }} />
         </View>

@@ -179,6 +179,7 @@ const Map: React.FC = () => {
 
       // Format duration to "**h**" format
       const durationInSeconds = route.duration.value;
+      console.log('Duration in seconds:', route.duration.value);
       const hours = Math.floor(durationInSeconds / 3600);
       const minutes = Math.floor((durationInSeconds % 3600) / 60);
       const formattedDuration = `${hours}h${minutes < 10 ? '0' : ''}${minutes}`;
@@ -197,14 +198,22 @@ const Map: React.FC = () => {
       Alert.alert('Error', 'Failed to fetch route');
     }
   };
-
-
   const updateInstructions = (newLocation) => {
     if (!destination) return; // No destination set
   
+    if (stepsRef.current.length === 0) {
+      setInstructions({
+        html_instructions: destination,
+        distance: 0,
+        maneuver: 'straight'
+      });
+      Alert.alert('Navigation', 'You have arrived at your destination');
+      return;
+    }
+  
     const currentStep = stepsRef.current[0];
     const nextStep = stepsRef.current[1] || { html_instructions: destination, distance: currentStep.distance, maneuver: 'straight' };
-    
+  
     const instruction = {
       ...nextStep,
       distance: currentStep.distance
@@ -235,7 +244,9 @@ const Map: React.FC = () => {
           maneuver: 'straight'
         });
         Alert.alert('Navigation', 'You have arrived at your destination');
-
+  
+        // Set the remaining distance to 0
+        setDistance(0);
       } else if (stepsRef.current.length === 1) {
         setInstructions({
           ...stepsRef.current[0],
@@ -252,8 +263,39 @@ const Map: React.FC = () => {
     } else {
       setInstructions(instruction);
     }
+  
+    // Update total distance, duration, and arrival time
+    updateRemainingDistanceAndDuration(newLocation);
   };
-
+  
+  const updateRemainingDistanceAndDuration = (currentLocation) => {
+    const finalDestination = stepsRef.current.length > 0 ? stepsRef.current[stepsRef.current.length - 1].end_location : { lat: destinationLat, lng: destinationLng };
+  
+    let remainingDistance = getDistance(
+      { latitude: currentLocation.coords.latitude, longitude: currentLocation.coords.longitude },
+      { latitude: finalDestination.lat, longitude: finalDestination.lng }
+    );
+  
+    let remainingDuration = 0;
+  
+    for (let i = 0; i < stepsRef.current.length; i++) {
+      remainingDistance += stepsRef.current[i].distance.value;
+      remainingDuration += stepsRef.current[i].duration.value;
+    }
+  
+    // Update total distance
+    setTotalDistance(`${(remainingDistance / 1000).toFixed(1)} km`);
+  
+    // Update duration in "**h**" format
+    const hours = Math.floor(remainingDuration / 3600);
+    const minutes = Math.floor((remainingDuration % 3600) / 60);
+    const formattedDuration = `${hours}h${minutes < 10 ? '0' : ''}${minutes}`;
+    setDuration(formattedDuration);
+  
+    // Update arrival time
+    const arrivalTime = new Date(Date.now() + remainingDuration * 1000);
+    setArrivalTime(arrivalTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+  };
 
   
   const getDistance = (point1: { latitude: number, longitude: number }, point2: { latitude: number, longitude: number }) => {

@@ -16,7 +16,7 @@ const TRANSPORTATION_EMISSIONS: Readonly<{ [key: string]: number }> = {
    * @param {number} timeSpent - The time spent on the trip in hours (not directly used in the calculation but can be used for other purposes).
    * @returns {number} - The carbon footprint in kg CO2.
    */
-  function calculateCarbonFootprint(distance: number, transportation: string, timeSpent: number): number {
+  function CalculateCarbonFootprint(distance: number, transportation: string, timeSpent: number): number {
     if (!TRANSPORTATION_EMISSIONS.hasOwnProperty(transportation)) {
       throw new Error('Invalid transportation choice. Please choose from "plane", "bus", "car", or "bicycle".');
     }
@@ -27,4 +27,4 @@ const TRANSPORTATION_EMISSIONS: Readonly<{ [key: string]: number }> = {
     return carbonFootprint;
   }
   
-  export default calculateCarbonFootprint;
+  export default CalculateCarbonFootprint;

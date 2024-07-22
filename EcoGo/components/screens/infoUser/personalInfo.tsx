@@ -3,7 +3,7 @@ import { View, TextInput, TouchableOpacity, Text, Alert } from 'react-native';
 import { Octicons } from '@expo/vector-icons';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import EditProfileModal from '@/components/screens/infoUser/EditProfileComponent'; 
-import { COLORS } from '@/constants/theme.ts';
+import { COLORS } from '@/constants';
 import { getAuth, sendPasswordResetEmail } from 'firebase/auth';
 import { useAuth } from '@/context/authContext';
 import styles from './infoUser.style';

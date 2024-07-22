@@ -9,7 +9,7 @@ import { GOOGLE_MAPS_APIKEY } from '@env';
 import { styles, customMapStyle } from './map.style';
 import LoadingMap from '../common/LoadingMap';
 import CarbonFootprintDisplay from './CarbonFootprintDisplay';
-import {decodePolyline} from '@/utils/MapUtils';
+import {decodePolyline, getDistance, calculateHeading} from '@/utils/MapUtils';
 import FooterMap from './FooterMap';
 import DestinationModal from './DestinationModal';
 import Instructions from './instructions/Instructions';
@@ -125,23 +125,7 @@ const Map: React.FC = () => {
     }, 5000); // Change location every 10 seconds
   };
 
-  // Function to calculate heading between two points
-  const calculateHeading = (from, to) => {
-    const lat1 = (from.latitude * Math.PI) / 180;
-    const lon1 = (from.longitude * Math.PI) / 180;
-    const lat2 = (to.latitude * Math.PI) / 180;
-    const lon2 = (to.longitude * Math.PI) / 180;
 
-    const dLon = lon2 - lon1;
-    const y = Math.sin(dLon) * Math.cos(lat2);
-    const x =
-      Math.cos(lat1) * Math.sin(lat2) -
-      Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
-    let brng = Math.atan2(y, x);
-    brng = (brng * 180) / Math.PI;
-    brng = (brng + 360) % 360;
-    return brng;
-  };
 
   // Function to center map on current location
   const centerMapOnLocation = async () => {
@@ -282,6 +266,7 @@ const Map: React.FC = () => {
 
   // Function to update remaining distance and duration
   const updateRemainingDistanceAndDuration = (currentLocation) => {
+    if (!destination) return;
     const finalDestination = stepsRef.current.length > 0 ? stepsRef.current[stepsRef.current.length - 1].end_location : { lat: destinationLat, lng: destinationLng };
 
     let remainingDistance = getDistance(
@@ -310,19 +295,6 @@ const Map: React.FC = () => {
     setArrivalTime(arrivalTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
   };
 
-  // Function to calculate distance between two points
-  const getDistance = (point1: { latitude: number, longitude: number }, point2: { latitude: number, longitude: number }) => {
-    const rad = (x: number) => x * Math.PI / 180;
-    const R = 6378137; // Earth’s mean radius in meters
-    const dLat = rad(point2.latitude - point1.latitude);
-    const dLong = rad(point2.longitude - point1.longitude);
-    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(rad(point1.latitude)) * Math.cos(rad(point2.latitude)) *
-      Math.sin(dLong / 2) * Math.sin(dLong / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distance = R * c;
-    return distance; // returns the distance in meter
-  };
 
   // Function to handle zoom changes
   const handleZoomChange = async () => {

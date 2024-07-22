@@ -3,7 +3,7 @@ import { Stack } from "expo-router";
 const StackLayout =()=>{
     return (
         <Stack>
-            <Stack.Screen name="infoUser" options= {{headerShown: false}} />
+            <Stack.Screen name="InfoUser" options= {{headerShown: false}} />
         </Stack>
     );
 };

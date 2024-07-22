@@ -6,7 +6,7 @@ import styles from '@/components/screens/infoUser/infoUser.style';
 import CustomKeyboardView from '@/components/common/CustomKeyboardView';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { Ionicons } from '@expo/vector-icons';
-import UploadModal from '@/utils/uploadModal';
+import UploadModal from '@/utils/UploadModal';
 import { generateImagePath, updateImageToFirebase } from '@/utils/uploadImageToFirebase';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '@/context/authContext';

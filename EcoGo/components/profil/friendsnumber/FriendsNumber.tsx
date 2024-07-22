@@ -6,7 +6,7 @@ import {
 
 } from "react-native";
 import { useRouter } from "expo-router";
-import ICONS from "@/constants";
+import {ICONS} from "@/constants";
 
 import styles from "./friendsnumber.style"
 
@@ -15,7 +15,7 @@ export default function FriendsNumber () {
   const routing = useRouter();
 
   const goToinfoUser = () => {
-    routing.navigate("screens/infoUser");
+    routing.navigate("screens/InfoUser");
   }
 
   return (

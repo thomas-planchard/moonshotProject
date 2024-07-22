@@ -13,7 +13,9 @@ const ICONS = {
     subwayFrontView : require("../assets/icons/subwayFrontView.png"),
 
     // Dashboard icons
-    steps : require("../assets/icons/icWalking.png"),
+    steps : require("../assets/icons/icStep.png"),
+    carbon : require("../assets/icons/carbon.png"),
+    calories : require("../assets/icons/icCal.png"),
 
     // tab icons
     greenButton : require("../assets/icons/greenButton.png"),

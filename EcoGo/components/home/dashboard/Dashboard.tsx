@@ -90,7 +90,7 @@ const Dashboard = () => {
   }, [user]);
   
   const goToInfoUser = () => {
-    routing.navigate("screens/infoUser");
+    routing.navigate("screens/InfoUser");
   };
 
   
@@ -128,7 +128,7 @@ const Dashboard = () => {
         <View style={styles.infoContainer}>
           <Text style={styles.userInformationMain}>{carbonFootprint}</Text>
           <Text style={styles.userInformationSecondary}>
-            <Image source={icons.carbon} resizeMode="contain" style={styles.carbonImage} />
+            <Image source={ICONS.carbon} resizeMode="contain" style={styles.carbonImage} />
             Carbon Footprint
           </Text>
         </View>
@@ -145,7 +145,6 @@ const Dashboard = () => {
         <View style={styles.column}>
           <Text style={styles.userInformationMain2}>{caloriesBurnt}</Text>
           <Text style={styles.userInformationSecondary2}>
-            <Image source={icons.calories} resizeMode="contain" style={styles.caloriesImage} />
             Calories
           </Text>
         </View>

@@ -2,7 +2,7 @@ import { ref, uploadBytesResumable, getDownloadURL, getStorage } from "firebase/
 import { storage, db } from "../FirebaseConfig";
 import { doc, updateDoc } from "firebase/firestore";
 
-// Hashage
+// Hashing function to create a unique identifier based on a string
 const hashage = (str: string): number => {
     let hash = 0;
     if (!str || str.length === 0) {
@@ -16,13 +16,20 @@ const hashage = (str: string): number => {
     return hash;
 }
 
-// Generate Image Path
+// Generate the path for storing user images
 export const generateImagePath = (uid: string): string => {
     return `images/user/${hashage(uid)}.jpg`;
 }
 
-// Upload Image
-export const uploadImageToFirebase = async (uri: string, path: string): Promise<string> => {
+
+
+// Upload an image to Firebase Storage and return the download URL
+const uploadImage = async (
+    uri: string,
+    path: string,
+    timeoutDuration: number,
+    setProgress?: (value: number) => void
+): Promise<string> => {
     const fetchResponse = await fetch(uri);
     const blob = await fetchResponse.blob();
     const imageRef = ref(storage, path);
@@ -30,28 +37,32 @@ export const uploadImageToFirebase = async (uri: string, path: string): Promise<
     const uploadTask = uploadBytesResumable(imageRef, blob);
 
     return new Promise<string>((resolve, reject) => {
-        uploadTask.on('state_changed', 
+        const timeout = setTimeout(() => {
+            reject(new Error("Your connection is too slow to upload the image"));
+        }, timeoutDuration);
+
+        uploadTask.on(
+            'state_changed',
             (snapshot) => {
                 const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
                 console.log(`Upload is ${progress}% done`);
-                switch (snapshot.state) {
-                    case 'paused':
-                        console.log('Upload is paused');
-                        break;
-                    case 'running':
-                        console.log('Upload is running');
-                        break;
+                if (setProgress) {
+                    setProgress(progress);
                 }
-            }, 
+            },
             (error) => {
+                clearTimeout(timeout);
+                console.error("Upload error:", error);
                 reject(error);
-            }, 
+            },
             async () => {
+                clearTimeout(timeout);
                 try {
                     const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
                     console.log('File available at', downloadURL);
                     resolve(downloadURL);
                 } catch (error) {
+                    console.error("Error getting download URL:", error);
                     reject(error);
                 }
             }
@@ -59,7 +70,14 @@ export const uploadImageToFirebase = async (uri: string, path: string): Promise<
     });
 }
 
+// Upload image to Firebase Storage
+export const uploadImageToFirebase = async (uri: string, path: string): Promise<string> => {
+    return await uploadImage(uri, path, 10000); // 10 seconds timeout
+}
 
+
+
+// Update user's profile image in Firebase Storage and Firestore
 export const updateImageToFirebase = async (
     uri: string,
     path: string,
@@ -68,41 +86,17 @@ export const updateImageToFirebase = async (
     setProgress: (value: number) => void
 ): Promise<string> => {
     setIsUploading(true);
-    const fetchResponse = await fetch(uri);
-    const blob = await fetchResponse.blob();
-    const docRef = doc(db, 'users', uid);
-    const imageRef = ref(storage, path);
 
-    const uploadTask = uploadBytesResumable(imageRef, blob);
-
-    return new Promise<string>((resolve, reject) => {
-        const timeout = setTimeout(() => {
-            reject(new Error("Your connection is too slow to upload the image"));
-        }, 10000);
-
-        uploadTask.on('state_changed', 
-            (snapshot) => {
-                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                console.log(`Upload is ${progress}% done`);
-                setProgress(progress);
-            }, 
-            (error) => {
-                clearTimeout(timeout);
-                reject(error);
-            }, 
-            async () => {
-                clearTimeout(timeout);
-                try {
-                    const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-                    await updateDoc(docRef, { profileImageUrl: downloadURL });
-                    resolve(downloadURL);
-                } catch (error) {
-                    reject(error);
-                } finally {
-                    setProgress(0);
-                    setIsUploading(false);
-                }
-            }
-        );
-    });
+    try {
+        const downloadURL = await uploadImage(uri, path, 10000, setProgress); // 10 seconds timeout
+        const docRef = doc(db, 'users', uid);
+        await updateDoc(docRef, { profileImageUrl: downloadURL });
+        return downloadURL;
+    } catch (error) {
+        console.error("Error updating image:", error);
+        throw error;
+    } finally {
+        setProgress(0); // Reset progress after upload completion
+        setIsUploading(false);
+    }
 }

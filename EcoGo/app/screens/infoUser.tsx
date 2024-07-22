@@ -12,7 +12,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '@/context/authContext';
 import { SIZES, COLORS } from '@/constants/theme';
 import { ProfilImage } from '@/components/common/ProfilImage';
-import PoliciesContainer from '@/components/screens/infoUser/Policies';
+import PoliciesContainer from '@/components/screens/infoUser/adpolicies';
 import PersonalInformation from '@/components/screens/infoUser/PersonalInfo';
 
 const InfoUser = () => {

@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useRouter } from "expo-router";
 import {
   ScrollView,
   View,
@@ -11,13 +10,14 @@ import {
   Button,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
+import {ICONS} from "@/constants"
 import styles from "./activities.style";
 
 const predefinedActivities = [
-  { label: "Car", value: "Car", icon: require('../../../assets/icons/car.png') },
-  { label: "Bus", value: "Bus", icon: require('../../../assets/icons/front-bus.png') },
-  { label: "Plane", value: "Plane", icon: require('../../../assets/icons/black-plane.png') },
-  { label: "Cycling", value: "Cycling", icon: require('../../../assets/icons/man-cycling.png') },
+  { label: "Car", value: "Car", icon: ICONS.car },
+  { label: "Bus", value: "Bus", icon: ICONS.frontBus },
+  { label: "Plane", value: "Plane", icon: ICONS.blackPlane },
+  { label: "Cycling", value: "Cycling", icon: ICONS.cycling },
 ];
 
 export default function Activities() {

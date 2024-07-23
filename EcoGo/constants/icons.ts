@@ -20,9 +20,10 @@ const ICONS = {
     // tab icons
     greenButton : require("../assets/icons/greenButton.png"),
     icHome : require("../assets/icons/icHome.png"),
-    icSetting : require("../assets/icons/icSetting.png"),
+    // icSetting : require("../assets/icons/icSetting.png"),
     icShop : require("../assets/icons/icShop.png"),
     icUserSquare : require("../assets/icons/icUserSquare.png"),
+    icCoin : require("../assets/icons/icCoin.png"),
     
     // other icons
     icEdit : require("../assets/icons/icEdit.png"),

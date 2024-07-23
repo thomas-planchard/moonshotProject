@@ -27,10 +27,11 @@ const styles = StyleSheet.create({
     },
     footerContainer:{
         width: wp(100),
-        height: hp(20),
+        height: hp(25),
         backgroundColor: COLORS.greenWhite,
         top: hp(64),
         borderRadius: 25,
+        alignItems:"flex-start",
       },
 
       infoSection: {

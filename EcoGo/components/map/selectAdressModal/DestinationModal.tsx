@@ -65,10 +65,10 @@ const DestinationModal: React.FC<DestinationModalProps> = ({
             <Text style={styles.modeButtonText}>2 Wheeler</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={selectedMode === 'TRANSITE' ? styles.modeButtonSelected : styles.modeButton}
+            style={selectedMode === 'TRANSIT' ? styles.modeButtonSelected : styles.modeButton}
             onPress={() => setSelectedMode('TRANSIT')}
           >
-            <Text style={styles.modeButtonText}> Public Transportation  </Text>
+            <Text style={styles.modeButtonText}> Transit  </Text>
           </TouchableOpacity>
         </View>
         <Button title="Get Route" onPress={getRoute} />

@@ -38,18 +38,24 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         },
     modeButton: {
-        padding: 6,
+        height: hp(3),
+        width: wp(12),
         borderRadius: 5,
         borderWidth: 1,
         borderColor:'gray',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 
     modeButtonSelected: {
-        padding: 6,
+        height: hp(3),
+        width: wp(12),
         borderRadius: 5,
         borderWidth: 1,
         borderColor: 'gray',
         backgroundColor: 'lightblue',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 
     modeButtonText: {

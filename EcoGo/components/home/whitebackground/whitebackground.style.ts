@@ -10,6 +10,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: SIZES.xLarge,
     width: wp(100), 
     height: hp(67), 
+    marginTop: hp(3),  
   }
     
 });

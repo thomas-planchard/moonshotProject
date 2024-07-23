@@ -1,4 +1,4 @@
-import {StyleSheet, Dimensions} from 'react-native';
+import {StyleSheet} from 'react-native';
 
 import { COLORS, SIZES } from "../../../constants";
 
@@ -17,7 +17,6 @@ export default StyleSheet.create({
         marginTop: SIZES.medium,
         flexDirection: "row",
         marginLeft: SIZES.medium,
-        
       },
       card: {
         width: 150,

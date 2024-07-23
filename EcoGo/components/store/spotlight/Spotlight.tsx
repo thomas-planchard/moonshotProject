@@ -1,13 +1,9 @@
-import { useState } from "react";
-import { useRouter } from "expo-router";
 import {
   ScrollView,
   View,
   Text,
   Image,
   TouchableOpacity,
-  FlatList,
-  ActivityIndicator,
 } from "react-native";
 
 import styles from "./spotlight.style"

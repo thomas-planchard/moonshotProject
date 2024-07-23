@@ -16,7 +16,7 @@ export default function Home() {
   return (
     
     <View style={{backgroundColor:COLORS.blueGreen}}>
-      <ScrollView showsVerticalScrollIndicator={false} style={{height: hp(100) }}>
+      <ScrollView showsVerticalScrollIndicator={false}>
           <Dashboard/>
           <View style = {styles.whiteBackground}>
           <Activities />

@@ -1,6 +1,4 @@
-import { SafeAreaView, ScrollView, View, Image } from "react-native";
-import { Stack, useRouter } from "expo-router";
-
+import { SafeAreaView, ScrollView } from "react-native";
 import {
   NameAndProfile,
   TotalData,

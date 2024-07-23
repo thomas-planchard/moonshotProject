@@ -4,8 +4,6 @@ import {
   Text,
   Image,
   TouchableOpacity,
-  FlatList,
-  ActivityIndicator,
 } from "react-native";
 
 import styles from "./sales.style"

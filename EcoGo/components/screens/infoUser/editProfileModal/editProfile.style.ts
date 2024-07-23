@@ -51,7 +51,7 @@ export default StyleSheet.create({
     width: wp(40)
   },
   saveButtonText: {
-    color: 'white',
+    color: COLORS.white,
     fontSize: SIZES.medium,
   },
   cancelButton: {

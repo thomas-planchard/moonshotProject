@@ -2,11 +2,11 @@ import {useState} from 'react';
 import { View, TextInput, TouchableOpacity, Text, Alert } from 'react-native';
 import { Octicons } from '@expo/vector-icons';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import EditProfileModal from '@/components/screens/infoUser/EditProfileComponent'; 
+import EditProfileModal from '@/components/screens/infoUser/editProfileModal/EditProfileComponent'; 
 import { COLORS } from '@/constants';
 import { getAuth, sendPasswordResetEmail } from 'firebase/auth';
 import { useAuth } from '@/context/AuthContext';
-import styles from './infoUser.style';
+import styles from '../infoUser.style';
 
 const PersonalInformation = () => {
     const auth = getAuth();

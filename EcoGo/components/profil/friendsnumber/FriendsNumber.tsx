@@ -3,7 +3,6 @@ import {
   Text,
   Image,
   TouchableOpacity,
-
 } from "react-native";
 import { useRouter } from "expo-router";
 import {ICONS} from "@/constants";

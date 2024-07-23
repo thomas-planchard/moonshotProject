@@ -1,4 +1,4 @@
-import { Stack, useSegments, Slot, useRouter } from "expo-router";
+import { useSegments, Slot, useRouter } from "expo-router";
 import { useAuth, AuthContextProvider } from "../context/AuthContext";
 import { useEffect } from "react";
 import ConnectionCheck from "@/components/common/CheckConnection";

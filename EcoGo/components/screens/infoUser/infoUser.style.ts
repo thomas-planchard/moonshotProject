@@ -1,11 +1,7 @@
- import { StyleSheet } from 'react-native';
- 
- import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
-
+import { StyleSheet } from 'react-native';
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import { COLORS, SIZES } from "../../../constants/theme";
 import { Colors } from 'react-native/Libraries/NewAppScreen';
-
-
 
 
 const styles = StyleSheet.create({
@@ -58,11 +54,6 @@ const styles = StyleSheet.create({
       fontSize: 16,
     },
 
-    userInfo : {
-      fontSize: 16,
-      color: Colors.grey,
-    },
-
     infoLabel: {
       fontSize: 16,
       marginBottom: 10,
@@ -82,12 +73,10 @@ const styles = StyleSheet.create({
       fontWeight: 'bold',
 
     },
-
     textInTouchable: {
       fontSize: hp(2),
       color: 'grey',
     },
-
   });
 
   

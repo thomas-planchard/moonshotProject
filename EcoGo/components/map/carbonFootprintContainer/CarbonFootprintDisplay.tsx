@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, Text, Image } from 'react-native';
-import { styles } from './map.style';
+import { View, Text } from 'react-native';
+import  styles  from './carbonfootprintcontainer.style';
 import { Circle, G, Svg, Line } from 'react-native-svg';
 import { COLORS } from '@/constants';
 

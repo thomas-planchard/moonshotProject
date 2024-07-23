@@ -1,11 +1,9 @@
-//! Modification, Adding typescript annotations for parameters and return value
-//! Error handling has been improved by adding more specific error messages
-//! Replaced constant by readonly to prevent reassignment, however car should be modified to be specific to the type of car
+
 
 const TRANSPORTATION_EMISSIONS: Readonly<{ [key: string]: number }> = {
     plane: 0.133, // kg CO2 per km
     bus: 0.089,   // kg CO2 per km 
-    car: 0.171,   // kg CO2 per km //? let the user change this value based on the car they are using, some API can be used to get the value
+    car: 0.171,   // kg CO2 per km 
     bicycle: 0,   // kg CO2 per km (assumed zero emissions)
   };
   

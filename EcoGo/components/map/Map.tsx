@@ -8,10 +8,10 @@ import axios from 'axios';
 import { GOOGLE_MAPS_APIKEY } from '@env';
 import { styles, customMapStyle } from './map.style';
 import LoadingMap from '../common/LoadingMap';
-import CarbonFootprintDisplay from './CarbonFootprintDisplay';
+import CarbonFootprintDisplay from './carbonFootprintContainer/CarbonFootprintDisplay';
 import {decodePolyline, getDistance, calculateHeading} from '@/utils/MapUtils';
-import FooterMap from './FooterMap';
-import DestinationModal from './DestinationModal';
+import FooterMap from './footer/FooterMap';
+import DestinationModal from './selectAdressModal/DestinationModal';
 import Instructions from './instructions/Instructions';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 

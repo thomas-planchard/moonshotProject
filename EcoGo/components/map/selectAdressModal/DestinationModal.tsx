@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Modal, Text, TouchableOpacity, Button, TextInput } from 'react-native';
-import { styles } from './map.style';
+import  styles  from './destinationmodal.stye';
 
 interface DestinationModalProps {
   modalVisible: boolean;

@@ -7,7 +7,7 @@ import { doc, onSnapshot} from  'firebase/firestore';
 import {db} from '../../../FirebaseConfig';
 import { useRouter } from "expo-router";
 import { ProfilImage } from "@/components/common/ProfilImage";
-import { useAuth } from "@/context/authContext";
+import { useAuth } from "@/context/AuthContext";
 
 const Dashboard = () => {
   const routing = useRouter();

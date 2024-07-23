@@ -6,7 +6,7 @@ import { Octicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import Loading from '@/components/common/Loading';
 import CustomKeyboardView from '@/components/common/CustomKeyboardView';
-import { useAuth } from '@/context/authContext';
+import { useAuth } from '@/context/AuthContext';
 
 export default function SignIn() {
   const router = useRouter();

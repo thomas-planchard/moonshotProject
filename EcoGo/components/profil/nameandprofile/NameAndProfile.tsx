@@ -3,7 +3,7 @@ import {
   Text,
   Image,
 } from "react-native";
-import { useAuth } from "@/context/authContext";
+import { useAuth } from "@/context/AuthContext";
 import { useState } from "react";
 import { ProfilImage } from "@/components/common/ProfilImage";
 

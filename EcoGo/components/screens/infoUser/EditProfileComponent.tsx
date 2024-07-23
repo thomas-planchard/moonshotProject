@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Modal, Alert } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import { useAuth } from '@/context/authContext';
+import { useAuth } from '@/context/AuthContext';
 import { typeOfCars, sizeOfCars } from '@/constants/index';
 import styles from './editProfile.style'; 
 

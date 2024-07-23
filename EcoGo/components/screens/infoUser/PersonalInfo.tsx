@@ -5,7 +5,7 @@ import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import EditProfileModal from '@/components/screens/infoUser/EditProfileComponent'; 
 import { COLORS } from '@/constants';
 import { getAuth, sendPasswordResetEmail } from 'firebase/auth';
-import { useAuth } from '@/context/authContext';
+import { useAuth } from '@/context/AuthContext';
 import styles from './infoUser.style';
 
 const PersonalInformation = () => {

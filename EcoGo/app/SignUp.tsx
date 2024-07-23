@@ -6,7 +6,7 @@ import { Feather, Octicons, MaterialCommunityIcons, Ionicons } from '@expo/vecto
 import { useRouter } from 'expo-router';
 import Loading from '@/components/common/Loading';
 import CustomKeyboardView from '@/components/common/CustomKeyboardView';
-import { useAuth } from '@/context/authContext';
+import { useAuth } from '@/context/AuthContext';
 import * as ImagePicker from 'expo-image-picker';
 import { typeOfCars, sizeOfCars } from '@/constants/index';
 import { Picker } from '@react-native-picker/picker';

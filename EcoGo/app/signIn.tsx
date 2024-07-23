@@ -26,7 +26,7 @@ export default function SignIn() {
     setLoading(true);
     const response = await login(emailRef.current, passwordRef.current);
     setLoading(false);
-    if (!response.sucess) {
+    if (!response.success) {
         Alert.alert('Sign In Erreur', response.msg);
     }
 };
@@ -34,7 +34,7 @@ export default function SignIn() {
   return (
     <CustomKeyboardView>
       <StatusBar style="dark" />
-      <View style={{ paddingTop: hp(8), paddingHorizontal: wp(5) }} className='flex-1 gap-12'>
+      <View style={{ paddingTop: hp(8), paddingHorizontal: wp(5), backgroundColor: 'white', height:hp(100)}} className='flex-1 gap-12'>
         <View className='items-center'>
           <Image source={require('../assets/images/login.png')} resizeMode='contain' style={{ height: hp(30), alignSelf: 'center' }} />
         </View>

@@ -4,7 +4,17 @@ import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import {COLORS} from '@/constants/theme.ts';
 
-const UploadModal =({
+
+interface UploadModalProps {
+    modalVisible: boolean;
+    onRequestClose: () => void;
+    onBackPress: () => void;
+    onCameraPress: () => void;
+    onGalleryPress: () => void;
+    isLoading?: boolean;
+}
+
+const UploadModal: React.FC<UploadModalProps> = ({
     modalVisible,
     onRequestClose,
     onBackPress,
@@ -20,7 +30,7 @@ const UploadModal =({
 
                 {!isLoading && (
                     <View style={styles.modalView}>
-                        <Text style={styles.tittle}>Profile Photo</Text>
+                        <Text style={styles.title}>Profile Photo</Text>
                         <View style={styles.decisionRow}>
                             <TouchableOpacity style={styles.optionBtn} onPress={onCameraPress}>
                                 <MaterialIcons name="camera-alt" size={30} color={COLORS.greenForest} />
@@ -56,7 +66,7 @@ const styles = StyleSheet.create({
         elevation: 5,
         alignItems: 'center',
     },
-    tittle: {
+    title: {
         fontSize: 25,
         fontWeight: 'bold',
         marginBottom: 20,

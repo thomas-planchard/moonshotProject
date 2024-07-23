@@ -1,5 +1,6 @@
 import  {Tabs } from "expo-router";
 import { Image, View} from "react-native";
+import {ICONS} from "@/constants";
 import styles from "../../components/common/footer/footer.style";
 
 
@@ -19,7 +20,7 @@ export default function layout_ () {
                         right: 20,
                         borderRadius: 15,
                         height: 50,
-                        ...styles.shadow,
+                        
 
                     },
                 }
@@ -31,7 +32,7 @@ export default function layout_ () {
                     tabBarIcon: ({focused}) => (
                         <View style={{alignItems: "center", justifyContent: "center", top: 15}}>
                             <Image 
-                                source={require("../../assets/icons/ic_home.png")}
+                                source={ICONS.icHome}
                                 style={{
                                     tintColor: focused ? "#7cbb85" : "#FFFF",     
                                     ...styles.icons}}
@@ -51,7 +52,7 @@ export default function layout_ () {
                         tabBarIcon: ({focused}) => (
                             <View style={{alignItems: "center", justifyContent: "center", top: 15}}>
                             <Image 
-                                source={require("../../assets/icons/ic_shop.png")}
+                                source={ICONS.icShop}
                                 style={{
                                     tintColor: focused ?"#7fff7f" : "#FFFF",        
                                     ...styles.icons}}
@@ -69,7 +70,7 @@ export default function layout_ () {
                     {
                         tabBarIcon: ({focused}) => (
                             <Image 
-                                source={require("../../assets/icons/greenButton.png")}
+                                source={ICONS.greenButton}
                                 style={{
                                     top: 15,
                                     ...styles.mapImage}}
@@ -85,7 +86,7 @@ export default function layout_ () {
                         tabBarIcon: ({focused}) => (
                         <View style={{alignItems: "center", justifyContent: "center", top: 15}}>
                             <Image 
-                                source={require("../../assets/icons/ic_setting.png")}
+                                source={ICONS.icSetting}
                                 style={{
                                     tintColor: focused ? "#7fff7f" : "#FFFF",        
                                     ...styles.icons}}
@@ -104,7 +105,7 @@ export default function layout_ () {
                         tabBarIcon: ({focused}) => (
                             <View style={{alignItems: "center", justifyContent: "center", top: 15}}>
                             <Image 
-                                source={require("../../assets/icons/ic_user-square.png")}
+                                source={ICONS.icUserSquare}
                                 style={{
                                     tintColor: focused ?"#7fff7f" : "#FFFF",     
                                     ...styles.icons}}

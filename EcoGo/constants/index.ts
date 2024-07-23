@@ -1,5 +1,5 @@
-import icons from "./icons";
-import { COLORS, FONT, SIZES, SHADOWS } from "./theme";
+import { COLORS, SIZES, SHADOWS } from "./theme";
 import { typeOfCars, sizeOfCars } from "./data";
+import { ICONS } from "./icons";
 
-export { icons, COLORS, FONT, SIZES, SHADOWS, typeOfCars, sizeOfCars};
+export { COLORS, SIZES, SHADOWS, ICONS, typeOfCars, sizeOfCars};

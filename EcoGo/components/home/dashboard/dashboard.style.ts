@@ -45,18 +45,15 @@ const styles = StyleSheet.create({
     width: SIZES.small,
     display: "flex",
     height: SIZES.small,
+    marginRight: SIZES.xSmall,
     
   },
   carbonImage: {
     width: SIZES.medium,
     display: "flex",
     height: SIZES.medium,
+    marginRight: SIZES.xSmall,
     
-  },
-  caloriesImage: {
-    width: SIZES.small,
-    display: "flex",
-    height: SIZES.small,
   },
 
   containerStepCarbon: {

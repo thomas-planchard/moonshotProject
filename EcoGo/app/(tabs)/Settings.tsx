@@ -2,7 +2,7 @@ import React from 'react';
 import { SafeAreaView, StyleSheet, View, Text } from "react-native";
 
 
-export default function Profile() {
+export default function Settings() {
   return (
     <View style={styles.container}>
       <Text style={styles.text}>Work In Progress</Text>

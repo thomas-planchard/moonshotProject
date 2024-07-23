@@ -31,6 +31,9 @@ yarn-error.*
 # local env files
 .env*.local
 
+# env files
+.env
+
 # typescript
 *.tsbuildinfo
 
@@ -45,3 +48,6 @@ expo-env.d.ts
 
 # Watchman
 .watchmanconfig
+
+# native wind
+nativewind-env.d.ts

@@ -6,6 +6,7 @@ import {
 
 } from "react-native";
 import { useRouter } from "expo-router";
+import {ICONS} from "@/constants";
 
 import styles from "./friendsnumber.style"
 
@@ -14,7 +15,7 @@ export default function FriendsNumber () {
   const routing = useRouter();
 
   const goToinfoUser = () => {
-    routing.navigate("screens/infoUser");
+    routing.navigate("screens/InfoUser");
   }
 
   return (
@@ -29,7 +30,7 @@ export default function FriendsNumber () {
           <Text style={styles.followerText}>Following</Text>
         </View>
         <TouchableOpacity onPress={goToinfoUser} style={styles.row2}>
-        <Image source={require('../../../assets/icons/ic_edit.png')} style={styles.editImage}></Image>
+        <Image source={ICONS.icEdit} style={styles.editImage}></Image>
         <Text style={styles.edit}>Edit Profile</Text>
         </TouchableOpacity>
         </View>

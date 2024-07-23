@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { View, Text, Image, TouchableOpacity, Alert } from "react-native";
 import { Pedometer } from "expo-sensors";
 import styles from "./dashboard.style";
-import { icons } from "../../../constants";
+import { ICONS } from "@/constants";
 import { doc, onSnapshot} from  'firebase/firestore';
 import {db} from '../../../FirebaseConfig';
 import { useRouter } from "expo-router";
@@ -90,7 +90,7 @@ const Dashboard = () => {
   }, [user]);
   
   const goToInfoUser = () => {
-    routing.navigate("screens/infoUser");
+    routing.navigate("screens/InfoUser");
   };
 
   
@@ -121,14 +121,14 @@ const Dashboard = () => {
         <View style={styles.infoContainer}>
           <Text style={styles.userInformationMain}>{stepCount}</Text>
           <Text style={styles.userInformationSecondary}>
-            <Image source={icons.steps} resizeMode="contain" style={styles.stepImage} />
+            <Image source={ICONS.steps} resizeMode="contain" style={styles.stepImage} />
             Steps
           </Text>
         </View>
         <View style={styles.infoContainer}>
           <Text style={styles.userInformationMain}>{carbonFootprint}</Text>
           <Text style={styles.userInformationSecondary}>
-            <Image source={icons.carbon} resizeMode="contain" style={styles.carbonImage} />
+            <Image source={ICONS.carbon} resizeMode="contain" style={styles.carbonImage} />
             Carbon Footprint
           </Text>
         </View>
@@ -145,7 +145,6 @@ const Dashboard = () => {
         <View style={styles.column}>
           <Text style={styles.userInformationMain2}>{caloriesBurnt}</Text>
           <Text style={styles.userInformationSecondary2}>
-            <Image source={icons.calories} resizeMode="contain" style={styles.caloriesImage} />
             Calories
           </Text>
         </View>

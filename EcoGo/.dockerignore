@@ -1,0 +1,8 @@
+ios/
+android/
+.env
+node_modules/
+.gitignore
+.watchmanconfig
+.expo/
+.vscode/

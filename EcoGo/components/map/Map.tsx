@@ -11,7 +11,6 @@ import LoadingMap from '../common/LoadingMap';
 import CarbonFootprintDisplay from './carbonFootprintContainer/CarbonFootprintDisplay';
 import {decodePolyline, getDistance, calculateHeading} from '@/utils/MapUtils';
 import FooterMap from './footer/FooterMap';
-import DestinationModal from './selectAdressModal/DestinationModal';
 import Instructions from './instructions/Instructions';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
@@ -34,6 +33,8 @@ const Map: React.FC = () => {
   const [selectedMode, setSelectedMode] = useState<string>('TRAVEL_MODE_UNSPECIFIED');
   const [arrivalTime, setArrivalTime] = useState<string>('');
   const [instructions, setInstructions] = useState<object | null>(null);
+  const [isMapToucehd, setIsMapTouched] = useState<boolean>(false);
+  const [countryCode, setCountryCode] = useState<string | null>('');
 
   // Refs for map and navigation steps
   const mapRef = useRef<MapView>(null);
@@ -56,6 +57,14 @@ const Map: React.FC = () => {
       const calculatedCarbonFootprint = calculateCarbonFootprint(location.coords.speed || 0);
       if (calculatedCarbonFootprint > 0) {
         setCarbonFootprint(calculatedCarbonFootprint);
+      }
+      const reverseGeocode = await Location.reverseGeocodeAsync({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      });
+
+      if (reverseGeocode.length > 0) {
+        setCountryCode(reverseGeocode[0].isoCountryCode);
       }
 
       const subscription = await Location.watchPositionAsync(
@@ -296,7 +305,7 @@ const Map: React.FC = () => {
   };
 
 
-  // Function to handle zoom changes
+  // Function to handle zoom changes + detect if the user touches the map
   const handleZoomChange = async () => {
     if (mapRef.current) {
       const camera = await mapRef.current?.getCamera();
@@ -345,6 +354,7 @@ const Map: React.FC = () => {
         }}
         showsBuildings={false}
         onRegionChangeComplete={handleZoomChange}
+        onPress={() => setIsMapTouched(true)}
       >
         <Marker
           coordinate={{
@@ -369,20 +379,17 @@ const Map: React.FC = () => {
           <MaterialIcons name="gps-fixed" size={70} color="white" />
         </TouchableOpacity>
       </View>
-      <DestinationModal
-        modalVisible={modalVisible}
-        setModalVisible={setModalVisible}
-        getRoute={getRoute}
-        selectedMode={selectedMode}
-        setSelectedMode={setSelectedMode}
-        setDestination={setDestination}
-        destination={destination}
-      />
       <FooterMap
         distance={totalDistance}
         duration={duration}
         arrivalTime={arrivalTime}
-        setModalVisible={setModalVisible}
+        setIsMapTouched={setIsMapTouched}
+        isMapTouched={isMapToucehd}
+        userLocation={location}
+        countryCode={countryCode}
+        getRoute={getRoute}
+        setDestination={setDestination}
+        destination={destination}
       />
       {instructions && (
         <Instructions

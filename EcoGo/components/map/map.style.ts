@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
 
     infoContainer: {
       flexDirection: "row",
-      top:hp(66),
+      top:hp(65),
       justifyContent: "space-evenly",
       alignItems: "center",
       gap: wp(40),

@@ -1,16 +1,20 @@
 const COLORS = {
-  primary: "#312651",
-  secondary: "#444262",
-  tertiary: "#FF7754",
-
   gray: "#acacb7",
   gray2: "#BAB7BC",
+  lightGray: "#F5F5F8", 
 
   white: "#F3F4F8",
   lightWhite: "#FAFAFC",
   WhiteOpacity:"#F3F4F820",
 
-  purple: "#3A1C64",
+  purple: "#680b93",
+  lightPurple: "#efeaf6",
+
+  orange : "#e7970d",
+  lightOrange:"#f6f0ea",
+
+  blue : "#0b4893",
+  lightBlue:"#eaeff6",
 
   greenMedium: "#4dab65",
   greenWhite:"#e8f5f0",
@@ -21,11 +25,6 @@ const COLORS = {
   blueGreen:"#156547",
   greyGreen:"#88bc87"
   
-
-
-
-
-
 };
 
 

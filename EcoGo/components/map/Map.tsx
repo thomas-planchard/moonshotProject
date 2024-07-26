@@ -9,6 +9,8 @@ import { GOOGLE_MAPS_APIKEY } from '@env';
 import { styles, customMapStyle } from './map.style';
 import LoadingMap from '../common/LoadingMap';
 import CarbonFootprintDisplay from './carbonFootprintContainer/CarbonFootprintDisplay';
+import CalculateCarbonFootprint from '@/utils/CalculateCarbonFootprint';
+import TransportationModal from './modalTransportationChoice/TransportationModal';
 import {decodePolyline, getDistance, calculateHeading} from '@/utils/MapUtils';
 import FooterMap from './footer/FooterMap';
 import Instructions from './instructions/Instructions';
@@ -19,6 +21,7 @@ const MAX_ZOOM_OUT = 8; // Maximum zoom out level
 const REGULAR_ZOOM = 18.5; // Regular zoom level
 
 const Map: React.FC = () => {
+
   // State variables
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
   const [speed, setSpeed] = useState<number>(0);
@@ -35,6 +38,8 @@ const Map: React.FC = () => {
   const [instructions, setInstructions] = useState<object | null>(null);
   const [isMapToucehd, setIsMapTouched] = useState<boolean>(false);
   const [countryCode, setCountryCode] = useState<string | null>('');
+  const [transportOptions, setTransportOptions] = useState<Array<{ mode: string; duration: string; distance: string; }>>([]);
+  const [isFooterVisible, setIsFooterVisible] = useState<boolean>(true);
 
   // Refs for map and navigation steps
   const mapRef = useRef<MapView>(null);
@@ -54,10 +59,10 @@ const Map: React.FC = () => {
       let location = await Location.getCurrentPositionAsync({});
       setLocation(location);
       setSpeed(location.coords.speed || 0);
-      const calculatedCarbonFootprint = calculateCarbonFootprint(location.coords.speed || 0);
-      if (calculatedCarbonFootprint > 0) {
-        setCarbonFootprint(calculatedCarbonFootprint);
-      }
+      // const calculatedCarbonFootprint = CalculateCarbonFootprint(location.coords.speed || 0);
+      // if (calculatedCarbonFootprint > 0) {
+      //   setCarbonFootprint(calculatedCarbonFootprint);
+      // }
       const reverseGeocode = await Location.reverseGeocodeAsync({
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
@@ -95,7 +100,7 @@ const Map: React.FC = () => {
         },
         zoom: REGULAR_ZOOM,
         heading: location.coords.heading, // Use the heading to rotate the map
-        pitch: 65,
+        pitch: 100,
         altitude: 400,
       }, { duration: 1000 });
     }
@@ -147,7 +152,7 @@ const Map: React.FC = () => {
         };
         camera.zoom = REGULAR_ZOOM;
         camera.heading = location.coords.heading;
-        camera.pitch = 65;
+        camera.pitch = 100;
         camera.altitude = 400;
         mapRef.current?.animateCamera(camera, { duration: 1000 });
         followingUser.current = true;
@@ -155,52 +160,82 @@ const Map: React.FC = () => {
     }
   };
 
-  // Function to get route from Google Maps API
-  const getRoute = async () => {
-    if (!location) return;
-    const origin = `${location.coords.latitude},${location.coords.longitude}`;
-    try {
-      const response = await axios.get(
-        `https://maps.googleapis.com/maps/api/directions/json?origin=${origin}&destination=${destination}&mode=${selectedMode}&key=${GOOGLE_MAPS_APIKEY}`
-      );
-      const points = response.data.routes[0].overview_polyline.points;
-      const coords = decodePolyline(points);
-      setRouteCoords(coords);
-      setModalVisible(false);
 
-      // Fit the map to the route coordinates
-      if (mapRef.current) {
-        mapRef.current.fitToCoordinates(coords, {
-          edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
-          animated: true,
+
+
+// Function to fetch route for multiple transportation modes
+const getRoute = async () => {
+  if (!location || !destination) return;
+
+  const [destinationLat, destinationLng] = destination.split(',').map(Number);
+
+  const origin = {
+    location: {
+      latLng: {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      },
+    },
+  };
+
+  const destinationObj = {
+    location: {
+      latLng: {
+        latitude: destinationLat,
+        longitude: destinationLng,
+      },
+    },
+  };
+
+  const travelModes = ['DRIVE', 'WALK', 'TRANSIT', 'BICYCLE'];
+  const options = [];
+  const fieldMask = 'routes.distanceMeters,routes.duration,routes.legs';
+
+  for (let mode of travelModes) {
+    const requestBody = {
+      origin,
+      destination: destinationObj,
+      travelMode: mode,
+      routeModifiers: { avoidTolls: false, avoidHighways: false, avoidFerries: false },
+      computeAlternativeRoutes: false,
+      languageCode: 'en-US',
+      units: 'METRIC',
+    };
+
+    if (mode === 'DRIVE') {
+      requestBody.routingPreference = 'TRAFFIC_AWARE';
+    }
+
+    try {
+      const response = await axios.post(
+        `https://routes.googleapis.com/directions/v2:computeRoutes?key=${GOOGLE_MAPS_APIKEY}`,
+        requestBody,
+        {
+          headers: {
+            'X-Goog-FieldMask': fieldMask,
+          },
+        }
+      );
+
+
+      const route = response.data.routes[0];
+      if (route && route.legs && route.legs.length > 0) {
+        const leg = route.legs[0];
+
+        options.push({
+          mode,
+          duration: leg.localizedValues?.duration?.text || 'N/A',
+          distance: leg.localizedValues?.distance?.text || 'N/A',
         });
       }
-
-      // Fetch distance, duration, and arrival time
-      const route = response.data.routes[0].legs[0];
-      setTotalDistance(route.distance.text);
-
-      // Format duration to "**h**" format
-      const durationInSeconds = route.duration.value;
-      console.log('Duration in seconds:', route.duration.value);
-      const hours = Math.floor(durationInSeconds / 3600);
-      const minutes = Math.floor((durationInSeconds % 3600) / 60);
-      const formattedDuration = `${hours}h${minutes < 10 ? '0' : ''}${minutes}`;
-      setDuration(formattedDuration);
-
-      const arrivalTime = new Date(Date.now() + durationInSeconds * 1000);
-      setArrivalTime(arrivalTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-
-      // Set navigation steps
-      stepsRef.current = route.steps;
-      console.log('Steps:', route.steps);
-      startRouteSimulation(coords);
-      updateInstructions(location);
     } catch (error) {
-      console.error('Error fetching route:', error);
-      Alert.alert('Error', 'Failed to fetch route');
+      console.error(`Error fetching ${mode} route:`, error.response ? error.response.data : error.message);
     }
-  };
+  }
+
+  setTransportOptions(options);
+  setModalVisible(true);
+};
 
   // Function to update instructions based on current location
   const updateInstructions = (newLocation) => {
@@ -318,11 +353,6 @@ const Map: React.FC = () => {
     }
   };
 
-  // Function to calculate carbon footprint
-  const calculateCarbonFootprint = (speed: number): number => {
-    const baseEmissions = 0.2; // kg CO2 per km
-    return baseEmissions * speed; // assuming speed in km/h for a 1-hour trip
-  };
 
   // If location is not available, show loading screen
   if (!location) {
@@ -347,7 +377,7 @@ const Map: React.FC = () => {
             latitude: location.coords.latitude,
             longitude: location.coords.longitude,
           },
-          pitch: 65, 
+          pitch: 100, 
           heading: 0,
           altitude: 400, 
           zoom: REGULAR_ZOOM, // Initial zoom level
@@ -380,6 +410,8 @@ const Map: React.FC = () => {
         </TouchableOpacity>
       </View>
       <FooterMap
+        footerVisible={isFooterVisible}
+        setModalVisible={setModalVisible}
         distance={totalDistance}
         duration={duration}
         arrivalTime={arrivalTime}
@@ -391,6 +423,14 @@ const Map: React.FC = () => {
         setDestination={setDestination}
         destination={destination}
       />
+      {modalVisible && (
+        <TransportationModal
+          setFooterVisible={setIsFooterVisible}
+          isVisible={modalVisible}
+          onClose={() => setModalVisible(false)}
+          options={transportOptions}
+        />
+      )}
       {instructions && (
         <Instructions
           instructions={instructions}

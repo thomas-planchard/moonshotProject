@@ -9,9 +9,10 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       alignItems: 'center',
       backgroundColor: 'transparent',
-      top: hp(25),
+      top: hp(31),
     },
     modalContent: {
+      height: hp(35),
       width: wp(90),
       backgroundColor: 'white',
       borderRadius: 10,
@@ -20,7 +21,7 @@ const styles = StyleSheet.create({
     optionContainer: {
       flexDirection: 'row',
       alignItems: 'center',
-      paddingVertical: 10,
+      paddingVertical: 8,
     },
     iconContainer: {
       padding: 10,
@@ -51,12 +52,18 @@ const styles = StyleSheet.create({
       backgroundColor: COLORS.gray,
     },
     closeButton: {
-      marginTop: 20,
+      marginLeft: wp(25),
+      marginTop: hp(2),
+      width: wp(30),
+      height: hp(3),
+      borderRadius: 100,
       alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: COLORS.lightgreen,
     },
     closeButtonText: {
       fontSize: 16,
-      color: 'blue',
+      color: COLORS.white,
     },
   });
 

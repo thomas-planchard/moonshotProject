@@ -9,14 +9,17 @@ interface TransportationOption {
     mode: string;
     duration: string;
     distance: string;
+    polyline?: { latitude: number; longitude: number }[];
     selected?: boolean;
   }
 
 interface TransportationModalProps {
+    onSelectedMode: (mode: string) => void;
+    selectedMode: string ;
     setFooterVisible: (footerVisible: boolean) => void;
-    isVisible: boolean;
-    onClose: () => void;
+    setIsVisible: (isVisible: boolean) => void;
     options: TransportationOption[];
+    onConfirm: () => void;  
     }
 
 
@@ -45,16 +48,22 @@ const transportationModes = {
 
 const TransportationModal: React.FC<TransportationModalProps> = ({ 
     setFooterVisible,
-    isVisible, 
-    onClose, 
-    options 
+    setIsVisible,
+    options,
+    selectedMode,
+    onSelectedMode,
+    onConfirm
 }) => {
+
+    const onClose = () => {
+        setFooterVisible(true);
+        setIsVisible(false);
+    };  
 
   return (
     <Modal
       animationType="slide"
       transparent={true}
-      visible={isVisible}
       onRequestClose={onClose}
       onShow={() => setFooterVisible(false)}
     >
@@ -63,10 +72,11 @@ const TransportationModal: React.FC<TransportationModalProps> = ({
           <FlatList
             data={options}
             keyExtractor={(item) => item.mode}
+            showsVerticalScrollIndicator={false}
             renderItem={({ item }) => {
                 const mode = transportationModes[item.mode];
               return (
-                <TouchableOpacity style={styles.optionContainer}>
+                <TouchableOpacity style={styles.optionContainer} onPress={() => onSelectedMode(item.mode)}>
                   <View style={[styles.iconContainer, { backgroundColor: mode.backgroundColor }]}>
                     <MaterialCommunityIcons name={mode.icon} size={24} color={mode.color} />
                   </View>
@@ -75,13 +85,19 @@ const TransportationModal: React.FC<TransportationModalProps> = ({
                     <Text style={styles.detailText}>{item.duration}, {item.distance}</Text>
                   </View>
                   <View style={styles.indicatorContainer}>
-                    <View style={[styles.indicator, { backgroundColor: item.selected ? COLORS.green : COLORS.gray }]} />
+                    <View style={[styles.indicator,  { backgroundColor: selectedMode === item.mode ? COLORS.green : COLORS.gray }]} />
                   </View>
                 </TouchableOpacity>
               );
             }}
             ItemSeparatorComponent={() => <View style={styles.separator} />}
           />
+          <TouchableOpacity style={styles.closeButton} onPress={()=>{
+            onClose();
+            onConfirm();
+          }}>
+            <Text style={styles.closeButtonText}>Confirm</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </Modal>

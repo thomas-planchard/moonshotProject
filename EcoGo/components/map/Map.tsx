@@ -38,7 +38,7 @@ const Map: React.FC = () => {
   const [instructions, setInstructions] = useState<object | null>(null);
   const [isMapToucehd, setIsMapTouched] = useState<boolean>(false);
   const [countryCode, setCountryCode] = useState<string | null>('');
-  const [transportOptions, setTransportOptions] = useState<Array<{ mode: string; duration: string; distance: string; }>>([]);
+  const [transportOptions, setTransportOptions] = useState<Array<{ mode: string; duration: string; distance: string; polyline: { latitude: number; longitude: number }[] }>>([]);
   const [isFooterVisible, setIsFooterVisible] = useState<boolean>(true);
 
   // Refs for map and navigation steps
@@ -163,181 +163,181 @@ const Map: React.FC = () => {
 
 
 
-// Function to fetch route for multiple transportation modes
-const getRoute = async () => {
-  if (!location || !destination) return;
-
-  const [destinationLat, destinationLng] = destination.split(',').map(Number);
-
-  const origin = {
-    location: {
-      latLng: {
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
+  const getRoute = async () => {
+    if (!location || !destination) return;
+  
+  
+    const [destinationLat, destinationLng] = destination.split(',').map(Number);
+  
+    const origin = {
+      location: {
+        latLng: {
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        },
       },
-    },
-  };
-
-  const destinationObj = {
-    location: {
-      latLng: {
-        latitude: destinationLat,
-        longitude: destinationLng,
-      },
-    },
-  };
-
-  const travelModes = ['DRIVE', 'WALK', 'TRANSIT', 'BICYCLE'];
-  const options = [];
-  const fieldMask = 'routes.distanceMeters,routes.duration,routes.legs';
-
-  for (let mode of travelModes) {
-    const requestBody = {
-      origin,
-      destination: destinationObj,
-      travelMode: mode,
-      routeModifiers: { avoidTolls: false, avoidHighways: false, avoidFerries: false },
-      computeAlternativeRoutes: false,
-      languageCode: 'en-US',
-      units: 'METRIC',
     };
-
-    if (mode === 'DRIVE') {
-      requestBody.routingPreference = 'TRAFFIC_AWARE';
-    }
-
-    try {
-      const response = await axios.post(
-        `https://routes.googleapis.com/directions/v2:computeRoutes?key=${GOOGLE_MAPS_APIKEY}`,
-        requestBody,
-        {
-          headers: {
-            'X-Goog-FieldMask': fieldMask,
+  
+    const destinationObj = {
+      location: {
+          latLng: {
+            latitude: destinationLat,
+            longitude: destinationLng,
           },
-        }
-      );
-
-
-      const route = response.data.routes[0];
-      if (route && route.legs && route.legs.length > 0) {
-        const leg = route.legs[0];
-
-        options.push({
-          mode,
-          duration: leg.localizedValues?.duration?.text || 'N/A',
-          distance: leg.localizedValues?.distance?.text || 'N/A',
-        });
+      },
+    };
+  
+    const travelModes = ['DRIVE', 'WALK', 'TRANSIT', 'BICYCLE'];
+    const options = [];
+    const allSteps = [];
+    const fieldMask = 'routes.distanceMeters,routes.duration,routes.legs,routes.polyline.encodedPolyline';
+  
+    for (let mode of travelModes) {
+      const requestBody = {
+        origin,
+        destination: destinationObj,
+        travelMode: mode,
+        routeModifiers: { avoidTolls: false, avoidHighways: false, avoidFerries: false },
+        computeAlternativeRoutes: false,
+        languageCode: 'en-US',
+        units: 'METRIC',
+      };
+  
+      if (mode === 'DRIVE') {
+        requestBody.routingPreference = 'TRAFFIC_AWARE';
       }
-    } catch (error) {
-      console.error(`Error fetching ${mode} route:`, error.response ? error.response.data : error.message);
+  
+      try {
+        const response = await axios.post(
+          `https://routes.googleapis.com/directions/v2:computeRoutes?key=${GOOGLE_MAPS_APIKEY}`,
+          requestBody,
+          {
+            headers: {
+              'X-Goog-FieldMask': fieldMask,
+            },
+          }
+        );
+  
+        const route = response.data.routes[0];
+        if (route && route.legs && route.legs.length > 0) {
+          const leg = route.legs[0];
+          const polyline = decodePolyline(route.polyline.encodedPolyline);
+          // Store the steps for the current mode
+          route.legs[0].steps.forEach(step => {
+            step.travelMode = mode;
+            allSteps.push(step);
+          });
+  
+          options.push({
+            mode,
+            duration: leg.localizedValues?.duration?.text || 'Not available',
+            distance: leg.localizedValues?.distance?.text || 'Not available',
+            polyline,
+          });
+
+        } else {
+          options.push({
+            mode,
+            duration: 'Not available',
+            distance: 'Not available',
+            polyline: [],
+          });
+        }
+      } catch (error) {
+          options.push({
+            mode,
+            duration: 'Not available',
+            distance: 'Not available',
+            polyline: [],
+          });
+        }
     }
+    stepsRef.current = allSteps; // Store all steps for all modes
+    setTransportOptions(options);
+    setModalVisible(true);
+  };
+
+
+
+// Function to update instructions based on current location
+const updateInstructions = (newLocation) => {
+  if (!destination || stepsRef.current.length === 0) return; // No destination set or no steps available
+
+  console.log('Current Steps:', stepsRef.current);
+
+  const currentStep = stepsRef.current[0];
+  const currentLatLng = {
+    latitude: newLocation.coords.latitude,
+    longitude: newLocation.coords.longitude,
+  };
+
+  // Ensure endLocation and latLng are defined
+  if (!currentStep.endLocation || !currentStep.endLocation.latLng) {
+    console.error('End location or latLng is undefined');
+    return;
   }
 
-  setTransportOptions(options);
-  setModalVisible(true);
-};
+  const stepEndLatLng = {
+    latitude: currentStep.endLocation.latLng.latitude,
+    longitude: currentStep.endLocation.latLng.longitude,
+  };
 
-  // Function to update instructions based on current location
-  const updateInstructions = (newLocation) => {
-    if (!destination) return; // No destination set
+  const distanceToStepEnd = getDistance(currentLatLng, stepEndLatLng);
+  setDistance(distanceToStepEnd);
 
+  const completionThreshold = 25; // Adjusted threshold to 25 meters
+
+  if (distanceToStepEnd <= completionThreshold) {
+    stepsRef.current.shift(); // Remove completed step
     if (stepsRef.current.length === 0) {
       setInstructions({
-        html_instructions: destination,
+        instructions: 'You have arrived at your destination',
         distance: 0,
         maneuver: 'straight'
       });
-      Alert.alert('Navigation', 'You have arrived at your destination');
       return;
     }
+  }
 
-    const currentStep = stepsRef.current[0];
-    const nextStep = stepsRef.current[1] || { html_instructions: destination, distance: currentStep.distance, maneuver: 'straight' };
+  const nextStep = stepsRef.current[0];
+  const nextManeuver = stepsRef.current[1]?.navigationInstruction?.maneuver || nextStep.navigationInstruction?.maneuver || 'straight';
 
-    const instruction = {
-      ...nextStep,
-      distance: currentStep.distance
-    };
-
-    const currentLatLng = {
-      latitude: newLocation.coords.latitude,
-      longitude: newLocation.coords.longitude,
-    };
-
-    const stepEndLatLng = {
-      latitude: currentStep.end_location.lat,
-      longitude: currentStep.end_location.lng,
-    };
-
-    const distanceToStepEnd = getDistance(currentLatLng, stepEndLatLng);
-    setDistance(distanceToStepEnd);
-
-    const completionThreshold = 25; // Adjusted threshold to 25 meters
-
-    if (distanceToStepEnd <= completionThreshold) {
-      stepsRef.current.shift(); // Remove completed step
-
-      if (stepsRef.current.length === 0) {
-        setInstructions({
-          html_instructions: destination,
-          distance: currentStep.distance,
-          maneuver: 'straight'
-        });
-        Alert.alert('Navigation', 'You have arrived at your destination');
-
-        // Set the remaining distance to 0
-        setDistance(0);
-      } else if (stepsRef.current.length === 1) {
-        setInstructions({
-          ...stepsRef.current[0],
-          html_instructions: destination,
-          distance: currentStep.distance,
-          maneuver: 'straight'
-        });
-      } else {
-        setInstructions({
-          ...stepsRef.current[0],
-          distance: currentStep.distance
-        });
-      }
-    } else {
-      setInstructions(instruction);
-    }
-
-    // Update total distance, duration, and arrival time
-    updateRemainingDistanceAndDuration(newLocation);
+  const instruction = {
+    instructions: nextStep.navigationInstruction?.instructions || '',
+    distance: nextStep.distanceMeters,
+    maneuver: nextManeuver
   };
 
-  // Function to update remaining distance and duration
-  const updateRemainingDistanceAndDuration = (currentLocation) => {
-    if (!destination) return;
-    const finalDestination = stepsRef.current.length > 0 ? stepsRef.current[stepsRef.current.length - 1].end_location : { lat: destinationLat, lng: destinationLng };
+  setInstructions(instruction);
+  updateRemainingDistanceAndDuration(newLocation);
+};
 
-    let remainingDistance = getDistance(
-      { latitude: currentLocation.coords.latitude, longitude: currentLocation.coords.longitude },
-      { latitude: finalDestination.lat, longitude: finalDestination.lng }
-    );
+// Function to update remaining distance and duration
+const updateRemainingDistanceAndDuration = (currentLocation) => {
+  if (!destination) return;
 
-    let remainingDuration = 0;
+  let remainingDistance = 0;
+  let remainingDuration = 0;
 
-    for (let i = 0; i < stepsRef.current.length; i++) {
-      remainingDistance += stepsRef.current[i].distance.value;
-      remainingDuration += stepsRef.current[i].duration.value;
-    }
+  for (let i = 0; i < stepsRef.current.length; i++) {
+    remainingDistance += stepsRef.current[i].distanceMeters;
+    remainingDuration += parseInt(stepsRef.current[i].staticDuration?.replace('s', '') || '0');
+  }
 
-    // Update total distance
-    setTotalDistance(`${(remainingDistance / 1000).toFixed(1)} km`);
+  // Update total distance
+  setTotalDistance(`${(remainingDistance / 1000).toFixed(1)} km`);
 
-    // Update duration in "**h**" format
-    const hours = Math.floor(remainingDuration / 3600);
-    const minutes = Math.floor((remainingDuration % 3600) / 60);
-    const formattedDuration = `${hours}h${minutes < 10 ? '0' : ''}${minutes}`;
-    setDuration(formattedDuration);
+  // Update duration in "**h**" format
+  const hours = Math.floor(remainingDuration / 3600);
+  const minutes = Math.floor((remainingDuration % 3600) / 60);
+  const formattedDuration = `${hours}h${minutes < 10 ? '0' : ''}${minutes}`;
+  setDuration(formattedDuration);
 
-    // Update arrival time
-    const arrivalTime = new Date(Date.now() + remainingDuration * 1000);
-    setArrivalTime(arrivalTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-  };
+  // Update arrival time
+  const arrivalTime = new Date(Date.now() + remainingDuration * 1000);
+  setArrivalTime(arrivalTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+};
+
 
 
   // Function to handle zoom changes + detect if the user touches the map
@@ -352,6 +352,56 @@ const getRoute = async () => {
       }
     }
   };
+
+  // Function to update route based on selected mode
+  const updateRoute = (selectedMode: string) => {
+    const selectedOption = transportOptions.find(option => option.mode === selectedMode);
+    if (selectedOption && selectedOption.polyline) {
+      const polylineCoords = selectedOption.polyline.map(point => ({
+        latitude: point.latitude,
+        longitude: point.longitude,
+      }));
+  
+      setRouteCoords(polylineCoords);
+
+      if (mapRef.current) {
+        mapRef.current.fitToCoordinates(polylineCoords, {
+          edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+          animated: true,
+        });
+      }
+    }
+  };
+  const startNavigation = () => {
+    const selectedOption = transportOptions.find(option => option.mode === selectedMode);
+    
+    if (selectedOption && selectedOption.polyline && selectedOption.polyline.length > 0) {
+      // Filter steps based on selected mode
+      const filteredSteps = stepsRef.current.filter(step => step.travelMode === selectedMode);
+      
+      if (filteredSteps.length === 0) {
+        console.error(`No steps found for the selected mode: ${selectedMode}`);
+        return;
+      }
+  
+      stepsRef.current = filteredSteps; // Update stepsRef to only include steps for the selected mode
+      console.log('Filtered Steps:', stepsRef.current);
+      startRouteSimulation(selectedOption.polyline);
+      setModalVisible(false);
+    } else {
+      console.error('Selected option does not have a valid polyline');
+    }
+  };
+
+
+
+  useEffect(() => {
+    if (selectedMode) {
+      console.log('Selected mode:', selectedMode);
+      updateRoute(selectedMode);
+    }
+  }, [selectedMode, transportOptions]);
+
 
 
   // If location is not available, show loading screen
@@ -403,12 +453,14 @@ const getRoute = async () => {
           />
         )}
       </MapView>
+      {isFooterVisible && (
       <View style={styles.infoContainer}>
         <CarbonFootprintDisplay carbonFootprint={carbonFootprint} />
         <TouchableOpacity style={styles.centerButton} onPress={centerMapOnLocation}>
           <MaterialIcons name="gps-fixed" size={70} color="white" />
         </TouchableOpacity>
       </View>
+      )}
       <FooterMap
         footerVisible={isFooterVisible}
         setModalVisible={setModalVisible}
@@ -426,9 +478,14 @@ const getRoute = async () => {
       {modalVisible && (
         <TransportationModal
           setFooterVisible={setIsFooterVisible}
-          isVisible={modalVisible}
-          onClose={() => setModalVisible(false)}
+          setIsVisible={setModalVisible}
           options={transportOptions}
+          selectedMode={selectedMode}
+          onSelectedMode={(mode) => {
+            setSelectedMode(mode);
+            updateRoute(mode);
+          }}
+          onConfirm={startNavigation}
         />
       )}
       {instructions && (

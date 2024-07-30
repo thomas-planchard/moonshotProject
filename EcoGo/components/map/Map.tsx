@@ -112,19 +112,28 @@ const Map: React.FC = () => {
     updateInstructions(newLocation);
   };
 
-  // Function to simulate route navigation
-  const startRouteSimulation = (routeCoords) => {
-    let index = 0;
-    const intervalId = setInterval(() => {
-      if (index < routeCoords.length) {
+// Function to simulate route navigation
+const startRouteSimulation = (routeCoords, speed = 50) => {
+  let index = 0;
+  const updateInterval = 1000; // Update every second
+  const distancePerUpdate = (speed * 1000) / 3600; // Speed in meters per second
+  
+  const intervalId = setInterval(() => {
+    if (index < routeCoords.length - 1) {
+      const start = routeCoords[index];
+      const end = routeCoords[index + 1];
+      const segmentDistance = getDistance(start, end);
+
+      if (segmentDistance > distancePerUpdate) {
+        const fraction = distancePerUpdate / segmentDistance;
+        const newLatitude = start.latitude + (end.latitude - start.latitude) * fraction;
+        const newLongitude = start.longitude + (end.longitude - start.longitude) * fraction;
         const newLocation = {
           coords: {
-            latitude: routeCoords[index].latitude,
-            longitude: routeCoords[index].longitude,
-            speed: 5, // Set a fixed speed for simulation
-            heading: routeCoords[index + 1]
-              ? calculateHeading(routeCoords[index], routeCoords[index + 1])
-              : 0,
+            latitude: newLatitude,
+            longitude: newLongitude,
+            speed: speed, // Set a fixed speed for simulation
+            heading: calculateHeading(start, end),
             accuracy: 5,
             altitude: 5,
           },
@@ -132,12 +141,20 @@ const Map: React.FC = () => {
         };
         setLocation(newLocation as Location.LocationObject);
         updateInstructions(newLocation as Location.LocationObject);
-        index++;
+
+        // Adjust start position closer to the end position
+        routeCoords[index] = {
+          latitude: newLatitude,
+          longitude: newLongitude,
+        };
       } else {
-        clearInterval(intervalId);
+        index++;
       }
-    }, 5000); // Change location every 10 seconds
-  };
+    } else {
+      clearInterval(intervalId);
+    }
+  }, updateInterval); // Update location every second
+};
 
 
 
@@ -285,7 +302,7 @@ const updateInstructions = (newLocation) => {
   const distanceToStepEnd = getDistance(currentLatLng, stepEndLatLng);
   setDistance(distanceToStepEnd);
 
-  const completionThreshold = 25; // Adjusted threshold to 25 meters
+  const completionThreshold = 10; // Adjusted threshold to 10 meters
 
   if (distanceToStepEnd <= completionThreshold) {
     stepsRef.current.shift(); // Remove completed step
@@ -309,11 +326,11 @@ const updateInstructions = (newLocation) => {
   };
 
   setInstructions(instruction);
-  updateRemainingDistanceAndDuration(newLocation);
+  updateRemainingDistanceAndDuration();
 };
 
 // Function to update remaining distance and duration
-const updateRemainingDistanceAndDuration = (currentLocation) => {
+const updateRemainingDistanceAndDuration = () => {
   if (!destination) return;
 
   let remainingDistance = 0;
@@ -414,6 +431,7 @@ const updateRemainingDistanceAndDuration = (currentLocation) => {
     );
   }
 
+
   // Main render
   return (
     <View style={styles.container}>
@@ -426,6 +444,7 @@ const updateRemainingDistanceAndDuration = (currentLocation) => {
           center: {
             latitude: location.coords.latitude,
             longitude: location.coords.longitude,
+            
           },
           pitch: 100, 
           heading: 0,

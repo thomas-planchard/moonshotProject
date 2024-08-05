@@ -55,9 +55,7 @@ EcoGo offers the following key features:
 
 5. **In-App Store:** The app features an in-app store where users can redeem coins for discounts and offers on eco-friendly products, carpooling services, and public transportation.
 
-6. **Social Sharing:** Users can share their carbon footprint achievements with friends and family on social media, encouraging others to join the sustainability movement.
-
-7. **Multi-language Support:** The app is available in both English and French to cater to a diverse user base.
+6. **Multi-language Support:** The app will be available in both English and French to cater to a diverse user base.
 
 ## Getting Started
 

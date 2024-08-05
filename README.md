@@ -49,13 +49,15 @@ EcoGo offers the following key features:
    
 2. **Real-time Emission Calculation:** The app calculates carbon emissions in real time based on GPS data, distance traveled, and transportation mode.
 
-3. **Graphical Representation:** Users can visualize their carbon footprint over time through interactive graphs, providing insights into their environmental impact.
+3. **GPS Navigation and Transportation Mode Selection:** The user can utilize GPS within the app to select a destination, choose their preferred mode of transportation, and receive guided directions to reach their destination.
 
-4. **Gamification:** EcoGo gamifies the carbon footprint tracking experience by rewarding users with virtual coins for reducing their emissions. Coins can be used to unlock rewards in the in-app store.
+4. **Graphical Representation:** Users can visualize their carbon footprint over time through interactive graphs, providing insights into their environmental impact.
 
-5. **In-App Store:** The app features an in-app store where users can redeem coins for discounts and offers on eco-friendly products, carpooling services, and public transportation.
+5. **Gamification:** EcoGo gamifies the carbon footprint tracking experience by rewarding users with virtual coins for reducing their emissions. Coins can be used to unlock rewards in the in-app store.
 
-6. **Multi-language Support:** The app will be available in both English and French to cater to a diverse user base.
+6. **In-App Store:** The app features an in-app store where users can redeem coins for discounts and offers on eco-friendly products, carpooling services, and public transportation.
+
+7. **Multi-language Support:** The app will be available in both English and French to cater to a diverse user base.
 
 ## Getting Started
 

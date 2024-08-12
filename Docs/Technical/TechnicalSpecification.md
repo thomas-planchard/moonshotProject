@@ -9,7 +9,9 @@
 </div>
 
 
-## I. Audience 
+## 1. Introduction
+
+### 1.1. Audience
 
 This document is primarily intended for:
 
@@ -23,25 +25,25 @@ Secondary audiences:
 
 - Project manager: to help identify risks and dependencies
 
-## II. Overview
+### 1.2. Overview
 
 EcoGo is a mobile application designed to help individuals track and reduce their carbon dioxide (CO2) emissions from everyday activities, particularly focusing on transportation. The app aims to provide users with real-time data on their emissions and incentivize eco-friendly behaviors through gamification and rewards.
 
 
-## III. Glossary
+### 1.3. Glossary
 
 | Term              | Definition                                                                 |
 |-------------------|----------------------------------------------------------------------------|
 | Firebase          | A mobile and web application development platform developed by Firebase, Inc. in 2011, then acquired by Google in 2014. |
 
 
-## IV. Requirements 
+### 1.4. Objectives 
 
 **Carbon Footprint Tracking**
-Implement a system to track carbon emissions from various transportation modes, including walking, cycling, public transport, and driving.
+Users can track their carbon emissions from various transportation modes, including walking, cycling, public transport, and driving.
 
 **Real-time Emission Calculation**
-Implement a system to calculate carbon emissions in real-time based on GPS data, distance traveled, and transportation mode.
+The app calculates carbon emissions in real-time based on GPS data, distance traveled, and transportation mode.
 
 **GPS Navigation and Transportation Mode Selection**
 Users can utilize GPS within the app to select a destination, choose their preferred mode of transportation, and receive guided directions to reach their destination.
@@ -49,64 +51,127 @@ Users can utilize GPS within the app to select a destination, choose their prefe
 **Graphical Representation**
 Users can visualize their carbon footprint over time through interactive graphs, providing insights into their environmental impact.
 
-**Gamification**
-EcoGo gamifies the carbon footprint tracking experience by rewarding users with virtual coins for reducing their emissions. Coins can be used to unlock rewards in the in-app store.
+As mentioned in the [functional specification](../Functional/FunctionalSpecification.md), the following features will be implemented in a future version of the app as they are not considered essential for the initial release:
 
-**In-App Store**
-The app features an in-app store where users can redeem coins for discounts and offers on eco-friendly products, carpooling services, and public transportation.
+-	Gamification: EcoGo will make carbon footprint tracking playful by rewarding users with virtual coins when they reduce their emissions, but this feature will be deferred to a later version.
+- In-App Store: The ability for users to redeem coins for discounts and offers on eco-friendly products, carpooling services, and public transportation.
+- Multi-language Support: EcoGo will initially support English, with plans to add additional languages in future releases.
 
-**Multi-language Support**
-The app should be available in both English and French.
 
-## 2. **Architecture and System Overview**
+### 1.5. Scope
 
-- **Platform:** The application will be developed using React Native, allowing for cross-platform compatibility across iOS and Android devices. TypeScript will be used to ensure type safety and enhance code quality.
-- **Backend Services:** Firebase will serve as the backend, providing authentication, database, and hosting services. Firestore, a NoSQL database, will be utilized for storing user data and activity logs.
-- **APIs and Integrations:**
-  - **Location Services:** Utilize native GPS and accelerometer APIs for activity tracking and transportation mode detection.
-  - **Social Media Integration:** Allow for sharing achievements on social platforms through respective APIs.
-  - **Third-Party Eco-Friendly Stores:** Integration with eco-responsible brands and services will require developing partnerships and APIs for offer retrieval and coin redemption.
+This document will detail all technical aspects of the project, including technical decisions such as the architecture of the app and the technologies used. It will not cover design aspects or user experience considerations, as those decisions are addressed in the functional specification. Additionally, all test strategies and quality assurance details will be included in the separate test plan.
 
-## 3. **Functional Requirements**
+## 2. Requirements
 
-- **User Authentication:** Implement secure login/logout functionality using Firebase Authentication. Support for email and password-based authentication will be prioritized.
-- **Activity Tracking:** Leverage device GPS and accelerometer to detect and record user transportation activities. Include manual entry options for users to input transportation modes and distances.
-- **Carbon Emission Calculation:** Develop algorithms based on transportation mode and distance to calculate and display real-time CO2 emissions. Incorporate different factors for various transportation modes, including cars (gasoline, electric), public transit, biking, and walking.
-- **Rewards System:** Design a system to award coins based on eco-friendly transportation choices. Implement a backend logic to manage coin allocation, redemption, and tracking of user achievements.
-- **EcoGo Store:** Create a marketplace within the app for users to redeem coins for offers from eco-conscious brands. Requires backend support for offer management and user redemption processes.
-- **Social Sharing:** Implement functionality for users to share their eco-friendly achievements on social media platforms directly from the app.
+### 2.1. Functional Requirements
 
-## 4. **Non-Functional Requirements**
+**Carbon Footprint Tracking:** 
+- Implement a background system that continuously runs within the app to detect the user’s transportation mode, even when the app is not actively in use.
+- Develop a tracking mechanism that records the time and distance traveled by the user in various transportation modes, including walking, cycling, public transport, and driving.
 
-- **Performance:** Ensure responsiveness and smooth operation across all supported devices. Target a consistent frame rate of 60 FPS for fluid animations and transitions.
-- **Scalability:** Design the backend to handle an increasing number of users and data volume. Employ cloud functions and scalable database solutions to manage load effectively.
-- **Security:** Adhere to best practices for data encryption, secure authentication, and privacy compliance. Regularly update security measures to protect user data.
-- **Compliance:** Ensure the app meets GDPR and other relevant privacy regulations. Implement features allowing users to manage their data, including access, correction, and deletion.
+**Real-Time Emission Calculation:**
+- Create an algorithm that calculates the carbon footprint in real-time. The calculation should be based on the user’s speed and selected transportation mode, ensuring accurate emission data.
+- The algorithm should dynamically adjust its calculations based on the detected transportation mode and GPS data.
 
-## 5. **Technical Challenges and Risks**
+**GPS Navigation and Transportation Mode Selection:**
+- Integrate a navigation system using the Google Maps API, allowing users to select a destination and receive guided directions.
+- Provide functionality for users to choose their preferred mode of transportation and display real-time navigation and emission data accordingly.
+- Implement detailed and guided navigation, offering step-by-step directions and real-time updates throughout the journey.
+-	Develop a system to mimic user movement, allowing for simulated navigation and testing of transportation modes and emission calculations.
 
-- **Data Accuracy:** Ensuring the precision of GPS and accelerometer data for activity tracking. Mitigation involves implementing calibration techniques and allowing user corrections.
-- **User Engagement:** Maintaining user interest over time. Strategies include regular feature updates, personalized content, and community challenges.
-- **Partner Integration:** Dependence on third-party brands for the EcoGo store offers. Establish multiple partnerships to diversify offers and reduce risk.
+**User Interface and Core Application Features:**
+- Develop the front-end components of the app, including:
+  - **Sign-Up/Sign-In**: User registration and authentication.
+  - **Home**: Dashboard displaying carbon footprint stats and relevant user information.
+  - **GPS**: Interface for navigation and transportation mode selection.
+  - **Store**: (Future version) In-app store for redeeming rewards.
+  - **Settings**: User account management, including modifying personal information and preferences.
+  - **Profile**: User profile displaying cumulative statistics and achievements.
 
-## 6. **Development and Deployment Plan**
+**Account Management:**
+- Implement a system for user account creation, login, and logout.
+- Provide features for modifying personal information, such as name, email, password, profile picture, and car information.
 
-- **Milestones:**
-  1. Setup development environment and tooling.
-  2. Implement user authentication and profile management.
-  3. Develop activity tracking and carbon emission calculation logic.
-  4. Design and implement the rewards system and EcoGo store.
-  5. Integrate social sharing functionality.
-  6. Conduct extensive testing across platforms.
-  7. Deploy beta version for user feedback.
-  8. Release final version and continue iterative development based on user feedback.
+**Database Management:**
+- Design and manage a database with two primary collections:
+  - **User Collection**: Stores user-specific information, including account details and settings.
+  - **User Data Collection**: Records data related to users' cars, transportation modes, and carbon emissions.
 
-- **Testing Strategy:** Employ unit, integration, and UI tests throughout development. Use automated testing tools and conduct beta testing with real users to ensure functionality and usability.
+### Non-Functional Requirements
 
-- **Deployment:** Utilize CI/CD pipelines for automated testing and deployment. Plan for staged releases, starting with a beta version to gather user feedback before the full launch.
+**Performance:**
+- Ensure that the app runs efficiently in the background, with minimal impact on device performance and battery life.
+- Maintain a responsive user interface that provides real-time updates without noticeable delay.
 
-## 7. **Maintenance and Support**
+**Security:**
+- Implement secure user authentication and data storage practices.
+- Ensure all data in transit and at rest is encrypted, adhering to best practices for user privacy and security.
 
-- **Update Policy:** Regularly release updates for bug fixes, performance enhancements, and new features based on user feedback and market trends.
-- **Support Channels:** Establish a support system through email, in-app feedback, and social media to address user concerns and gather suggestions.
+**Usability:**
+- Design the app to be intuitive and easy to navigate, ensuring that users can effortlessly access all features and functionalities.
+- Provide a seamless user experience with clear visual cues and feedback.
 
+### User Stories
+
+1. **As a user, I want to automatically track my transportation activities without manually starting the app, so I can accurately monitor my carbon emissions.**
+2. **As a user, I want to receive real-time updates on my carbon footprint while navigating to a destination, so I can make environmentally conscious travel decisions.**
+3. **As a user, I want to create an account and manage my personal information within the app, so I can securely use all features and update my profile as needed.**
+4. **As a user, I want to see a detailed summary of my transportation habits and carbon emissions over time, so I can assess my environmental impact.**
+5. **As a user, I want to select my preferred transportation mode and receive directions via the app, so I can efficiently reach my destination while minimizing my carbon footprint.**
+
+
+
+6. Requirements
+
+	•	Functional Requirements: Detailed list of features and functionalities the app must have.
+	•	Non-Functional Requirements: Performance, security, usability, and other criteria the app must meet.
+	•	User Stories: Scenarios depicting how users will interact with the app.
+
+7. System Architecture
+
+	•	High-Level Architecture: Overview of the system’s architecture, including diagrams.
+	•	Component Description: Detailed description of each major component and its responsibilities.
+	•	Data Flow: How data moves through the system.
+
+8. Technical Stack
+
+	•	Front-End Technologies: Frameworks, libraries, and tools for the client side.
+	•	Back-End Technologies: Server-side technologies, frameworks, and tools.
+	•	Database: Type of database, schemas, and any relevant details.
+	•	APIs: Internal and external APIs the app will interact with.
+
+9. Detailed Design
+
+	•	User Interface Design: Wireframes, mockups, or UI design details.
+	•	Database Design: ER diagrams, table structures, and relationships.
+	•	API Specifications: Endpoints, request/response formats, and authentication methods.
+
+10. Implementation Plan
+
+	•	Development Strategy: Agile, Scrum, or other methodologies to be used.
+	•	Milestones and Phases: Breakdown of the project into phases with timelines.
+	•	Task Allocation: Who will be responsible for what tasks.
+
+11. Testing Strategy
+
+	•	Unit Testing: How individual components will be tested.
+	•	Integration Testing: Ensuring components work together.
+	•	System Testing: Full system tests before release.
+	•	User Acceptance Testing (UAT): Validation by end users.
+
+12. Deployment Plan
+
+	•	Environment Setup: Description of development, staging, and production environments.
+	•	Deployment Strategy: Steps and processes for deploying the app.
+	•	Rollback Plan: Steps to revert to a previous state in case of issues.
+
+13. Maintenance and Support
+
+	•	Post-Launch Support: How issues will be handled post-launch.
+	•	Maintenance Plan: Regular updates, bug fixes, and improvements.
+
+14. Appendices
+
+	•	Glossary: Definitions of terms and acronyms used.
+	•	References: Any documents, tools, or resources referenced.

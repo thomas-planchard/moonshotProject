@@ -421,6 +421,7 @@ const updateRemainingDistanceAndDuration = () => {
 
 
 
+
   // If location is not available, show loading screen
   if (!location) {
     return (
@@ -444,7 +445,6 @@ const updateRemainingDistanceAndDuration = () => {
           center: {
             latitude: location.coords.latitude,
             longitude: location.coords.longitude,
-            
           },
           pitch: 100, 
           heading: 0,
@@ -454,6 +454,7 @@ const updateRemainingDistanceAndDuration = () => {
         showsBuildings={false}
         onRegionChangeComplete={handleZoomChange}
         onPress={() => setIsMapTouched(true)}
+        cacheEnabled={true}
       >
         <Marker
           coordinate={{

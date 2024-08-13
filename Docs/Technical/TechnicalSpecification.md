@@ -95,24 +95,26 @@ This document will detail all technical aspects of the project, including techni
 
 **Database Management:**
 - Design and manage a database with two primary collections:
-  - **User Collection**: Stores user-specific information, including account details and settings.
+  - **User Collection**: Stores user-specific information, including account details.
   - **User Data Collection**: Records data related to users' cars, transportation modes, and carbon emissions.
 
-### Non-Functional Requirements
+### 2.2. Non-Functional Requirements
 
 **Performance:**
-- Ensure that the app runs efficiently in the background, with minimal impact on device performance and battery life.
-- Maintain a responsive user interface that provides real-time updates without noticeable delay.
+- The app will utilize background operations and continuous location updates, which are battery-intensive features. The goal is to optimize battery usage and performance to align with industry standards of similar apps like Google Maps or Waze, ensuring that battery consumption remains within a comparable range of approximately 10% relative to those apps.
+
+- In terms of responsiveness, the app will adhere to the following benchmarks as outlined by Robert B. Miller in 1968:
+  - **0.1 seconds**: The system should respond within 0.1 seconds to give the user the impression of an instant reaction, with no need for additional feedback.
+  - **1 second**: The system should maintain fluidity, with any delays between 0.1 and 1 second being noticeable but not disruptive to the user experience.
+  - **10 seconds**: The system should ensure that any operation taking up to 10 seconds provides progress feedback to keep the user engaged. Beyond this threshold, the user may lose focus and shift to other tasks.
 
 **Security:**
-- Implement secure user authentication and data storage practices.
-- Ensure all data in transit and at rest is encrypted, adhering to best practices for user privacy and security.
+- Implement secure user authentication using Google’s Firebase service, which provides built-in protection. Ensure that at no point within the app are Firebase credentials exposed, to protect against potential vulnerabilities.
 
 **Usability:**
-- Design the app to be intuitive and easy to navigate, ensuring that users can effortlessly access all features and functionalities.
-- Provide a seamless user experience with clear visual cues and feedback.
+- The app will adhere to the design outlined in the functional specification, which has been specifically crafted to keep users engaged and facilitate smooth workflow.
 
-### User Stories
+### 2.3. User Stories
 
 1. **As a user, I want to automatically track my transportation activities without manually starting the app, so I can accurately monitor my carbon emissions.**
 2. **As a user, I want to receive real-time updates on my carbon footprint while navigating to a destination, so I can make environmentally conscious travel decisions.**
@@ -121,57 +123,92 @@ This document will detail all technical aspects of the project, including techni
 5. **As a user, I want to select my preferred transportation mode and receive directions via the app, so I can efficiently reach my destination while minimizing my carbon footprint.**
 
 
+## 3. Technical Stack
 
-6. Requirements
+### 3.1. Front-End Technologies
 
-	•	Functional Requirements: Detailed list of features and functionalities the app must have.
-	•	Non-Functional Requirements: Performance, security, usability, and other criteria the app must meet.
-	•	User Stories: Scenarios depicting how users will interact with the app.
+The project will be developed using **React Native**. React Native offers several advantages, including:
 
-7. System Architecture
+- **Cross-Platform Development**: Write once, and run on both iOS and Android platforms, significantly reducing development time and effort.
+- **Performance**: Near-native performance by using native components directly, which is crucial for mobile applications.
+- **Large Ecosystem and Community Support**: Access to a wide range of libraries and tools, along with an active community for support.
+
+**Comparison with Flutter**:
+- **React Native** uses JavaScript or TypeScript, which many developers are already familiar with, while **Flutter** uses Dart, a language that may require a learning curve for developers.
+- **React Native** allows the use of native components and modules, whereas **Flutter** uses its own rendering engine, which can result in larger app sizes.
+- **React Native** benefits from integration with a larger ecosystem of JavaScript libraries, while **Flutter** provides more customizable UI components and smoother animations.
+
+The app will be co-developed using the **Expo** framework, which offers additional advantages:
+
+- **Simplified Development**: Expo provides a set of tools and services that simplify the development process, a fast refresh feature, and built-in support for common features like push notifications and camera access.
+- **No Need for Native Code**: With Expo, developers can build and deploy applications without writing native code, which speeds up the development process.
+- **Seamless Integration with React Native**: Expo works seamlessly with React Native, allowing developers to start with Expo and "eject" to plain React Native if more customization is needed.
+
+**TypeScript vs. JavaScript**:
+- **JavaScript** is a dynamically typed language, meaning that type-checking is done at runtime, which can lead to runtime errors if not carefully managed.
+- **TypeScript** is a statically typed superset of JavaScript that allows developers to define types explicitly. This reduces bugs by catching type errors at compile time, improves code readability, and provides better tooling support, such as autocompletion and refactoring.
+
+Given these benefits, **TypeScript** was chosen for the project to ensure a more robust and maintainable codebase.
+
+### Back-End Technologies
+
+The back-end will be managed using **Firestore Database** and **Firestore Storage**:
+
+- **Firestore Database** will store all user-related data. It is a NoSQL database that offers real-time data synchronization and scalability, making it ideal for mobile applications.
+- **Firestore Storage** will handle the storage of user profile images. Profile images are not stored directly in the Firestore Database due to its limitations in handling large binary data. Instead, image URLs will be stored in the database, with the actual image files stored in Firestore Storage.
+
+**Database Structure**:
+- **Users Collection**:
+  - **Document ID**: The user’s ID.
+  - **Fields**: `email`, `profileImageUrl`, `userId`, `username`.
+
+- **UserData Collection**:
+  - **Document ID**: The same as the user’s ID.
+  - **Fields**: `carSize`, `carType`, `totalCarbonFootprint`, `vehicleConsumption`, `userId`.
+  
+![Database Structure](./Img/databaseStructure.png)
+
+### APIs
+
+The choice to use Google Maps APIs is based on several key factors. Firstly, they are well-documented, which significantly streamlines development and reduces potential issues. Being provided by Google, ensures the assurance of long-term support and stability, minimizing the risk of sudden deprecation. Additionally, Google Maps APIs are highly efficient and reliable, making them an ideal choice for location-based services. Lastly, Google offers a $300 credit for these services, which is particularly beneficial for a school project without revenue, allowing for extensive testing and development without incurring costs.
+
+The app will communicate with these Google Maps APIs:
+
+- **Google Maps Place API**
+- **Google Maps Directions v2 API**
+- **Google Maps SDK for iOS**
+
+Their usage will be described in detail in their respective section.
+
+
+1. System Architecture
 
 	•	High-Level Architecture: Overview of the system’s architecture, including diagrams.
 	•	Component Description: Detailed description of each major component and its responsibilities.
 	•	Data Flow: How data moves through the system.
 
-8. Technical Stack
 
-	•	Front-End Technologies: Frameworks, libraries, and tools for the client side.
-	•	Back-End Technologies: Server-side technologies, frameworks, and tools.
-	•	Database: Type of database, schemas, and any relevant details.
-	•	APIs: Internal and external APIs the app will interact with.
-
-9. Detailed Design
+8. Detailed Design
 
 	•	User Interface Design: Wireframes, mockups, or UI design details.
 	•	Database Design: ER diagrams, table structures, and relationships.
 	•	API Specifications: Endpoints, request/response formats, and authentication methods.
 
-10. Implementation Plan
+9.  Implementation Plan
 
 	•	Development Strategy: Agile, Scrum, or other methodologies to be used.
 	•	Milestones and Phases: Breakdown of the project into phases with timelines.
 	•	Task Allocation: Who will be responsible for what tasks.
 
-11. Testing Strategy
 
-	•	Unit Testing: How individual components will be tested.
-	•	Integration Testing: Ensuring components work together.
-	•	System Testing: Full system tests before release.
-	•	User Acceptance Testing (UAT): Validation by end users.
-
-12. Deployment Plan
+10. Deployment Plan
 
 	•	Environment Setup: Description of development, staging, and production environments.
 	•	Deployment Strategy: Steps and processes for deploying the app.
 	•	Rollback Plan: Steps to revert to a previous state in case of issues.
 
-13. Maintenance and Support
+11. Maintenance and Support
 
 	•	Post-Launch Support: How issues will be handled post-launch.
 	•	Maintenance Plan: Regular updates, bug fixes, and improvements.
 
-14. Appendices
-
-	•	Glossary: Definitions of terms and acronyms used.
-	•	References: Any documents, tools, or resources referenced.

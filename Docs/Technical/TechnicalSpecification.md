@@ -33,6 +33,14 @@
       - [➭ Authentication Context (`AuthContext.tsx`)](#-authentication-context-authcontexttsx)
       - [➭ Sign-In Page (`SignIn.tsx`)](#-sign-in-page-signintsx)
       - [➭ Sign-Up Component (`SignUp.tsx`)](#-sign-up-component-signuptsx)
+    - [4.3.5 GPS Navigation and Transportation Mode Selection](#435-gps-navigation-and-transportation-mode-selection)
+      - [➭ Install `react-native-maps`](#-install-react-native-maps)
+      - [➭ Google Maps API Setup](#-google-maps-api-setup)
+      - [➭Display the Map](#display-the-map)
+      - [➭ Fetch User Location](#-fetch-user-location)
+      - [➭ Get Destination Input](#-get-destination-input)
+      - [➭ Route Calculation](#-route-calculation)
+    - [7. **Real-Time Navigation and Instructions**](#7-real-time-navigation-and-instructions)
 
 
 
@@ -608,6 +616,346 @@ The authentication and user management system in the app relies on Firebase serv
    - Error handling and feedback are provided via alerts and UI updates, such as showing error messages or hiding the loading indicator upon completion.
 
 ![SignUp Flow](./Img/signUpFlow.png)
+
+
+#### 4.3.5 GPS Navigation and Transportation Mode Selection
+
+The navigation system is one of the most complex tasks in the application. Below are the steps required to build this system:
+
+##### ➭ Install `react-native-maps`
+   - Install `react-native-maps` to use Google Maps within the app. Follow the installation guide [here](https://github.com/react-native-maps/react-native-maps/blob/master/docs/installation.md).
+
+##### ➭ Google Maps API Setup
+   - **Create a Billing Account**: Set up a billing account with Google Cloud to receive the $300 free credit.
+   - **Generate Google Maps API Key**: Enable the following APIs on the generated API key:
+     - **Google Maps Place API**
+     - **Google Maps Directions v2 API**
+     - **Google Maps SDK for iOS**
+
+##### ➭Display the Map
+   - **Map Initialization**: Use the `MapView` component from `react-native-maps` to display Google Maps within the app. Ensure to set the `provider` prop to `PROVIDER_GOOGLE` to use Google Maps instead of Apple Maps.
+
+##### ➭ Fetch User Location
+
+The app will first request the user’s permission to access their location using the `expo-location` library. Once permission is granted, it will retrieve the user's current location using `Location.getCurrentPositionAsync` from the `expo-location` library. After obtaining the location, the app will display a marker on the map that corresponds to the user's current position.
+
+![Fetch User Location](./Img/fetchLocation.png)
+
+##### ➭ Get Destination Input
+
+The app will utilize the **Google Maps Places API** to provide autocomplete suggestions based on user input and to fetch detailed information about selected places. When the user inputs a destination, the app will send a request to the Google Maps Places API to retrieve suggestions. The response from the API will look like this: 
+```json
+{
+  "predictions": [
+    {
+      "description": "Eiffel Tower, Paris, France",
+      "structured_formatting": {
+        "main_text": "Eiffel Tower",
+        "secondary_text": "Paris, France"
+      },
+      "place_id": "ChIJLU7jZClu5kcR4PcOOO6p3I0",
+      "terms": [
+        { "value": "Eiffel Tower" },
+        { "value": "Paris" },
+        { "value": "France" }
+      ],
+      "types": ["tourist_attraction", "point_of_interest", "establishment"]
+    },
+    {
+      "description": "Eiffel Tower Restaurant, Las Vegas, NV, USA",
+      "structured_formatting": {
+        "main_text": "Eiffel Tower Restaurant",
+        "secondary_text": "Las Vegas, NV, USA"
+      },
+      "place_id": "ChIJ7bDDEQnEyIAR7_Cf-Lw1GhQ",
+      "terms": [
+        { "value": "Eiffel Tower Restaurant" },
+        { "value": "Las Vegas" },
+        { "value": "NV" },
+        { "value": "USA" }
+      ],
+      "types": ["restaurant", "food", "point_of_interest", "establishment"]
+    }
+  ],
+  "status": "OK"
+}
+```
+
+Once the user selects a destination, another request will be sent to the Places API to fetch detailed information, including the latitude and longitude of the selected place. The response will contain the following data:
+```json
+{
+  "result": {
+    "address_components": [
+      {
+        "long_name": "Eiffel Tower",
+        "short_name": "Eiffel Tower",
+        "types": ["premise"]
+      },
+      {
+        "long_name": "Champ de Mars",
+        "short_name": "Champ de Mars",
+        "types": ["route"]
+      },
+      {
+        "long_name": "7th arrondissement",
+        "short_name": "7th arrondissement",
+        "types": ["sublocality_level_1", "sublocality", "political"]
+      },
+      {
+        "long_name": "Paris",
+        "short_name": "Paris",
+        "types": ["locality", "political"]
+      },
+      {
+        "long_name": "Île-de-France",
+        "short_name": "IDF",
+        "types": ["administrative_area_level_1", "political"]
+      },
+      {
+        "long_name": "France",
+        "short_name": "FR",
+        "types": ["country", "political"]
+      },
+      {
+        "long_name": "75007",
+        "short_name": "75007",
+        "types": ["postal_code"]
+      }
+    ],
+    "formatted_address": "Champ de Mars, 5 Avenue Anatole France, 75007 Paris, France",
+    "geometry": {
+      "location": {
+        "lat": 48.8583701,
+        "lng": 2.2944813
+      },
+      "viewport": {
+        "northeast": {
+          "lat": 48.8597190802915,
+          "lng": 2.295830280291502
+        },
+        "southwest": {
+          "lat": 48.8570211197085,
+          "lng": 2.293132319708498
+        }
+      }
+    },
+    "place_id": "ChIJLU7jZClu5kcR4PcOOO6p3I0",
+    "types": ["tourist_attraction", "point_of_interest", "establishment"]
+  },
+  "status": "OK"
+}
+```
+
+ This geolocation data will be crucial for calculating routes in the next part.
+
+**Key Functionalities**
+
+1. **Fetching Place Suggestions**
+   - **`fetchSuggestions` Function**:
+     - **Purpose**: Fetches place suggestions from the Google Maps Places Autocomplete API based on user input.
+     - **How It Works**:
+       1. The user begins typing a destination in the search input field.
+       2. The app sends a request to the Google Maps Places API, including the user's current location and input text.
+       3. The API returns a list of place suggestions, which are sorted to favor places within the user's current country.
+       4. The sorted suggestions are stored and displayed in a list below the input field.
+
+![Fetch Place Suggestions](./Img/inputLocation.png)
+
+2. **Handling Place Selection**
+   - **`handleSuggestionPress` Function**:
+     - **Purpose**: Handles the event when a user selects a place from the suggestions list.
+     - **How It Works**:
+       1. The user selects a suggestion from the list.
+       2. The app sends a request to the Google Maps Places Details API using the place_id of the selected suggestion.
+       3. The API returns detailed information, including the latitude and longitude of the selected place.
+       4. Once the destination is set, the app triggers the funtion to calculate the route (described in the next part).
+
+![Handle Place Selection](./Img/suggestion.png)
+
+3. **How the request are sent**
+   - **Fetch Suggestions Request**:
+     - **URL**: `https://maps.googleapis.com/maps/api/place/autocomplete/json`
+     - **Parameters**: `input` (user input), `location` (user's current location), `key` (Google Maps API key).
+   - **Fetch Details Request**:
+     - **URL**: `https://maps.googleapis.com/maps/api/place/details/json`
+     - **Parameters**: `place_id` (selected place ID), `key` (Google Maps API key).
+
+4. **Sequence of Operations**
+![Sequence diagram](./Img/sequenceDiagramDestination.png)
+
+1. **Schema of how many requests are sent**
+
+![Schema](./Img/requestSchema.png) 
+
+##### ➭ Route Calculation
+
+Once the destination is identified, the app needs to calculate the route between the user's current location and the destination. To achieve this, the latitude and longitude coordinates from both the user's location and the destination will be used. As specified in the functional requirements, the app must provide the user with options to choose between four transportation modes: DRIVE, WALK, TRANSIT, and BICYCLE.
+Each time the user enters a destination, the app will need to make four API requests, one for each of the four transportation modes. The app will use the Google Maps Directions API to retrieve the route information.
+
+Upon receiving the response from the API, the app must analyze the data. The typical structure of a response includes details like route distance, duration, and encoded polyline data that represents the route path. Here's an example of what a response might look like:
+
+```json
+{
+  "routes": [
+    {
+      "legs": [
+        {
+          "distance": {
+            "text": "12.3 km",
+            "value": 12300
+          },
+          "duration": {
+            "text": "15 mins",
+            "value": 900
+          },
+          "steps": [
+            {
+              "travel_mode": "DRIVING",
+              "start_location": {
+                "lat": 37.7749295,
+                "lng": -122.4194155
+              },
+              "end_location": {
+                "lat": 37.7894068,
+                "lng": -122.4109767
+              },
+              "polyline": {
+                "points": "a~l~Fjk~uOwHJy@P"
+              },
+              "duration": {
+                "value": 180,
+                "text": "3 mins"
+              },
+              "distance": {
+                "value": 1000,
+                "text": "1.0 km"
+              }
+            }
+            // additional steps...
+          ]
+        }
+      ],
+      "overview_polyline": {
+        "points": "a~l~Fjk~uOwHJy@P"
+      }
+    }
+  ]
+}
+```
+
+In the response, the encoded polyline under `overview_polyline.points` needs to be decoded to draw the route on the map. The app will also store all the steps provided under the `legs` array to enable guided navigation for the user.
+
+
+**Key Steps**
+
+1. **Prepare Origin and Destination Objects**:
+   - The function should begin by preparing the origin and destination objects. The origin is constructed using the user's current location, while the destination is constructed using the latitude and longitude coordinates derived from the user's input.
+   
+
+2. **Define Travel Modes**:
+   - Then the function should calculate routes for the different travel modes. Each mode will be processed in a loop, where a separate request is made for each mode.
+
+
+3. **Create API Request for Each Travel Mode**:
+  For each travel mode, the function should construct a request body for the API request. The request body should include the following information:
+
+  - `origin`: The starting location of the user.
+  - `destination`: The target destination coordinates.
+  - `travelMode`: One of the four modes (DRIVE, WALK, TRANSIT, BICYCLE).
+  - `routeModifiers`: Options provided by Google to customize the route. In this case, all options (`avoidTolls`, `avoidHighways`, `avoidFerries`) are set to `false`, as we are not focusing on these details at this stage.
+  - `computeAlternativeRoutes`: Set to `false` to focus on the primary route.
+  - `languageCode`: Set to `'en-US'` since the app is currently focused on English.
+  - `units`: Set to `'METRIC'` to receive distances in metric units.
+
+  To optimize the API response and avoid unnecessary data, the function should also specify a `fieldMask`. This limits the response to only include the necessary information: `'routes.distanceMeters,routes.duration,routes.legs,routes.polyline.encodedPolyline'`.
+
+  The request body would look like this:
+
+  ```javascript
+  const requestBody = {
+    origin,
+    destination: destinationObj,
+    travelMode: mode,
+    routeModifiers: { avoidTolls: false, avoidHighways: false, avoidFerries: false },
+    computeAlternativeRoutes: false,
+    languageCode: 'en-US',
+    units: 'METRIC',
+  };
+  ```
+
+1. **Send API Request**:
+   - The app makes a POST request to the **Google Maps Directions API** using the constructed request body and the API key. The API response includes the route details, which are then processed.
+
+   ```javascript
+   const response = await axios.post(
+     `https://routes.googleapis.com/directions/v2:computeRoutes?key=${GOOGLE_MAPS_APIKEY}`,
+     requestBody,
+     {
+       headers: {
+         'X-Goog-FieldMask': fieldMask,
+       },
+     }
+   );
+   ```
+
+2. **Parse API Response**:
+   - Upon receiving the response, the app checks if the response contains valid route data. If a valid route is found, it extracts key details such as the route's distance, duration, and encoded polyline.
+   - The encoded polyline is decoded into an array of coordinates representing the route. Additionally, the app stores the detailed steps of the route (e.g., directions, maneuvers) for later use in navigation.
+
+   ```javascript
+   const route = response.data.routes[0];
+   if (route && route.legs && route.legs.length > 0) {
+     const leg = route.legs[0];
+     const polyline = decodePolyline(route.polyline.encodedPolyline);
+     route.legs[0].steps.forEach(step => {
+       step.travelMode = mode;
+       allSteps.push(step);
+     });
+
+     options.push({
+       mode,
+       duration: leg.localizedValues?.duration?.text || 'Not available',
+       distance: leg.localizedValues?.distance?.text || 'Not available',
+       polyline,
+     });
+   }
+   ```
+
+3. **Handle Errors**:
+   - If the API request fails or if the response does not contain a valid route, the app handles this gracefully by adding a placeholder with 'Not available' for distance and duration.
+
+   ```javascript
+   options.push({
+     mode,
+     duration: 'Not available',
+     distance: 'Not available',
+     polyline: [],
+   });
+   ```
+
+4. **Store and Display Routes**:
+   - After processing all travel modes, the app stores the route options and makes them available for the user to choose their preferred mode of transportation. The app also stores the detailed steps for all modes, allowing for guided navigation.
+
+   ```javascript
+   stepsRef.current = allSteps; // Store all steps for all modes
+   setTransportOptions(options);
+   setModalVisible(true);
+   ```
+
+
+#### 7. **Real-Time Navigation and Instructions**
+   - **Display Route on Map**: Use the `Polyline` component to display the calculated route on the map.
+   - **Step-by-Step Navigation**: Implement a function to provide real-time navigation instructions as the user follows the route.
+   - **Simulated Navigation**: Develop a system to simulate user movement along the route for testing purposes. This can be achieved by updating the user's location at regular intervals to mimic movement.
+
+By following these steps, the navigation system will allow users to select a destination, receive real-time guided directions, and visualize their route on a map, all while tracking carbon emissions based on their selected transportation mode.
+
+
+- Integrate a navigation system using the Google Maps API, allowing users to select a destination and receive guided directions.
+- Provide functionality for users to choose their preferred mode of transportation and display real-time navigation and emission data accordingly.
+- Implement detailed and guided navigation, offering step-by-step directions and real-time updates throughout the journey.
+-	Develop a system to mimic user movement, allowing for simulated navigation and testing of transportation modes and emission calculations.
+
 
 1. System Architecture
 

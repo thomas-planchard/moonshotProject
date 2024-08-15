@@ -8,12 +8,15 @@
   </p>
 </div>
 
+<details>
+
 - [1. Introduction](#1-introduction)
   - [1.1. Audience](#11-audience)
   - [1.2. Overview](#12-overview)
   - [1.3. Glossary](#13-glossary)
   - [1.4. Objectives](#14-objectives)
   - [1.5. Scope](#15-scope)
+  - [1.6. Potential Technical Risks and Challenges](#16-potential-technical-risks-and-challenges)
 - [2. Requirements](#2-requirements)
   - [2.1. Functional Requirements](#21-functional-requirements)
   - [2.2. Non-Functional Requirements](#22-non-functional-requirements)
@@ -29,11 +32,12 @@
     - [4.3.1 Create the Project](#431-create-the-project)
     - [4.3.2. Install npm and Set Up TypeScript](#432-install-npm-and-set-up-typescript)
     - [4.3.3. Front End](#433-front-end)
-    - [4.3.4 Authentication and User Management](#434-authentication-and-user-management)
+    - [4.3.4 Common Setup Issues and Debugging](#434-common-setup-issues-and-debugging)
+    - [4.3.5 Authentication and User Management](#435-authentication-and-user-management)
       - [➭ Authentication Context (`AuthContext.tsx`)](#-authentication-context-authcontexttsx)
       - [➭ Sign-In Page (`SignIn.tsx`)](#-sign-in-page-signintsx)
       - [➭ Sign-Up Component (`SignUp.tsx`)](#-sign-up-component-signuptsx)
-    - [4.3.5 GPS Navigation and Transportation Mode Selection](#435-gps-navigation-and-transportation-mode-selection)
+    - [4.3.6 GPS Navigation and Transportation Mode Selection](#436-gps-navigation-and-transportation-mode-selection)
       - [➭ Install `react-native-maps`](#-install-react-native-maps)
       - [➭ Google Maps API Setup](#-google-maps-api-setup)
       - [➭Display the Map](#display-the-map)
@@ -42,6 +46,7 @@
       - [➭ Route Calculation](#-route-calculation)
     - [7. **Real-Time Navigation and Instructions**](#7-real-time-navigation-and-instructions)
 
+</details>
 
 
 ## 1. Introduction
@@ -62,7 +67,7 @@ Secondary audiences:
 
 ### 1.2. Overview
 
-EcoGo is a mobile application designed to help individuals track and reduce their carbon dioxide (CO2) emissions from everyday activities, particularly focusing on transportation. The app aims to provide users with real-time data on their emissions and incentivize eco-friendly behaviors through gamification and rewards.
+EcoGo is a native mobile application designed exclusively for iOS, aimed at helping individuals track and reduce their carbon dioxide (CO2) emissions from everyday activities, with a particular focus on transportation. The app provides users with real-time data on their emissions and incentivizes eco-friendly behaviors through gamification and rewards.
 
 
 ### 1.3. Glossary
@@ -96,6 +101,27 @@ As mentioned in the [functional specification](../Functional/FunctionalSpecifica
 ### 1.5. Scope
 
 This document will detail all technical aspects of the project, including technical decisions such as the architecture of the app and the technologies used. It will not cover design aspects or user experience considerations, as those decisions are addressed in the functional specification. Additionally, all test strategies and quality assurance details will be included in the separate test plan.
+
+### 1.6. Potential Technical Risks and Challenges
+
+1. **Real-Time Data Accuracy**:
+   - The accuracy of real-time CO2 emission calculations heavily relies on the precision of GPS data and the correct detection of the user's transportation mode. Inaccurate or delayed data could lead to incorrect emission estimates.
+
+2. **Battery Consumption**:
+   - Continuous use of GPS for real-time tracking and updates can significantly impact battery life. This could lead to a poor user experience, especially during long journeys. Optimizing the app to balance data accuracy with battery efficiency is critical.
+
+3. **GPS Signal Availability**:
+   - GPS signal strength can be inconsistent, particularly in urban areas with tall buildings, underground locations, or remote regions. This variability could lead to gaps in data, impacting the accuracy of emission tracking and navigation services.
+
+4. **Internet Connectivity**:
+   - The app requires a stable internet connection to communicate with APIs for fetching route data, calculating emissions, and updating the user interface. Poor connectivity could hinder the app’s performance, leading to delays or failure in providing real-time updates.
+
+5. **API Limitations and Costs**:
+   - Relying on external APIs (e.g., Google Maps API) introduces dependencies on their availability, limits, and potential costs. Exceeding API request limits or experiencing service outages could impact the app's functionality.
+
+6. **User Privacy Concerns**:
+   - Continuous tracking of user location and transportation habits could raise privacy concerns. Ensuring that user data is securely handled and providing clear information about data usage is essential to maintain user trust.
+
 
 ## 2. Requirements
 
@@ -392,6 +418,53 @@ To start developing the app, the first step is to create a new project using Exp
 
 npm (Node Package Manager) will be used to manage dependencies for the project. It is installed automatically when you install Node.js. If you need to install npm separately, you can do so by following the instructions on the [official npm website](https://www.npmjs.com/get-npm).
 
+To verify if npm is installed, run:
+```
+npm -v
+```
+
+if you need to update npm to the latest version, you can do so by running:
+```
+npm install -g npm
+```
+
+**Configure typescript**
+
+After creating the project with the "blank (TypeScript)" template you'll find a 'tsconfig.json' file in your project root. Customize it to suit your project's need. Here's what we are going to use in our project:
+
+```json
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "paths": {
+      "@/*": [
+        "./*"
+      ],
+      "@firebase/auth": ["./node_modules/@firebase/auth/dist/index.rn.d.ts"]
+    }
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts"
+,   "context/authContext.tsx"  ]
+}
+```
+
+This configuration ensures that TypeScript is properly set up to work with React Native and Expo.
+
+**Install Required Dependencies:**
+
+Before starting development, make sure to install the necessary dependencies. Here are some you absolutely need
+
+```
+npm install @react-navigation/native @react-navigation/stack
+npm install @reduxjs/toolkit react-redux
+npm install react-native-maps
+```
+
 
 #### 4.3.3. Front End
 
@@ -428,12 +501,35 @@ export default function Home() {
 }
 ```
 
-In this example:
+**Breakdown**:
 
-- The **Home** page is composed of multiple components (`Dashboard`, `Activities`, `Recommendation`).
-- Each component should be developed in its respective folder inside the `components` directory.
+- The `Dashboard`, `Activities`, and `Recommendation` components are each responsible for a section of the screen and should be developed in isolation with their respective directories.
+- Ensure each component has its corresponding stylesheet (e.g., `Dashboard.style.ts`) for better modularity and separation of concerns.
 
-#### 4.3.4 Authentication and User Management
+**Styling components**:
+
+- Use a centralized theme where possible, and avoid inline styles for better maintainability. Each component should have its own stylesheet file to keep styles modular and reusable.
+
+#### 4.3.4 Common Setup Issues and Debugging
+
+Common Setup Issues and Debugging:
+
+- Expo Not Starting: If Expo fails to start, try clearing the cache with:
+
+``` bash
+expo start -c
+```
+
+- TypeScript Errors: Ensure that your tsconfig.json is properly set up and matches the project structure. If you encounter type errors, double-check your import paths and module resolutions.
+- Dependency Issues: If you encounter issues with dependencies, try reinstalling them or clearing npm's cache:
+
+```bash
+npm cache clean --force
+npm install
+```
+
+
+#### 4.3.5 Authentication and User Management
 
 The authentication and user management system in the app relies on Firebase services to handle user sign-up, sign-in, and data management. The following components are involved in this process:
 
@@ -544,14 +640,14 @@ The authentication and user management system in the app relies on Firebase serv
    - **`loading`**: We need to implement state management to handle the loading state, which will indicate when the login process is in progress.
 
 2. **References**
-   - **Purpose**: 	useRef allows to store and update values without causing the component to re-render. Unlike useState, which triggers a re-render every time the state changes, useRef provides a mutable reference that persists across renders without affecting the UI. This is particularly useful for storing the current values of the email and password fields, which do not need to trigger a re-render of the component every time the user types.
+   - **Purpose**: useRef allows to store and update values without causing the component to re-render. Unlike useState, which triggers a re-render every time the state changes, useRef provides a mutable reference that persists across renders without affecting the UI. This is particularly useful for storing the current values of the email and password fields, which do not need to trigger a re-render of the component every time the user types.
    - **`email`**: Stores the email entered by the user.
    - **`password`**: Stores the password entered by the user.
 
 3. **`handleLogin()` Function**
    - **Purpose**: Handles the login process when the user attempts to sign in.
    - **Implementation Steps**:
-     1. Checks if both the email and password fields are filled. If not, display an alert message: `"Error: Please fill all the fields"`.
+     1. Check if both the email and password fields are filled. If not, display an alert message: `"Error: Please fill all the fields"`.
      2. Indicate that the login process is ongoing.
      2. Calls the `login` function from `AuthContext`, passing the email and password.
      3. If the login fails, display an alert with the error message returned from the `login` function (e.g., `"Sign In Error: Invalid email or password"`).
@@ -618,7 +714,7 @@ The authentication and user management system in the app relies on Firebase serv
 ![SignUp Flow](./Img/signUpFlow.png)
 
 
-#### 4.3.5 GPS Navigation and Transportation Mode Selection
+#### 4.3.6 GPS Navigation and Transportation Mode Selection
 
 The navigation system is one of the most complex tasks in the application. Below are the steps required to build this system:
 
@@ -759,9 +855,12 @@ Once the user selects a destination, another request will be sent to the Places 
        3. The API returns a list of place suggestions, which are sorted to favor places within the user's current country.
        4. The sorted suggestions are stored and displayed in a list below the input field.
 
+<!--! debouncing mechanism when fetching suggestions from the API, it will reduce the number of calls while improving the performances  -->
+
+
 ![Fetch Place Suggestions](./Img/inputLocation.png)
 
-2. **Handling Place Selection**
+1. **Handling Place Selection**
    - **`handleSuggestionPress` Function**:
      - **Purpose**: Handles the event when a user selects a place from the suggestions list.
      - **How It Works**:
@@ -883,11 +982,10 @@ In the response, the encoded polyline under `overview_polyline.points` needs to 
   };
   ```
 
-1. **Send API Request**:
+4. **Send API Request**:
    - The app makes a POST request to the **Google Maps Directions API** using the constructed request body and the API key. The API response includes the route details, which are then processed.
 
    ```javascript
-   const response = await axios.post(
      `https://routes.googleapis.com/directions/v2:computeRoutes?key=${GOOGLE_MAPS_APIKEY}`,
      requestBody,
      {
@@ -895,45 +993,42 @@ In the response, the encoded polyline under `overview_polyline.points` needs to 
          'X-Goog-FieldMask': fieldMask,
        },
      }
-   );
    ```
 
-2. **Parse API Response**:
-   - Upon receiving the response, the app checks if the response contains valid route data. If a valid route is found, it extracts key details such as the route's distance, duration, and encoded polyline.
-   - The encoded polyline is decoded into an array of coordinates representing the route. Additionally, the app stores the detailed steps of the route (e.g., directions, maneuvers) for later use in navigation.
+5. **Parse API Response**:
+   - Upon receiving the response, the app will check if the response contains valid route data. If a valid route is found, it extracts key details such as the route's distance, duration, and encoded polyline.
+   - The encoded polyline is decoded with a function into an array of coordinates representing the route(explanation below). Additionally, the app will also store the detailed steps of the route for later use in navigation.
+   - This process will be repeated for all four travel modes. The results will be stored temporarily in the app, it will be helpful when presenting the user with the choice of transportation modes.
 
-   ```javascript
-   const route = response.data.routes[0];
-   if (route && route.legs && route.legs.length > 0) {
-     const leg = route.legs[0];
-     const polyline = decodePolyline(route.polyline.encodedPolyline);
-     route.legs[0].steps.forEach(step => {
-       step.travelMode = mode;
-       allSteps.push(step);
-     });
+    **Decode Polyline**:
 
-     options.push({
-       mode,
-       duration: leg.localizedValues?.duration?.text || 'Not available',
-       distance: leg.localizedValues?.distance?.text || 'Not available',
-       polyline,
-     });
-   }
-   ```
+    The purpose is to convert a polyline string, which is an encoded sequence of latitude and longitude points, into an array of decoded points that represent a path on a map. It is a format returned by Google Maps APIs, where the route is provided in a compressed format to save space.
 
-3. **Handle Errors**:
-   - If the API request fails or if the response does not contain a valid route, the app handles this gracefully by adding a placeholder with 'Not available' for distance and duration.
+    **Initialization**: 
+      - The function initializes an empty array to store the decoded coordinates.
+      - It sets up variables to track the current position in a string, the total length of the string, and the current latitude and longitude values.
 
-   ```javascript
-   options.push({
-     mode,
-     duration: 'Not available',
-     distance: 'Not available',
-     polyline: [],
-   });
-   ```
+    **Decoding Loop**:
+      - The function loops through the encoded string, processing each character to extract the latitude and longitude values.
+      - For each coordinate (latitude or longitude), it decodes the characters by:
+        - Adjusting each character by subtracting 63 (the offset used by Google to encode).
+        - Accumulating the bits of the decoded value.
+        - Handling continuation bits (characters with a value of 0x20 or higher) until the entire value is decoded.
+      - It then applies ZigZag decoding to get the actual latitude or longitude difference and updates the current latitude or longitude.
 
-4. **Store and Display Routes**:
+    **Building Points Array**:
+      - The decoded latitude and longitude are scaled back to their original values (dividing by 1e5) and stored in an array as objects with `latitude` and `longitude` properties.
+
+    **Returning the Result**:
+      - The function returns the array, which now contains the sequence of coordinates representing the polyline as a series of latitude and longitude pairs.
+
+    ![Decode Polyline](./Img/decodePolyline.png)
+
+6. **Handle Errors**:
+   - If the API request fails or if the response does not contain a valid route, the function will handle this by adding a placeholder with 'Not available' for distance and duration.
+
+
+7. **Store and Display Routes**:
    - After processing all travel modes, the app stores the route options and makes them available for the user to choose their preferred mode of transportation. The app also stores the detailed steps for all modes, allowing for guided navigation.
 
    ```javascript

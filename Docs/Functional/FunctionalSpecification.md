@@ -8,6 +8,7 @@
   </p>
 </div>
 
+<details>
 
 - [1. Executive Summary](#1-executive-summary)
 - [2. Background](#2-background)
@@ -60,7 +61,7 @@
   - [11.1. Risks and Assumptions](#111-risks-and-assumptions)
     - [➭ Assumptions](#-assumptions)
 
-
+</details>
 
 ## 1. Executive Summary
 

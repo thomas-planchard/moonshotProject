@@ -32,12 +32,12 @@
     - [4.3.1 Create the Project](#431-create-the-project)
     - [4.3.2. Install npm and Set Up TypeScript](#432-install-npm-and-set-up-typescript)
     - [4.3.3. Front End](#433-front-end)
-    - [4.3.4 Common Setup Issues and Debugging](#434-common-setup-issues-and-debugging)
-    - [4.3.5 Authentication and User Management](#435-authentication-and-user-management)
+    - [4.3.4. Common Setup Issues and Debugging](#434-common-setup-issues-and-debugging)
+    - [4.3.5. Authentication and User Management](#435-authentication-and-user-management)
       - [➭ Authentication Context (`AuthContext.tsx`)](#-authentication-context-authcontexttsx)
       - [➭ Sign-In Page (`SignIn.tsx`)](#-sign-in-page-signintsx)
       - [➭ Sign-Up Component (`SignUp.tsx`)](#-sign-up-component-signuptsx)
-    - [4.3.6 GPS Navigation and Transportation Mode Selection](#436-gps-navigation-and-transportation-mode-selection)
+    - [4.3.6. GPS Navigation and Transportation Mode Selection](#436-gps-navigation-and-transportation-mode-selection)
       - [➭ Install `react-native-maps`](#-install-react-native-maps)
       - [➭ Google Maps API Setup](#-google-maps-api-setup)
       - [➭Display the Map](#display-the-map)
@@ -47,9 +47,9 @@
       - [➭ Polyline](#-polyline)
       - [➭ Transportation Mode Choice](#-transportation-mode-choice)
       - [➭ Step-by-Step Navigation](#-step-by-step-navigation)
-  - [Implementation Guide:](#implementation-guide)
-    - [1. **Setting Up `updateInstructions(newLocation)`**](#1-setting-up-updateinstructionsnewlocation)
-    - [2. **Setting Up `updateRemainingDistanceAndDuration()`**](#2-setting-up-updateremainingdistanceandduration)
+      - [➭ Mimic User Movement](#-mimic-user-movement)
+    - [4.3.7.](#437)
+    - [4.3.6. Determining The Mode Of Transportation](#436-determining-the-mode-of-transportation)
   - [5. Implementation Plan](#5-implementation-plan)
     - [5.1. Development Strategy](#51-development-strategy)
     - [5.2. Milestones and Phases](#52-milestones-and-phases)
@@ -544,7 +544,7 @@ export default function Home() {
 
 - Use a centralized theme where possible, and avoid inline styles for better maintainability. Each component should have its own stylesheet file to keep styles modular and reusable.
 
-#### 4.3.4 Common Setup Issues and Debugging
+#### 4.3.4. Common Setup Issues and Debugging
 
 Common Setup Issues and Debugging:
 
@@ -563,7 +563,7 @@ npm install
 ```
 
 
-#### 4.3.5 Authentication and User Management
+#### 4.3.5. Authentication and User Management
 
 The authentication and user management system in the app relies on Firebase services to handle user sign-up, sign-in, and data management. The following components are involved in this process:
 
@@ -748,7 +748,7 @@ The authentication and user management system in the app relies on Firebase serv
 ![SignUp Flow](./Img/signUpFlow.png)
 
 
-#### 4.3.6 GPS Navigation and Transportation Mode Selection
+#### 4.3.6. GPS Navigation and Transportation Mode Selection
 
 The navigation system is one of the most complex tasks in the application. Below are the steps required to build this system:
 
@@ -1180,10 +1180,15 @@ Each step in the navigation process includes detailed instructions. Here is an e
 
 
 To guide the user during navigation, the app will display an instruction on the screen that includes three key pieces of information:
-  1.	Turn Direction Icon: An icon indicating the direction the user needs to turn (e.g., left, right, straight).
-  2.	Street Name: The name of the street or path where the user needs to turn or continue. This information is extracted from the navigation instructions provided by the step data.
-  3.	Distance to Next Instruction: The distance in meters between the user’s current location and the next maneuver. This distance will update in real-time as the user moves.
+ - Turn Direction Icon: An icon indicating the direction the user needs to turn (e.g., left, right, straight).
+ - Street Name: The name of the street or path where the user needs to turn or continue. This information is extracted from the navigation instructions provided by the step data.
+ - Distance to Next Instruction: The distance in meters between the user’s current location and the next maneuver. This distance will update in real-time as the user moves.
 
+
+In addition to the guided navigation instructions, the app will display a summary of the journey at the bottom of the screen. This summary includes:
+ - The estimated total duration of the trip, calculated based on the selected mode of transportation and the route provided by the Google Maps API.
+ - The distance left to travel, displayed in kilometers. This is dynamically updated as the user progresses along the route.
+ - The estimated time left to reach the destination, which is also updated in real-time as the user moves closer to their destination.
 
 **Key Components**:
 
@@ -1231,50 +1236,49 @@ To guide the user during navigation, the app will display an instruction on the 
   - A state setter function to update the current instruction displayed to the user.
   - State setters for updating remaining distance, time, and estimated arrival time.
 
-  **How it Works:**
   1. **Initial Checks**: 
     - The function starts by verifying if a destination is set and if there are any remaining steps in the route.
     - If either is missing, the function returns early, doing nothing further.
 
   2. **Current Step Data**:
-    - The function retrieves the current step from `stepsRef`, which represents the next set of instructions the user needs to follow.
-    - It then calculates the distance from the user's current location (`newLocation`) to the end location of the current step.
+    - The function retrieves the current step, which represents the next set of instructions the user needs to follow.
+    - It then calculates the distance from the user's current location to the end location of the current step.
 
   3. **Distance Calculation**:
-    - The `getDistance` function is used to calculate the distance between the user's current coordinates and the step's end coordinates.
-    - If the user is within a defined threshold (e.g., 10 meters), it considers the step completed and moves to the next step in the list by removing the completed step from `stepsRef`.
+    - A function will be needed to calculate the distance between the user's current coordinates and the step's end coordinates.
+    - If the user is within the defined threshold (10 meters), it considers the step completed and moves to the next step in the list by removing the completed step from the list.
 
   4. **Next Step Preparation**:
-    - The function prepares the next instruction to be displayed by setting the distance to the next step and identifying the maneuver (e.g., turn left, go straight).
+    - The function prepares the next instruction to be displayed by setting the distance to the next step and identifying the maneuver.
     - If the user has reached the final step, it sets the instruction to indicate that the user has arrived at their destination.
 
   5. **Update Display**:
     - Finally, the function updates the state with the new instructions and calls `updateRemainingDistanceAndDuration` to adjust the remaining travel data.
 
+![update Instruction](./Img/updateInstruction.png)
+
 ---
 
 4. **`updateRemainingDistanceAndDuration()`**
 
-**Purpose:**
-The `updateRemainingDistanceAndDuration` function recalculates the total remaining distance and duration to the destination. It helps the app provide the user with up-to-date information on how far they still need to travel and how long it will take.
+This function will recalculate the total remaining distance and duration to the destination. It helps the app provide the user with up-to-date information on how far they still need to travel and how long it will take.
 
 **Data Managed:**
-- **`stepsRef`**: A reference to the list of steps remaining in the current route.
-- **`remainingDistance`**: The total distance left to travel.
-- **`remainingDuration`**: The total time remaining to reach the destination.
-- **`setTotalDistance`, `setDuration`, `setArrivalTime`**: State setters for updating the UI with the latest distance, time, and arrival estimates.
+- A reference to the list of steps remaining in the current route.
+- The total distance left to travel.
+- The total time remaining to reach the destination.
+- State setters for updating the UI with the latest distance, time, and arrival estimates.
 
-**How it Works:**
 1. **Initialization**:
-   - The function initializes two variables, `remainingDistance` and `remainingDuration`, to zero.
+   - The function initializes two variables, to handle the distance and the time.
 
 2. **Iterate Over Remaining Steps**:
-   - It loops through all remaining steps in `stepsRef`, accumulating the total distance and duration left to travel.
+   - It loops through all remaining steps, accumulating the total distance and duration left to travel.
    - The distance is summed up in meters, and the duration is summed up in seconds.
 
 3. **Convert and Format**:
    - The total remaining distance is converted from meters to kilometers (if necessary) and formatted as a string for display.
-   - The total duration is converted from seconds to a formatted time string (e.g., "2h45").
+   - The total duration is converted from seconds to a formatted time string ("2h45").
 
 4. **Calculate Arrival Time**:
    - The function calculates the estimated arrival time based on the current time plus the remaining duration.
@@ -1282,33 +1286,33 @@ The `updateRemainingDistanceAndDuration` function recalculates the total remaini
 5. **Update State**:
    - Finally, it updates the state with the calculated total distance, duration, and arrival time so that this information can be displayed to the user.
 
+![update Remaining Distance](./Img/updateDistance.png)
+
+##### ➭ Mimic User Movement
 
 
-### Implementation Guide:
+#### 4.3.7. 
 
-#### 1. **Setting Up `updateInstructions(newLocation)`**
-- **Step 1:** Create a function that takes the user's current location as input.
-- **Step 2:** Check if there are any remaining steps in the journey.
-- **Step 3:** Calculate the distance between the user and the next step.
-- **Step 4:** If the user is close enough to the end of the step, move to the next step.
-- **Step 5:** Update the state with the new instructions and remaining distance/time.
+#### 4.3.6. Determining The Mode Of Transportation
 
-#### 2. **Setting Up `updateRemainingDistanceAndDuration()`**
-- **Step 1:** Initialize variables to hold the total remaining distance and time.
-- **Step 2:** Loop through the remaining steps and sum up the total distance and time.
-- **Step 3:** Format the distance and time for display.
-- **Step 4:** Calculate the estimated arrival time.
-- **Step 5:** Update the UI with the latest travel information.
+To calculate the carbon footprint of a user's journey, the app must first determine the mode of transportation being used. The app will utilize built-in sensors such as GPS, accelerometer, and gyroscope to detect the user's movement and infer the mode of transportation based on the data collected. Notably, these data are processed in real-time and are not stored in any form. The following steps outline how the app will handle transportation mode selection:
 
+1. **Sensor Data Collection**:
+   - The app will collect sensor data, including GPS location, accelerometer readings, and gyroscope data, to monitor the user's movement patterns.
+   - GPS data provides location information, while the accelerometer and gyroscope data determine the user's speed, acceleration, and orientation.
+   - To maintain efficiency, GPS data will be updated every 10 seconds, and accelerometer and gyroscope data will be sampled at a frequency of 50 Hz, balancing the need for accuracy with battery conservation.
+   - The app will run these processes in the background, allowing it to continuously monitor transportation modes without requiring the user to keep the app active on the screen.
+2. **Data Processing**:
+   - The collected sensor data will be processed to identify patterns associated with different modes of transportation.
+   - An algorithm will analyze the data to distinguish between walking, cycling, driving, and public transportation based on factors such as speed, acceleration, and movement patterns.
+3. **Limitations and Considerations**:
+   - The app will account for scenarios where multiple modes of transportation are used in a single journey (e.g., walking to a bus stop, then taking a bus).
+   - The algorithm will be designed to be robust, handling variations in sensor data due to factors like signal interference, device orientation, and user behavior.
+   - Privacy concerns will be addressed by ensuring that sensor data is anonymized, processed in real-time, and not stored on the device or transmitted to external servers.
+  
+**Why Use GPS Alongside Accelerometer and Gyroscope?**
 
-
-
-1. System Architecture
-
-	•	High-Level Architecture: Overview of the system’s architecture, including diagrams.
-	•	Component Description: Detailed description of each major component and its responsibilities.
-	•	Data Flow: How data moves through the system.
-
+GPS data provides crucial location information, which can validate the inferences made from the accelerometer and gyroscope. By cross-referencing data from different sensors, the app can improve the accuracy of transportation mode detection. For instance, GPS can confirm that the user is moving at a speed consistent with driving when the accelerometer indicates high acceleration. Additionally, GPS can provide contextual data, such as proximity to road networks or transit routes, further enhancing mode detection accuracy.
 
 ### 5. Implementation Plan
 

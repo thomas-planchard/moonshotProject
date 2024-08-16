@@ -44,7 +44,15 @@
       - [➭ Fetch User Location](#-fetch-user-location)
       - [➭ Get Destination Input](#-get-destination-input)
       - [➭ Route Calculation](#-route-calculation)
-    - [7. **Real-Time Navigation and Instructions**](#7-real-time-navigation-and-instructions)
+      - [➭ Polyline](#-polyline)
+      - [➭ Transportation Mode Choice](#-transportation-mode-choice)
+      - [➭ Step-by-Step Navigation](#-step-by-step-navigation)
+  - [Implementation Guide:](#implementation-guide)
+    - [1. **Setting Up `updateInstructions(newLocation)`**](#1-setting-up-updateinstructionsnewlocation)
+    - [2. **Setting Up `updateRemainingDistanceAndDuration()`**](#2-setting-up-updateremainingdistanceandduration)
+  - [5. Implementation Plan](#5-implementation-plan)
+    - [5.1. Development Strategy](#51-development-strategy)
+    - [5.2. Milestones and Phases](#52-milestones-and-phases)
 
 </details>
 
@@ -75,6 +83,14 @@ EcoGo is a native mobile application designed exclusively for iOS, aimed at help
 | Term              | Definition                                                                 |
 |-------------------|----------------------------------------------------------------------------|
 | Firebase          | A mobile and web application development platform developed by Firebase, Inc. in 2011, then acquired by Google in 2014. |
+| AuthContext       | A context provider in React that manages authentification state and user data. |
+| Backend           | The server-side part of an application that handles data processing, storage, and business logic, usually invisible to users. |
+| Frontend          | The client-side part of an application that users interact with, including the user interface and user experience. |
+| CI/CD (Continuous Integration/ Continuous Deployment) | A set of practices for automating the integration and deployment of code changes to ensure software is continuously tested and delivered. |
+| Decoded Polyline  | A sequence of latitude and longitude coordinates representing a route on a map, encoded to minimize size and decoded for rendering  |
+| Loading Spinner   | A UI element that indicates a process is ongoing, often used to show that the application is working or waiting for data. |
+| GPS (Global Positioning System) | A satellite-based navigation system that provides location and time information in all weather conditions, anywhere on or near the Earth. |
+| Carbon Footprint  | The total amount of greenhouse gases emitted directly or indirectly by human activities, usually expressed in equivalent tons of carbon dioxide (CO2). |
 
 
 ### 1.4. Objectives 
@@ -229,6 +245,18 @@ The back-end will be managed using **Firestore Database** and **Firestore Storag
   
 ![Database Structure](./Img/databaseStructure.png)
 
+**Future Growth and Scalability**:
+
+The database structure is designed to handle future growth by separating user data into two collections: `Users` and `UserData`. This separation allows for scalability and flexibility in managing user information. As the app grows, additional fields can be added to these collections to accommodate new features and data requirements, it can also be adapted with indexing strategies to handle large-scale data queries.
+
+**Security and Data Protection**:
+
+- **Authentication**: User authentication will be handled using Firebase Authentication, which provides secure sign-in methods and integrates with other Firebase services.
+- **Data Encryption**: Firebase services automatically encrypt data in transit and at rest, ensuring that user data is protected.
+- **Access Control**: Firebase Security Rules will be implemented to control access to data and ensure that only authorized users can read or write data.
+- **Secure API Keys**: API keys and other sensitive information will be stored securely using environment variables and managed through Firebase security rules.
+
+
 ### 3.3 APIs
 
 The choice to use Google Maps APIs is based on several key factors. Firstly, they are well-documented, which significantly streamlines development and reduces potential issues. Being provided by Google, ensures the assurance of long-term support and stability, minimizing the risk of sudden deprecation. Additionally, Google Maps APIs are highly efficient and reliable, making them an ideal choice for location-based services. Lastly, Google offers a $300 credit for these services, which is particularly beneficial for a school project without revenue, allowing for extensive testing and development without incurring costs.
@@ -241,13 +269,19 @@ The app will communicate with these Google Maps APIs:
 
 Their usage will be described in detail in their respective section.
 
+**APIs usage/limitations**:
+
+- During the development process, we will monitor the usage of Google API with the help of the Google Cloud console, we will also set up alerts to notify us when we are reaching the limit of the free tier, in case we exceed it we will just use a new account to continue the development till the first one is reset.
+- To handle errors or service outages, we will implement a retry mechanism in case of a failed request, we will also display a message to the user in case of a service outage, and we will also monitor the Google status page to be aware of any service outage.
+
+
 
 ## 4. System Architecture
 
 
 ### 4.1. File Structure
 
-```
+```bash
 ├── .env
 ├── .gitignore
 ├── .watchmanconfig
@@ -459,7 +493,7 @@ This configuration ensures that TypeScript is properly set up to work with React
 
 Before starting development, make sure to install the necessary dependencies. Here are some you absolutely need
 
-```
+```bash
 npm install @react-navigation/native @react-navigation/stack
 npm install @reduxjs/toolkit react-redux
 npm install react-native-maps
@@ -1027,29 +1061,246 @@ In the response, the encoded polyline under `overview_polyline.points` needs to 
 6. **Handle Errors**:
    - If the API request fails or if the response does not contain a valid route, the function will handle this by adding a placeholder with 'Not available' for distance and duration.
 
-
 7. **Store and Display Routes**:
    - After processing all travel modes, the app stores the route options and makes them available for the user to choose their preferred mode of transportation. The app also stores the detailed steps for all modes, allowing for guided navigation.
 
-   ```javascript
-   stepsRef.current = allSteps; // Store all steps for all modes
-   setTransportOptions(options);
-   setModalVisible(true);
-   ```
+![Route Calculation](./Img/getRoute.png)
+
+##### ➭ Polyline
+
+The `<Polyline />` component is used to draw a line on the map that connects multiple geographic coordinates (latitude and longitude pairs). This component will be essential for visualizing the route between the user's current location and the destination. The polyline will represent the path that the user should follow to reach their destination. The component should be inserted inside the `<MapView />` component because it is responsible for rendering the route or path on the map. The `<MapView />` component provides the map itself, and the `<Polyline />` is used to draw the line that represents the route on this map. By placing the `<Polyline />` inside `<MapView />`, the polyline is correctly overlaid on the map at the specified coordinates.
+
+The component has a few essential props that we need to set to define the appearance and shape of the polyline:
+
+**Input Data**:
+
+- **`coordinates`**: This prop expects an array of objects, where each object contains `latitude` and `longitude` properties. These coordinates define the points that the polyline will connect in order. The `coordinates` array is the most essential input, as it determines the shape and position of the polyline on the map. We get the coordinates from the API response that provides the route details.
+  
+  Example:
+  ```javascript
+  const routeCoords = [
+    { latitude: 37.78825, longitude: -122.4324 },
+    { latitude: 37.78925, longitude: -122.4314 },
+    { latitude: 37.79025, longitude: -122.4304 },
+  ];
+  ```
+
+- **`strokeColor`**: This prop sets the color of the polyline. It takes a string representing a color value, for the app it will be this one `"blue"`, `"#FF0000"`.
+
+- **`strokeWidth`**: This prop sets the thickness of the polyline. It takes a number that represents the width of the line in pixels. For the app, it will be set to `10`.
 
 
-#### 7. **Real-Time Navigation and Instructions**
-   - **Display Route on Map**: Use the `Polyline` component to display the calculated route on the map.
-   - **Step-by-Step Navigation**: Implement a function to provide real-time navigation instructions as the user follows the route.
-   - **Simulated Navigation**: Develop a system to simulate user movement along the route for testing purposes. This can be achieved by updating the user's location at regular intervals to mimic movement.
+##### ➭ Transportation Mode Choice
 
-By following these steps, the navigation system will allow users to select a destination, receive real-time guided directions, and visualize their route on a map, all while tracking carbon emissions based on their selected transportation mode.
+At this stage, the application should have stored the polyline data and essential information for the four transportation modes: driving, walking, cycling, and transit. The next step is to allow the user to choose their preferred transportation mode through a user interface element called a **modal**.
+
+**What is a Modal?**
+
+A **modal** is a pop-up window or dialog that overlays the current screen content without navigating away from it. The modal will overlay the map and display the available transportation modes for the user to select.
+
+**How It Works**
+  The modal will be triggered when the user has decided his destination and validated it. It will appear on the screen, overlaying the map, while still allowing the map to be visible in the background. The modal will contain a list of transportation modes, each accompanied by an icon, duration, and distance.
+
+**Key steps**
+
+1. **Display the Modal:**
+   - The modal will appear on the screen, overlaying the map. It is triggered when the user is ready to choose a transportation mode.
+   - The modal contains a list of the four transportation modes, each with an icon, duration, and distance.
+   - Use the `Modal` component from React Native to create the modal. Set it to slide in with transparency, ensuring it overlays the map without obstructing the background.
+
+2. **Key Functions:**
+
+   - **onSelectedMode**: Updates the selected transportation mode when the user taps on one of the options in the modal. This selection will immediately update the map to show the route corresponding to the selected mode.
+   - **onConfirm**: Finalizes the user’s selection of the transportation mode. After the user confirms their choice, the modal closes, and the app transitions into the guided navigation phase.
+ - 
+
+3. **Rendering the Options:**
+
+- The modal will use a `FlatList` component to render the available transportation options. Each option will include:
+  - An icon that visually represents the mode of transport.
+  - The duration and distance associated with the route for that mode.
+  - An indicator that highlights the currently selected mode.
+- When the user selects an option, the map will update to display the route corresponding to the chosen mode.
+  
+4. **Confirming the Choice:**
+
+   - The modal includes a "Confirm" button that the user presses after selecting their preferred transportation mode. Upon confirmation, the selected mode is locked in, the modal closes, and the app transitions into the guided navigation phase.
+
+![Transportation Mode Choice](./Img/transportationMode.png)
 
 
-- Integrate a navigation system using the Google Maps API, allowing users to select a destination and receive guided directions.
-- Provide functionality for users to choose their preferred mode of transportation and display real-time navigation and emission data accordingly.
-- Implement detailed and guided navigation, offering step-by-step directions and real-time updates throughout the journey.
--	Develop a system to mimic user movement, allowing for simulated navigation and testing of transportation modes and emission calculations.
+##### ➭ Step-by-Step Navigation
+
+After the user selects a destination and confirms their mode of transportation, the trip to the destination begins, and the app will provide guided directions. The guided navigation relies on the steps stored during the route calculation. These steps contain detailed instructions for each segment of the journey, guiding the user through the route.
+Each step in the navigation process includes detailed instructions. Here is an example of how the steps are structured:
+
+```json
+{
+  "steps": [
+    {
+      "distanceMeters": 100,
+      "staticDuration": "PT1M",
+      "navigationInstruction": {
+        "instructions": "Head north on Main St",
+        "maneuver": "turn-left"
+      },
+      "endLocation": {
+        "latLng": {
+          "latitude": 37.7749,
+          "longitude": -122.4194
+        }
+      }
+    },
+    {
+      "distanceMeters": 200,
+      "staticDuration": "PT2M",
+      "navigationInstruction": {
+        "instructions": "Turn right onto 1st St",
+        "maneuver": "turn-right"
+      },
+      "endLocation": {
+        "latLng": {
+          "latitude": 37.7750,
+          "longitude": -122.4195
+        }
+      }
+    }
+  ]
+}
+```
+
+**Breakdown of the Step Structure**:
+
+1. **distanceMeters**: The distance for this particular segment of the journey, measured in meters.
+2. **staticDuration**: The estimated time to complete this segment, in ISO 8601 duration format.
+3. **navigationInstruction**: This object contains the detailed directions for the step:
+   - **instructions**: A string providing the textual directions for the user (e.g., "Turn left onto 1st St").
+   - **maneuver**: Describes the type of movement required (e.g., "turn-left", "straight").
+4. **endLocation**: The latitude and longitude coordinates marking the end of this step.
+
+
+To guide the user during navigation, the app will display an instruction on the screen that includes three key pieces of information:
+  1.	Turn Direction Icon: An icon indicating the direction the user needs to turn (e.g., left, right, straight).
+  2.	Street Name: The name of the street or path where the user needs to turn or continue. This information is extracted from the navigation instructions provided by the step data.
+  3.	Distance to Next Instruction: The distance in meters between the user’s current location and the next maneuver. This distance will update in real-time as the user moves.
+
+
+**Key Components**:
+
+1. **`getTurnDirection` Function:**
+   - This function will interpret the `maneuver` property from the navigation instructions and return the corresponding icon that visually represents the action the user needs to take. Here is the list of possible maneuvers and their corresponding icons:
+     - **turn_slight_left**: `arrow-top-left` (MaterialCommunityIcons)
+     - **turn_sharp_left**: `arrow-bottom-left` (MaterialCommunityIcons)
+     - **turn_slight_right**: `arrow-top-right` (MaterialCommunityIcons)
+     - **turn_sharp_right**: `arrow-bottom-right` (MaterialCommunityIcons)
+     - **uturn_left**: `arrow-u-down-left` (MaterialCommunityIcons)
+     - **uturn_right**: `arrow-u-down-right` (MaterialCommunityIcons)
+     - **straight / continue / name_change / depart / head**: `arrow-up` (MaterialCommunityIcons)
+     - **merge**: `merge` (MaterialCommunityIcons)
+     - **ramp_left**: `ramp-left` (MaterialIcons)
+     - **ramp_right**: `ramp-right` (MaterialIcons)
+     - **fork_left**: `fork-left` (MaterialIcons)
+     - **fork_right**: `fork-right` (MaterialIcons)
+     - **ferry**: `ferry` (MaterialCommunityIcons)
+     - **roundabout_left**: `roundabout-left` (MaterialIcons)
+     - **roundabout_right**: `roundabout-right` (MaterialIcons)
+     - **turn_left**: `arrow-left-top` (MaterialCommunityIcons)
+     - **turn_right**: `arrow-right-top` (MaterialCommunityIcons)
+   - The function will use a switch statement to match the maneuver string (e.g., 'turn_left', 'turn_right') with an appropriate icon from the `MaterialIcons` or `MaterialCommunityIcons` libraries.
+   - If the maneuver type is recognized, the function returns a TSX element representing the icon. If not, it returns `null`.
+
+---
+
+2. **`getStreetName` Function:**
+   - This function will extract the street name or key destination from the instruction text using a regular expression.
+   - The regex looks for keywords like "onto", "on", "towards", or "Continue onto" and captures the subsequent text, which is typically the street name or route.
+   - If a match is found, the function returns the street name. Otherwise, it returns the full instruction.
+
+---
+
+3. **`updateInstructions(newLocation)` Function**
+   
+  This function will be responsible for updating the navigation instructions based on the user's current location. It continuously checks the user's position and compares it with the next step in the journey.
+
+  **Data Managed:**
+  - The user's current GPS coordinates.
+  - Reference to the list of steps in the current route, containing all the navigation instructions.
+  - The final destination coordinates.
+  - The calculated distance between the user's current location and the end of the current navigation step.
+  - A state setter function to update the distance to the next instruction.
+  - A state setter function to update the current instruction displayed to the user.
+  - State setters for updating remaining distance, time, and estimated arrival time.
+
+  **How it Works:**
+  1. **Initial Checks**: 
+    - The function starts by verifying if a destination is set and if there are any remaining steps in the route.
+    - If either is missing, the function returns early, doing nothing further.
+
+  2. **Current Step Data**:
+    - The function retrieves the current step from `stepsRef`, which represents the next set of instructions the user needs to follow.
+    - It then calculates the distance from the user's current location (`newLocation`) to the end location of the current step.
+
+  3. **Distance Calculation**:
+    - The `getDistance` function is used to calculate the distance between the user's current coordinates and the step's end coordinates.
+    - If the user is within a defined threshold (e.g., 10 meters), it considers the step completed and moves to the next step in the list by removing the completed step from `stepsRef`.
+
+  4. **Next Step Preparation**:
+    - The function prepares the next instruction to be displayed by setting the distance to the next step and identifying the maneuver (e.g., turn left, go straight).
+    - If the user has reached the final step, it sets the instruction to indicate that the user has arrived at their destination.
+
+  5. **Update Display**:
+    - Finally, the function updates the state with the new instructions and calls `updateRemainingDistanceAndDuration` to adjust the remaining travel data.
+
+---
+
+4. **`updateRemainingDistanceAndDuration()`**
+
+**Purpose:**
+The `updateRemainingDistanceAndDuration` function recalculates the total remaining distance and duration to the destination. It helps the app provide the user with up-to-date information on how far they still need to travel and how long it will take.
+
+**Data Managed:**
+- **`stepsRef`**: A reference to the list of steps remaining in the current route.
+- **`remainingDistance`**: The total distance left to travel.
+- **`remainingDuration`**: The total time remaining to reach the destination.
+- **`setTotalDistance`, `setDuration`, `setArrivalTime`**: State setters for updating the UI with the latest distance, time, and arrival estimates.
+
+**How it Works:**
+1. **Initialization**:
+   - The function initializes two variables, `remainingDistance` and `remainingDuration`, to zero.
+
+2. **Iterate Over Remaining Steps**:
+   - It loops through all remaining steps in `stepsRef`, accumulating the total distance and duration left to travel.
+   - The distance is summed up in meters, and the duration is summed up in seconds.
+
+3. **Convert and Format**:
+   - The total remaining distance is converted from meters to kilometers (if necessary) and formatted as a string for display.
+   - The total duration is converted from seconds to a formatted time string (e.g., "2h45").
+
+4. **Calculate Arrival Time**:
+   - The function calculates the estimated arrival time based on the current time plus the remaining duration.
+
+5. **Update State**:
+   - Finally, it updates the state with the calculated total distance, duration, and arrival time so that this information can be displayed to the user.
+
+
+
+### Implementation Guide:
+
+#### 1. **Setting Up `updateInstructions(newLocation)`**
+- **Step 1:** Create a function that takes the user's current location as input.
+- **Step 2:** Check if there are any remaining steps in the journey.
+- **Step 3:** Calculate the distance between the user and the next step.
+- **Step 4:** If the user is close enough to the end of the step, move to the next step.
+- **Step 5:** Update the state with the new instructions and remaining distance/time.
+
+#### 2. **Setting Up `updateRemainingDistanceAndDuration()`**
+- **Step 1:** Initialize variables to hold the total remaining distance and time.
+- **Step 2:** Loop through the remaining steps and sum up the total distance and time.
+- **Step 3:** Format the distance and time for display.
+- **Step 4:** Calculate the estimated arrival time.
+- **Step 5:** Update the UI with the latest travel information.
+
+
 
 
 1. System Architecture
@@ -1059,20 +1310,24 @@ By following these steps, the navigation system will allow users to select a des
 	•	Data Flow: How data moves through the system.
 
 
-2.  Implementation Plan
+### 5. Implementation Plan
 
-	•	Development Strategy: Agile, Scrum, or other methodologies to be used.
-	•	Milestones and Phases: Breakdown of the project into phases with timelines.
-	•	Task Allocation: Who will be responsible for what tasks.
+#### 5.1. Development Strategy
+
+The project will be developed using the Agile methodology. Agile is a flexible and iterative approach that focuses on continuous improvement through small, manageable work increments known as sprints. This method allows for adaptability in response to changes in requirements or team availability. The key reason for choosing Agile is to accommodate the inconsistent work schedules of the team members, making it preferable to avoid rigid deadlines and objectives. However, it’s important to note that this flexibility could potentially lead to delays in the overall app production if not carefully managed.
+
+#### 5.2. Milestones and Phases
+
+![Milestones](./Img/timeline.png)
 
 
-10. Deployment Plan
+1.  Deployment Plan
 
 	•	Environment Setup: Description of development, staging, and production environments.
 	•	Deployment Strategy: Steps and processes for deploying the app.
 	•	Rollback Plan: Steps to revert to a previous state in case of issues.
 
-11. Maintenance and Support
+2.  Maintenance and Support
 
 	•	Post-Launch Support: How issues will be handled post-launch.
 	•	Maintenance Plan: Regular updates, bug fixes, and improvements.

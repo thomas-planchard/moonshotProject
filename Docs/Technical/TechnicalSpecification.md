@@ -47,9 +47,9 @@
       - [➭ Polyline](#-polyline)
       - [➭ Transportation Mode Choice](#-transportation-mode-choice)
       - [➭ Step-by-Step Navigation](#-step-by-step-navigation)
-      - [➭ Mimic User Movement](#-mimic-user-movement)
-    - [4.3.7.](#437)
+      - [➭ Simulating User Navigation](#-simulating-user-navigation)
     - [4.3.6. Determining The Mode Of Transportation](#436-determining-the-mode-of-transportation)
+    - [4.3.7.](#437)
   - [5. Implementation Plan](#5-implementation-plan)
     - [5.1. Development Strategy](#51-development-strategy)
     - [5.2. Milestones and Phases](#52-milestones-and-phases)
@@ -181,9 +181,9 @@ This document will detail all technical aspects of the project, including techni
 - The app will utilize background operations and continuous location updates, which are battery-intensive features. The goal is to optimize battery usage and performance to align with industry standards of similar apps like Google Maps or Waze, ensuring that battery consumption remains within a comparable range of approximately 10% relative to those apps.
 
 - In terms of responsiveness, the app will adhere to the following benchmarks as outlined by Robert B. Miller in 1968:
-  - **0.1 seconds**: The system should respond within 0.1 seconds to give the user the impression of an instant reaction, with no need for additional feedback.
-  - **1 second**: The system should maintain fluidity, with any delays between 0.1 and 1 second being noticeable but not disruptive to the user experience.
-  - **10 seconds**: The system should ensure that any operation taking up to 10 seconds provides progress feedback to keep the user engaged. Beyond this threshold, the user may lose focus and shift to other tasks.
+  - **0.1 seconds**: For all UI elements, such as pop-ups or button clicks, the system should respond within 0.1 seconds to give the user the impression of an instant reaction. At this speed, there is no need for additional feedback as the interaction feels immediate.
+  - **1 second**: For actions like changing pages within the app, the system should maintain fluidity. While delays between 0.1 and 1 second may be noticeable, they should not disrupt the user experience.
+  - **10 seconds**: For operations that involve downloading, such as fetching a map or uploading a new profile picture, the system should provide progress feedback if the operation takes up to 10 seconds. This helps keep the user engaged, as delays beyond this threshold may cause the user to lose focus and shift to other tasks.
 
 **Security:**
 - Implement secure user authentication using Google’s Firebase service, which provides built-in protection. Ensure that at no point within the app are Firebase credentials exposed, to protect against potential vulnerabilities.
@@ -1186,8 +1186,8 @@ To guide the user during navigation, the app will display an instruction on the 
 
 
 In addition to the guided navigation instructions, the app will display a summary of the journey at the bottom of the screen. This summary includes:
- - The estimated total duration of the trip, calculated based on the selected mode of transportation and the route provided by the Google Maps API.
- - The distance left to travel, displayed in kilometers. This is dynamically updated as the user progresses along the route.
+ - The estimated total duration of the trip is calculated based on the selected mode of transportation and the route provided by the Google Maps API.
+ - The distance left to travel is displayed in kilometers. This is dynamically updated as the user progresses along the route.
  - The estimated time left to reach the destination, which is also updated in real-time as the user moves closer to their destination.
 
 **Key Components**:
@@ -1288,10 +1288,38 @@ This function will recalculate the total remaining distance and duration to the 
 
 ![update Remaining Distance](./Img/updateDistance.png)
 
-##### ➭ Mimic User Movement
+##### ➭ Simulating User Navigation
 
+The purpose of simulating the user’s trip within the app is to address the challenge posed by the inability to directly install the app on an iPhone during development. While Expo provides a solution that allows developers to run the project on an iPhone via the Expo Go application, this setup works like a server-client relationship. The server must be started on the computer, and the app runs on the iPhone. If the network connection between the devices is lost, the app will shut down, making it difficult to test features like a navigation system.
 
-#### 4.3.7. 
+To overcome this challenge, simulating the user’s trip within the app provides a reliable method for testing and ensuring that the navigation system behaves correctly, even when an actual GPS signal or network connection isn’t available.
+
+**How the Simulation Works**
+
+The function `startRouteSimulation` will be central for this feature. It will be designed to simulate the user's journey along a predefined route, updating the user's location at regular intervals as if they were moving in real-time. This approach allows the navigation system to be tested in a controlled environment.
+
+**Data Required**
+- An array of coordinates representing the path of the selected route.
+- A fixed value representing the simulated speed of the user in meters per second.
+
+**Purpose**
+- The function mimics the user's movement by calculating new locations along the route based on the provided speed.
+- The function regularly updates the user's location and navigation instructions, allowing for real-time testing of the navigation feature.
+
+**Function Overview**
+
+1. **`startRouteSimulation`**:
+   - **Input Data**:
+     - The sequence of latitude and longitude points that define the route.
+     - The user's simulated speed, in meters per second.
+   - **Process**:
+     - The function calculates the user’s new position along the route at regular intervals (every second).
+     - It updates the location and recalculates the remaining distance and duration of the trip.
+     - The `updateInstructions` function is called to update the turn-by-turn directions based on the new simulated location.
+   - **Output**: The user’s location, navigation instructions, and trip summary are continuously updated as the simulation progresses.
+
+![Simulate Navigation](./Img/mimicLocation.png)
+
 
 #### 4.3.6. Determining The Mode Of Transportation
 
@@ -1305,6 +1333,7 @@ To calculate the carbon footprint of a user's journey, the app must first determ
 2. **Data Processing**:
    - The collected sensor data will be processed to identify patterns associated with different modes of transportation.
    - An algorithm will analyze the data to distinguish between walking, cycling, driving, and public transportation based on factors such as speed, acceleration, and movement patterns.
+    ![Data Processing](./Img/detectionAlgorithm.png)
 3. **Limitations and Considerations**:
    - The app will account for scenarios where multiple modes of transportation are used in a single journey (e.g., walking to a bus stop, then taking a bus).
    - The algorithm will be designed to be robust, handling variations in sensor data due to factors like signal interference, device orientation, and user behavior.
@@ -1313,6 +1342,9 @@ To calculate the carbon footprint of a user's journey, the app must first determ
 **Why Use GPS Alongside Accelerometer and Gyroscope?**
 
 GPS data provides crucial location information, which can validate the inferences made from the accelerometer and gyroscope. By cross-referencing data from different sensors, the app can improve the accuracy of transportation mode detection. For instance, GPS can confirm that the user is moving at a speed consistent with driving when the accelerometer indicates high acceleration. Additionally, GPS can provide contextual data, such as proximity to road networks or transit routes, further enhancing mode detection accuracy.
+
+
+#### 4.3.7. 
 
 ### 5. Implementation Plan
 

@@ -9,6 +9,8 @@ import { GOOGLE_MAPS_APIKEY } from '@env';
 import { styles, customMapStyle } from './map.style';
 import LoadingMap from '../common/LoadingMap';
 import CarbonFootprintDisplay from './carbonFootprintContainer/CarbonFootprintDisplay';
+import CalculateCarbonFootprint from '@/utils/CalculateCarbonFootprint';
+import TransportationModal from './modalTransportationChoice/TransportationModal';
 import {decodePolyline, getDistance, calculateHeading} from '@/utils/MapUtils';
 import FooterMap from './footer/FooterMap';
 import Instructions from './instructions/Instructions';
@@ -19,8 +21,10 @@ const MAX_ZOOM_OUT = 8; // Maximum zoom out level
 const REGULAR_ZOOM = 18.5; // Regular zoom level
 
 const Map: React.FC = () => {
+
   // State variables
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
+  const [locationSubscription, setLocationSubscription] = useState<Location.LocationSubscription | null>(null);
   const [speed, setSpeed] = useState<number>(0);
   const [carbonFootprint, setCarbonFootprint] = useState<number>(0);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -35,6 +39,9 @@ const Map: React.FC = () => {
   const [instructions, setInstructions] = useState<object | null>(null);
   const [isMapToucehd, setIsMapTouched] = useState<boolean>(false);
   const [countryCode, setCountryCode] = useState<string | null>('');
+  const [transportOptions, setTransportOptions] = useState<Array<{ mode: string; duration: string; distance: string; polyline: { latitude: number; longitude: number }[] }>>([]);
+  const [isFooterVisible, setIsFooterVisible] = useState<boolean>(true);
+
 
   // Refs for map and navigation steps
   const mapRef = useRef<MapView>(null);
@@ -54,10 +61,10 @@ const Map: React.FC = () => {
       let location = await Location.getCurrentPositionAsync({});
       setLocation(location);
       setSpeed(location.coords.speed || 0);
-      const calculatedCarbonFootprint = calculateCarbonFootprint(location.coords.speed || 0);
-      if (calculatedCarbonFootprint > 0) {
-        setCarbonFootprint(calculatedCarbonFootprint);
-      }
+      // const calculatedCarbonFootprint = CalculateCarbonFootprint(location.coords.speed || 0);
+      // if (calculatedCarbonFootprint > 0) {
+      //   setCarbonFootprint(calculatedCarbonFootprint);
+      // }
       const reverseGeocode = await Location.reverseGeocodeAsync({
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
@@ -74,10 +81,11 @@ const Map: React.FC = () => {
           timeInterval: 1000, // Update every second
         },
         (newLocation) => {
-          console.log('Location updated:', newLocation.coords);
           updateLocation(newLocation);
         }
       );
+
+      setLocationSubscription(subscription); // Store the subscription
 
       return () => {
         subscription.remove();
@@ -95,7 +103,7 @@ const Map: React.FC = () => {
         },
         zoom: REGULAR_ZOOM,
         heading: location.coords.heading, // Use the heading to rotate the map
-        pitch: 65,
+        pitch: 100,
         altitude: 400,
       }, { duration: 1000 });
     }
@@ -107,19 +115,33 @@ const Map: React.FC = () => {
     updateInstructions(newLocation);
   };
 
-  // Function to simulate route navigation
-  const startRouteSimulation = (routeCoords) => {
-    let index = 0;
-    const intervalId = setInterval(() => {
-      if (index < routeCoords.length) {
+// Function to simulate route navigation
+const startRouteSimulation = (routeCoords, speed = 50) => {
+  if (locationSubscription) {
+    locationSubscription.remove();
+    setLocationSubscription(null); // Clear the subscription
+  }
+
+  let index = 0;
+  const updateInterval = 1000; // Update every second
+  const distancePerUpdate = (speed * 1000) / 3600; // Speed in meters per second
+  
+  const intervalId = setInterval(() => {
+    if (index < routeCoords.length - 1) {
+      const start = routeCoords[index];
+      const end = routeCoords[index + 1];
+      const segmentDistance = getDistance(start, end);
+
+      if (segmentDistance > distancePerUpdate) {
+        const fraction = distancePerUpdate / segmentDistance;
+        const newLatitude = start.latitude + (end.latitude - start.latitude) * fraction;
+        const newLongitude = start.longitude + (end.longitude - start.longitude) * fraction;
         const newLocation = {
           coords: {
-            latitude: routeCoords[index].latitude,
-            longitude: routeCoords[index].longitude,
-            speed: 5, // Set a fixed speed for simulation
-            heading: routeCoords[index + 1]
-              ? calculateHeading(routeCoords[index], routeCoords[index + 1])
-              : 0,
+            latitude: newLatitude,
+            longitude: newLongitude,
+            speed: speed, // Set a fixed speed for simulation
+            heading: calculateHeading(start, end),
             accuracy: 5,
             altitude: 5,
           },
@@ -127,12 +149,20 @@ const Map: React.FC = () => {
         };
         setLocation(newLocation as Location.LocationObject);
         updateInstructions(newLocation as Location.LocationObject);
-        index++;
+
+        // Adjust start position closer to the end position
+        routeCoords[index] = {
+          latitude: newLatitude,
+          longitude: newLongitude,
+        };
       } else {
-        clearInterval(intervalId);
+        index++;
       }
-    }, 5000); // Change location every 10 seconds
-  };
+    } else {
+      clearInterval(intervalId);
+    }
+  }, updateInterval); // Update location every second
+};
 
 
 
@@ -147,7 +177,7 @@ const Map: React.FC = () => {
         };
         camera.zoom = REGULAR_ZOOM;
         camera.heading = location.coords.heading;
-        camera.pitch = 65;
+        camera.pitch = 100;
         camera.altitude = 400;
         mapRef.current?.animateCamera(camera, { duration: 1000 });
         followingUser.current = true;
@@ -155,154 +185,205 @@ const Map: React.FC = () => {
     }
   };
 
-  // Function to get route from Google Maps API
+
+
   const getRoute = async () => {
-    if (!location) return;
-    const origin = `${location.coords.latitude},${location.coords.longitude}`;
+    if (!location || !destination) return;
+  
+    const [destinationLat, destinationLng] = destination.split(',').map(Number);
+  
+    const origin = {
+      location: {
+        latLng: {
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        },
+      },
+    };
+  
+    const destinationObj = {
+      location: {
+        latLng: {
+          latitude: destinationLat,
+          longitude: destinationLng,
+        },
+      },
+    };
+  
+    const travelModes = ['DRIVE', 'WALK', 'TRANSIT', 'BICYCLE'];
+    const fieldMask = 'routes.distanceMeters,routes.duration,routes.legs,routes.polyline.encodedPolyline';
+  
+    // Create an array of API request promises
+    const requests = travelModes.map(mode => {
+      const requestBody = {
+        origin,
+        destination: destinationObj,
+        travelMode: mode,
+        routeModifiers: { avoidTolls: false, avoidHighways: false, avoidFerries: false },
+        computeAlternativeRoutes: false,
+        languageCode: 'en-US',
+        units: 'METRIC',
+      };
+  
+      return axios.post(
+        `https://routes.googleapis.com/directions/v2:computeRoutes?key=${GOOGLE_MAPS_APIKEY}`,
+        requestBody,
+        {
+          headers: {
+            'X-Goog-FieldMask': fieldMask,
+          },
+        }
+      ).then(response => {
+        const route = response.data.routes[0];
+        if (route && route.legs && route.legs.length > 0) {
+          const leg = route.legs[0];
+          const polyline = route.polyline ? decodePolyline(route.polyline.encodedPolyline) : [];
+          return {
+            mode,
+            duration: leg.localizedValues?.duration?.text || 'Not available',
+            distance: leg.localizedValues?.distance?.text || 'Not available',
+            polyline,
+            steps: leg.steps || [],  // Capture the steps from the route leg
+          };
+        } else {
+          return {
+            mode,
+            duration: 'Not available',
+            distance: 'Not available',
+            polyline: [],
+            steps: [],
+          };
+        }
+      }).catch(() => ({
+        mode,
+        duration: 'Not available',
+        distance: 'Not available',
+        polyline: [],
+        steps: [],
+      }));
+    });
+  
     try {
-      const response = await axios.get(
-        `https://maps.googleapis.com/maps/api/directions/json?origin=${origin}&destination=${destination}&mode=${selectedMode}&key=${GOOGLE_MAPS_APIKEY}`
+      // Execute all requests concurrently
+      const results = await Promise.all(requests);
+      const options = results;
+  
+      // Flatten the steps across all modes, adding checks for endLocation
+      const allSteps = options.flatMap(option => 
+        option.steps.map(step => ({
+          ...step,
+          travelMode: option.mode,
+          endLocation: step.endLocation || null,  // Ensure endLocation is always defined
+        }))
       );
-      const points = response.data.routes[0].overview_polyline.points;
-      const coords = decodePolyline(points);
-      setRouteCoords(coords);
-      setModalVisible(false);
-
-      // Fit the map to the route coordinates
-      if (mapRef.current) {
-        mapRef.current.fitToCoordinates(coords, {
-          edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
-          animated: true,
-        });
-      }
-
-      // Fetch distance, duration, and arrival time
-      const route = response.data.routes[0].legs[0];
-      setTotalDistance(route.distance.text);
-
-      // Format duration to "**h**" format
-      const durationInSeconds = route.duration.value;
-      console.log('Duration in seconds:', route.duration.value);
-      const hours = Math.floor(durationInSeconds / 3600);
-      const minutes = Math.floor((durationInSeconds % 3600) / 60);
-      const formattedDuration = `${hours}h${minutes < 10 ? '0' : ''}${minutes}`;
-      setDuration(formattedDuration);
-
-      const arrivalTime = new Date(Date.now() + durationInSeconds * 1000);
-      setArrivalTime(arrivalTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-
-      // Set navigation steps
-      stepsRef.current = route.steps;
-      console.log('Steps:', route.steps);
-      startRouteSimulation(coords);
-      updateInstructions(location);
+  
+      stepsRef.current = allSteps.filter(step => step.endLocation !== null); // Store all valid steps for all modes
+      setTransportOptions(options);
+      setModalVisible(true);
     } catch (error) {
-      console.error('Error fetching route:', error);
-      Alert.alert('Error', 'Failed to fetch route');
+      console.error('Error fetching routes:', error);
     }
   };
 
-  // Function to update instructions based on current location
+
+  
   const updateInstructions = (newLocation) => {
-    if (!destination) return; // No destination set
-
-    if (stepsRef.current.length === 0) {
-      setInstructions({
-        html_instructions: destination,
-        distance: 0,
-        maneuver: 'straight'
-      });
-      Alert.alert('Navigation', 'You have arrived at your destination');
-      return;
-    }
-
-    const currentStep = stepsRef.current[0];
-    const nextStep = stepsRef.current[1] || { html_instructions: destination, distance: currentStep.distance, maneuver: 'straight' };
-
-    const instruction = {
-      ...nextStep,
-      distance: currentStep.distance
-    };
-
+    if (!destination || stepsRef.current.length === 0) return; // No destination set or no steps available
+  
+    console.log('Current Steps:', stepsRef.current);
+  
     const currentLatLng = {
       latitude: newLocation.coords.latitude,
       longitude: newLocation.coords.longitude,
     };
-
+  
+    let currentStep = stepsRef.current[0];
+  
+    // Ensure the endLocation is defined for the current step
+    if (!currentStep.endLocation || !currentStep.endLocation.latLng) {
+      console.error('End location or latLng is undefined for the current step');
+      return;
+    }
+  
     const stepEndLatLng = {
-      latitude: currentStep.end_location.lat,
-      longitude: currentStep.end_location.lng,
+      latitude: currentStep.endLocation.latLng.latitude,
+      longitude: currentStep.endLocation.latLng.longitude,
     };
-
+  
+    // Calculate the distance to the end of the current step
     const distanceToStepEnd = getDistance(currentLatLng, stepEndLatLng);
     setDistance(distanceToStepEnd);
-
-    const completionThreshold = 25; // Adjusted threshold to 25 meters
-
-    if (distanceToStepEnd <= completionThreshold) {
-      stepsRef.current.shift(); // Remove completed step
-
+  
+    // Define a completion threshold
+    const completionThreshold = 20; // 20 meters threshold to consider the step complete
+  
+    // Check if the user has passed the step's endpoint
+    const userHasPassedStep = distanceToStepEnd <= completionThreshold;
+  
+    if (userHasPassedStep) {
+      // Consider the step as completed and remove it from the steps array
+      stepsRef.current.shift();
+  
+      // If no more steps remain, the user has reached the destination
       if (stepsRef.current.length === 0) {
         setInstructions({
-          html_instructions: destination,
-          distance: currentStep.distance,
-          maneuver: 'straight'
+          instructions: 'You have arrived at your destination',
+          distance: 0,
+          maneuver: 'straight',
         });
-        Alert.alert('Navigation', 'You have arrived at your destination');
-
-        // Set the remaining distance to 0
-        setDistance(0);
-      } else if (stepsRef.current.length === 1) {
-        setInstructions({
-          ...stepsRef.current[0],
-          html_instructions: destination,
-          distance: currentStep.distance,
-          maneuver: 'straight'
-        });
-      } else {
-        setInstructions({
-          ...stepsRef.current[0],
-          distance: currentStep.distance
-        });
+        resetMapState(); // Reset the map state
+        return;
       }
+  
+      // Move to the next step and update instructions
+      currentStep = stepsRef.current[0];
+      const nextInstruction = {
+        instructions: currentStep.navigationInstruction?.instructions || '',
+        distance: currentStep.distanceMeters,
+        maneuver: currentStep.navigationInstruction?.maneuver || 'straight',
+      };
+      setInstructions(nextInstruction);
     } else {
-      setInstructions(instruction);
+      // If the user has not yet completed the step, keep the current instructions
+      const currentInstruction = {
+        instructions: currentStep.navigationInstruction?.instructions || '',
+        distance: distanceToStepEnd,
+        maneuver: currentStep.navigationInstruction?.maneuver || 'straight',
+      };
+      setInstructions(currentInstruction);
     }
-
-    // Update total distance, duration, and arrival time
+  
+    // Update the remaining distance and duration
     updateRemainingDistanceAndDuration(newLocation);
   };
 
-  // Function to update remaining distance and duration
-  const updateRemainingDistanceAndDuration = (currentLocation) => {
-    if (!destination) return;
-    const finalDestination = stepsRef.current.length > 0 ? stepsRef.current[stepsRef.current.length - 1].end_location : { lat: destinationLat, lng: destinationLng };
 
-    let remainingDistance = getDistance(
-      { latitude: currentLocation.coords.latitude, longitude: currentLocation.coords.longitude },
-      { latitude: finalDestination.lat, longitude: finalDestination.lng }
-    );
+// Function to update remaining distance and duration
+const updateRemainingDistanceAndDuration = () => {
+  if (!destination) return;
 
-    let remainingDuration = 0;
+  let remainingDistance = 0;
+  let remainingDuration = 0;
 
-    for (let i = 0; i < stepsRef.current.length; i++) {
-      remainingDistance += stepsRef.current[i].distance.value;
-      remainingDuration += stepsRef.current[i].duration.value;
-    }
+  for (let i = 0; i < stepsRef.current.length; i++) {
+    remainingDistance += stepsRef.current[i].distanceMeters;
+    remainingDuration += parseInt(stepsRef.current[i].staticDuration?.replace('s', '') || '0');
+  }
 
-    // Update total distance
-    setTotalDistance(`${(remainingDistance / 1000).toFixed(1)} km`);
+  // Update total distance
+  setTotalDistance(`${(remainingDistance / 1000).toFixed(1)} km`);
 
-    // Update duration in "**h**" format
-    const hours = Math.floor(remainingDuration / 3600);
-    const minutes = Math.floor((remainingDuration % 3600) / 60);
-    const formattedDuration = `${hours}h${minutes < 10 ? '0' : ''}${minutes}`;
-    setDuration(formattedDuration);
+  // Update duration in "**h**" format
+  const hours = Math.floor(remainingDuration / 3600);
+  const minutes = Math.floor((remainingDuration % 3600) / 60);
+  const formattedDuration = `${hours}h${minutes < 10 ? '0' : ''}${minutes}`;
+  setDuration(formattedDuration);
 
-    // Update arrival time
-    const arrivalTime = new Date(Date.now() + remainingDuration * 1000);
-    setArrivalTime(arrivalTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-  };
+  // Update arrival time
+  const arrivalTime = new Date(Date.now() + remainingDuration * 1000);
+  setArrivalTime(arrivalTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+};
+
 
 
   // Function to handle zoom changes + detect if the user touches the map
@@ -318,11 +399,85 @@ const Map: React.FC = () => {
     }
   };
 
-  // Function to calculate carbon footprint
-  const calculateCarbonFootprint = (speed: number): number => {
-    const baseEmissions = 0.2; // kg CO2 per km
-    return baseEmissions * speed; // assuming speed in km/h for a 1-hour trip
+  // Function to update route based on selected mode
+  const updateRoute = (selectedMode: string) => {
+    const selectedOption = transportOptions.find(option => option.mode === selectedMode);
+    if (selectedOption && selectedOption.polyline) {
+      const polylineCoords = selectedOption.polyline.map(point => ({
+        latitude: point.latitude,
+        longitude: point.longitude,
+      }));
+  
+      setRouteCoords(polylineCoords);
+
+      if (mapRef.current) {
+        mapRef.current.fitToCoordinates(polylineCoords, {
+          edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+          animated: true,
+        });
+      }
+    }
   };
+
+
+    // Function to reset the map to its default state
+  const resetMapState = async () => {
+    setRouteCoords([]); // Clear the polyline
+    setInstructions(null); // Clear the instructions
+    stepsRef.current = []; // Clear the steps
+    setDestination(''); // Clear the destination
+    setArrivalTime(''); // Clear the arrival time
+    setDistance(0); // Reset the distance
+    setDuration(''); // Clear the duration
+
+        // Optionally, restart location updates
+    if (!locationSubscription) {
+      const subscription = await Location.watchPositionAsync(
+        {
+          accuracy: Location.Accuracy.High,
+          distanceInterval: 10,
+          timeInterval: 1000,
+        },
+        (newLocation) => {
+          updateLocation(newLocation);
+        }
+      );
+      setLocationSubscription(subscription);
+    }
+  };
+
+
+  const startNavigation = () => {
+    const selectedOption = transportOptions.find(option => option.mode === selectedMode);
+    
+    if (selectedOption && selectedOption.polyline && selectedOption.polyline.length > 0) {
+      // Filter steps based on selected mode
+      const filteredSteps = stepsRef.current.filter(step => step.travelMode === selectedMode);
+
+      if (filteredSteps.length === 0) {
+        console.error(`No steps found for the selected mode: ${selectedMode}`);
+        return;
+      }
+
+      stepsRef.current = filteredSteps; // Update stepsRef to only include steps for the selected mode
+      console.log('Filtered Steps2:', stepsRef.current);
+      startRouteSimulation(selectedOption.polyline);
+      setModalVisible(false);
+    } else {
+      console.error('Selected option does not have a valid polyline');
+    }
+  };
+
+
+
+  useEffect(() => {
+    if (selectedMode) {
+      updateRoute(selectedMode);
+    }
+  }, [selectedMode, transportOptions]);
+
+
+
 
   // If location is not available, show loading screen
   if (!location) {
@@ -333,6 +488,7 @@ const Map: React.FC = () => {
       </View>
     );
   }
+
 
   // Main render
   return (
@@ -347,7 +503,7 @@ const Map: React.FC = () => {
             latitude: location.coords.latitude,
             longitude: location.coords.longitude,
           },
-          pitch: 65, 
+          pitch: 100, 
           heading: 0,
           altitude: 400, 
           zoom: REGULAR_ZOOM, // Initial zoom level
@@ -355,6 +511,7 @@ const Map: React.FC = () => {
         showsBuildings={false}
         onRegionChangeComplete={handleZoomChange}
         onPress={() => setIsMapTouched(true)}
+        cacheEnabled={true}
       >
         <Marker
           coordinate={{
@@ -373,13 +530,17 @@ const Map: React.FC = () => {
           />
         )}
       </MapView>
+      {isFooterVisible && (
       <View style={styles.infoContainer}>
         <CarbonFootprintDisplay carbonFootprint={carbonFootprint} />
         <TouchableOpacity style={styles.centerButton} onPress={centerMapOnLocation}>
           <MaterialIcons name="gps-fixed" size={70} color="white" />
         </TouchableOpacity>
       </View>
+      )}
       <FooterMap
+        footerVisible={isFooterVisible}
+        setModalVisible={setModalVisible}
         distance={totalDistance}
         duration={duration}
         arrivalTime={arrivalTime}
@@ -391,6 +552,19 @@ const Map: React.FC = () => {
         setDestination={setDestination}
         destination={destination}
       />
+      {modalVisible && (
+        <TransportationModal
+          setFooterVisible={setIsFooterVisible}
+          setIsVisible={setModalVisible}
+          options={transportOptions}
+          selectedMode={selectedMode}
+          onSelectedMode={(mode) => {
+            setSelectedMode(mode);
+            updateRoute(mode);
+          }}
+          onConfirm={startNavigation}
+        />
+      )}
       {instructions && (
         <Instructions
           instructions={instructions}

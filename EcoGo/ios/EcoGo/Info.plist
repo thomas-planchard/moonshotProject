@@ -69,8 +69,9 @@
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>
-		<string>location</string>
+		<string>audio</string>
 		<string>fetch</string>
+		<string>location</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>SplashScreen</string>

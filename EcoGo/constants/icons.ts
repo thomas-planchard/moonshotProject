@@ -11,6 +11,7 @@ const ICONS = {
     frontBus : require("../assets/icons/frontBus.png"),
     cycling : require("../assets/icons/cycling.png"),
     subwayFrontView : require("../assets/icons/subwayFrontView.png"),
+    manWalking : require("../assets/icons/icManWalking.png"),
 
     // Dashboard icons
     steps : require("../assets/icons/icStep.png"),

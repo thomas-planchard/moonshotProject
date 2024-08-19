@@ -46,15 +46,16 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: 'black',
     textAlign: 'left',
-    marginLeft: wp(8),  
+    width: wp(20),
+    marginLeft: wp(5),
     
   },
   infoTextRight: {
     fontSize: 20,
     color: 'black',
     textAlign: 'right',
-    marginLeft: wp(10),
-    
+    width: wp(20),
+    marginLeft: wp(5),
   },
   dot: {
     position: 'absolute',
@@ -112,7 +113,6 @@ const styles = StyleSheet.create({
   },
 
   customBorder: {
-    marginTop: hp(2),
     height: 1, // Height of the border
     width: wp(60), // Adjust the width as per requirement
     backgroundColor: COLORS.gray,

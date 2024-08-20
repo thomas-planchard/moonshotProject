@@ -10,6 +10,10 @@ import {
   Button,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
+import  CalculateCarbonFootprint from "@/utils/CalculateCarbonFootprint";
+import {  doc, getDoc, updateDoc } from "firebase/firestore"; 
+import {db} from '../../../FirebaseConfig';
+import { useAuth } from "@/context/AuthContext";
 import {ICONS} from "@/constants"
 import styles from "./activities.style";
 
@@ -27,6 +31,8 @@ export default function Activities() {
   const [time, setTime] = useState('');
   const [distance, setDistance] = useState('');
   const [activities, setActivities] = useState([]);
+  const { user } = useAuth(); 
+
 
   const openModal = () => {
     setModalVisible(true);
@@ -37,8 +43,52 @@ export default function Activities() {
     setPickerVisible(false);
   };
 
-  const handleAddActivity = () => {
+  const handleAddActivity = async () => {
     const activityIcon = predefinedActivities.find(activity => activity.value === selectedActivity)?.icon;
+    
+    let carbonFootprint = 0;
+
+    // Fetch car data from Firestore
+    const userDataRef = doc(db, "userData", user.userId); // Adjust this to match your structure
+    const docSnapshot = await getDoc(userDataRef);
+
+    if (selectedActivity === "Car") {
+      try {
+        if (docSnapshot.exists()) {
+          const userData = docSnapshot.data();
+          const carType = userData.carType;
+          const consumption = userData.consumption || undefined; 
+          carbonFootprint = CalculateCarbonFootprint(parseFloat(distance), carType.toLowerCase(), consumption); // Assuming gasoline for simplicity
+        } else {
+          console.log("No such document!");
+        }
+      } catch (error) {
+        console.error("Error fetching car data: ", error);
+      }
+    } else {
+      // Calculate carbon footprint for other activities
+      carbonFootprint = CalculateCarbonFootprint(parseFloat(distance), selectedActivity.toLowerCase());
+    }
+
+         // Round the carbon footprint to 1 decimal place
+         carbonFootprint = parseFloat(carbonFootprint.toFixed(1));
+
+         let totalCarbonFootprint = carbonFootprint;
+   
+         if (docSnapshot.exists()) {
+           const userData = docSnapshot.data();
+           const previousFootprint = parseFloat(userData.carbonFootprint) || 0; // Ensure previousFootprint is a number
+           totalCarbonFootprint += previousFootprint;
+         }
+   
+   
+         // Update the accumulated carbon footprint
+         await updateDoc(userDataRef, {
+           carbonFootprint: totalCarbonFootprint
+         });
+   
+
+
     setActivities([...activities, { name: selectedActivity, time, distance, icon: activityIcon }]);
     closeModal();
   };

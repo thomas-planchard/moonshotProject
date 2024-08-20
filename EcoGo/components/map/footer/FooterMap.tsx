@@ -139,7 +139,7 @@ const FooterMap: React.FC<FooterMapProps> = ({
 
   return (
     <Animated.View style={[styles.footerContainer, { height: heightAnim }]}>
-      {distance ? (
+      {arrivalTime ? (
         <>
         <TouchableOpacity style={styles.magnifierButton} onPress={toggleExpand}>
           <MaterialIcons name="search" size={34} color={COLORS.blueGreen} />
@@ -151,7 +151,7 @@ const FooterMap: React.FC<FooterMapProps> = ({
             <View style={styles.infoSectionRow}>
               <Text style={styles.infoTextLeft}>{duration} </Text>
               {duration && <Entypo name="dot-single" size={24} color='black' style={styles.dot}/>}
-              <Text style={styles.infoTextRight}>{distance}</Text>
+              <Text numberOfLines={1} style={styles.infoTextRight}>{distance}</Text>
             </View>
           </View>
         </>

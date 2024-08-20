@@ -39,17 +39,18 @@ const styles = StyleSheet.create({
   },
 
   stepImage: {
-    width: SIZES.small,
+    width: SIZES.medium,
     display: "flex",
-    height: SIZES.small,
-    marginRight: SIZES.xSmall,
+    height: SIZES.medium,
+    marginBottom: SIZES.large,
   },
 
   carbonImage: {
     width: SIZES.medium,
     display: "flex",
     height: SIZES.medium,
-    marginRight: SIZES.xSmall,
+    marginLeft: SIZES.xSmall,
+    marginBottom: SIZES.large,
   },
 
   containerStepCarbon: {
@@ -87,9 +88,12 @@ const styles = StyleSheet.create({
 
   userInformationMain: {
       marginTop: SIZES.xLarge,
-      fontFamily: "Montserrat-Bold",
+      fontFamily: 'monospace',
       fontSize: SIZES.xxLarge,
       color: COLORS.white,
+      width: wp(30),
+      textAlign: "center",
+      paddingHorizontal: SIZES.small,
   },
 
   userInformationMain2: {
@@ -108,6 +112,7 @@ const styles = StyleSheet.create({
       marginBottom: SIZES.xLarge,
       fontSize: SIZES.small,
       color: COLORS.gray2,
+      textAlign: "center",
   },
 
   userInformationSecondary2: {

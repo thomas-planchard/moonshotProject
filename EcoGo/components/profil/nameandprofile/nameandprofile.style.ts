@@ -32,4 +32,19 @@ export default StyleSheet.create({
         marginLeft:SIZES.medium,
         marginTop:SIZES.xLarge,
     },
+    editImage: {
+        width: 20,
+        height: 20,
+        marginRight : SIZES.small,
+    },
+    edit: {
+        fontFamily: "Montserrat-Bold",
+        fontSize: SIZES.small,
+    },
+    row: {
+      flexDirection: "row",
+      justifyContent: "center",
+      marginRight: SIZES.medium,
+      alignItems: "center",
+  },
 });

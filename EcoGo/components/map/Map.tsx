@@ -313,6 +313,9 @@ const startRouteSimulation = (routeCoords, speed = 50) => {
     // Calculate the distance to the end of the current step
     const distanceToStepEnd = getDistance(currentLatLng, stepEndLatLng);
     setDistance(distanceToStepEnd);
+
+    // Update the remaining distance and duration
+    updateRemainingDistanceAndDuration();
   
     // Define a completion threshold
     const completionThreshold = 20; // 20 meters threshold to consider the step complete
@@ -352,9 +355,6 @@ const startRouteSimulation = (routeCoords, speed = 50) => {
       };
       setInstructions(currentInstruction);
     }
-  
-    // Update the remaining distance and duration
-    updateRemainingDistanceAndDuration(newLocation);
   };
 
 
@@ -420,30 +420,32 @@ const updateRemainingDistanceAndDuration = () => {
   };
 
 
-    // Function to reset the map to its default state
   const resetMapState = async () => {
-    setRouteCoords([]); // Clear the polyline
-    setInstructions(null); // Clear the instructions
-    stepsRef.current = []; // Clear the steps
-    setDestination(''); // Clear the destination
-    setArrivalTime(''); // Clear the arrival time
-    setDistance(0); // Reset the distance
-    setDuration(''); // Clear the duration
-
-        // Optionally, restart location updates
-    if (!locationSubscription) {
-      const subscription = await Location.watchPositionAsync(
-        {
-          accuracy: Location.Accuracy.High,
-          distanceInterval: 10,
-          timeInterval: 1000,
-        },
-        (newLocation) => {
-          updateLocation(newLocation);
-        }
-      );
-      setLocationSubscription(subscription);
-    }
+    // Set a 10-second delay before resetting the map
+    setTimeout(async () => {
+      setRouteCoords([]); // Clear the polyline
+      setInstructions(null); // Clear the instructions
+      stepsRef.current = []; // Clear the steps
+      setDestination(''); // Clear the destination
+      setArrivalTime(''); // Clear the arrival time
+      setDistance(0); // Reset the distance
+      setDuration(''); // Clear the duration
+  
+      // Optionally, restart location updates
+      if (!locationSubscription) {
+        const subscription = await Location.watchPositionAsync(
+          {
+            accuracy: Location.Accuracy.High,
+            distanceInterval: 10,
+            timeInterval: 1000,
+          },
+          (newLocation) => {
+            updateLocation(newLocation);
+          }
+        );
+        setLocationSubscription(subscription);
+      }
+    }, 10000); // 10 seconds delay (10000 milliseconds)
   };
 
 

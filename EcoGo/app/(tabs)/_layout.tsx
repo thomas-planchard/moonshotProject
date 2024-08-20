@@ -33,7 +33,7 @@ export default function layout_ () {
                             <Image 
                                 source={ICONS.icHome}
                                 style={{
-                                    tintColor: focused ? "#7cbb85" : "#FFFF",     
+                                    tintColor: focused ? "#7fff7f" : "#FFFF",     
                                     ...styles.icons}}
                              />
                         </View>

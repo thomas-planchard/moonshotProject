@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
     color: 'black',
     textAlign: 'right',
     width: wp(20),
-    marginLeft: wp(5),
+    marginLeft: wp(2),
   },
   dot: {
     position: 'absolute',

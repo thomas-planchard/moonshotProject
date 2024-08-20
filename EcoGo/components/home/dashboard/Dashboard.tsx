@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, Image, TouchableOpacity, Alert } from "react-native";
 import { Pedometer } from "expo-sensors";
+import { widthPercentageToDP as wp } from "react-native-responsive-screen";
 import styles from "./dashboard.style";
 import { ICONS } from "@/constants";
 import { doc, onSnapshot} from  'firebase/firestore';
@@ -120,17 +121,17 @@ const Dashboard = () => {
       <View style={styles.containerStepCarbon}>
         <View style={styles.infoContainer}>
           <Text style={styles.userInformationMain}>{stepCount}</Text>
-          <Text style={styles.userInformationSecondary}>
+          <View style={{  flexDirection: 'row', alignItems: 'center'}}>
+            <Text style={[styles.userInformationSecondary,{width: wp(10),}]}>Steps</Text>
             <Image source={ICONS.steps} resizeMode="contain" style={styles.stepImage} />
-            Steps
-          </Text>
+          </View>
         </View>
         <View style={styles.infoContainer}>
           <Text style={styles.userInformationMain}>{carbonFootprint}</Text>
-          <Text style={styles.userInformationSecondary}>
+          <View style={{  flexDirection: 'row', alignItems: 'center'}}>
             <Image source={ICONS.carbon} resizeMode="contain" style={styles.carbonImage} />
-            Carbon Footprint
-          </Text>
+            <Text style={[styles.userInformationSecondary,{width: wp(25)}]}>Carbon Footprint</Text>
+          </View>
         </View>
       </View>
       <View style={styles.infoContainerLarge}>

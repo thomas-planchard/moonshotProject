@@ -44,6 +44,7 @@
     "react-native": "0.73.6",
     "react-native-circular-progress": "^1.4.0",
     "react-native-dotenv": "^3.4.11",
+    "react-native-geolocation-service": "^5.3.1",
     "react-native-google-places-autocomplete": "^2.5.6",
     "react-native-maps": "^1.15.6",
     "react-native-paper": "^5.12.3",
@@ -51,6 +52,7 @@
     "react-native-responsive-screen": "^1.4.2",
     "react-native-safe-area-context": "4.8.2",
     "react-native-screens": "~3.29.0",
+    "react-native-sensors": "^7.3.6",
     "react-native-svg": "^15.4.0",
     "react-native-web": "~0.19.6",
     "tailwindcss": "^3.4.1"

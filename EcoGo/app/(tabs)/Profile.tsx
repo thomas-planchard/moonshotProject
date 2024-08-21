@@ -4,6 +4,7 @@ import {
   TotalData,
   Graphique,
 } from "../../components";
+import React from "react";
 
 
 

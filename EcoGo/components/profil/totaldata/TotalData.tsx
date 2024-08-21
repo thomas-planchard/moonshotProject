@@ -14,11 +14,12 @@ export default function TotalData () {
 
   const {user} = useAuth();
   const [carbonFootprint, setCarbonFootprint] = useState(0);
+  const [steps, setSteps] = useState(0);
 
 
   useEffect(() => {
     let unsubscribe;
-    const fetchCarbonFootprint = async () => {
+    const fetchData = async () => {
       try {
         if (user && user.userId) {
           const userDataRef = doc(db, "userData", user.userId);
@@ -26,6 +27,7 @@ export default function TotalData () {
             if (doc.exists()) {
               const userData = doc.data();
               setCarbonFootprint(userData.carbonFootprint || 0);
+              setSteps(userData.steps || 0);
             }
           });
         }
@@ -34,7 +36,7 @@ export default function TotalData () {
       }
     };
 
-    fetchCarbonFootprint();
+    fetchData();
 
     return () => {
       if (unsubscribe) {
@@ -47,7 +49,7 @@ export default function TotalData () {
     <View style={styles.mainContainer}>
     <View style={styles.container}>
       <View style= {styles.column}>
-        <Text style={styles.userInformationMain}>0</Text>
+        <Text style={styles.userInformationMain}>{steps}</Text>
         <Text style={styles.userInformationSecondary}>Steps</Text>
       </View>
       <View style= {styles.column}>

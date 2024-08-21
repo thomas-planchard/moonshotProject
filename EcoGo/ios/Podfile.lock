@@ -1033,6 +1033,8 @@ PODS:
   - React-Mapbuffer (0.73.6):
     - glog
     - React-debug
+  - react-native-geolocation-service (5.3.1):
+    - React
   - react-native-google-maps (1.15.6):
     - Google-Maps-iOS-Utils (= 4.2.2)
     - GoogleMaps (= 7.4.0)
@@ -1223,6 +1225,8 @@ PODS:
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
+  - RNSensors (7.3.6):
+    - React-Core
   - RNSVG (15.4.0):
     - React-Core
   - SocketRocket (0.6.1)
@@ -1286,6 +1290,7 @@ DEPENDENCIES:
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector-modern`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
+  - react-native-geolocation-service (from `../node_modules/react-native-geolocation-service`)
   - react-native-google-maps (from `../node_modules/react-native-maps`)
   - react-native-maps (from `../node_modules/react-native-maps`)
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
@@ -1314,6 +1319,7 @@ DEPENDENCIES:
   - "RNCPicker (from `../node_modules/@react-native-picker/picker`)"
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
+  - RNSensors (from `../node_modules/react-native-sensors`)
   - RNSVG (from `../node_modules/react-native-svg`)
   - UMAppLoader (from `../node_modules/unimodules-app-loader/ios`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
@@ -1435,6 +1441,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/logger"
   React-Mapbuffer:
     :path: "../node_modules/react-native/ReactCommon"
+  react-native-geolocation-service:
+    :path: "../node_modules/react-native-geolocation-service"
   react-native-google-maps:
     :path: "../node_modules/react-native-maps"
   react-native-maps:
@@ -1491,6 +1499,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
     :path: "../node_modules/react-native-screens"
+  RNSensors:
+    :path: "../node_modules/react-native-sensors"
   RNSVG:
     :path: "../node_modules/react-native-svg"
   UMAppLoader:
@@ -1557,6 +1567,7 @@ SPEC CHECKSUMS:
   React-jsinspector: 85583ef014ce53d731a98c66a0e24496f7a83066
   React-logger: 3eb80a977f0d9669468ef641a5e1fabbc50a09ec
   React-Mapbuffer: 84ea43c6c6232049135b1550b8c60b2faac19fab
+  react-native-geolocation-service: 608e1da71a1ac31b4de64d9ef2815f697978c55b
   react-native-google-maps: 7ca1d252585c9ee2bbe2a3f64e4c061801b43d64
   react-native-maps: 7b2c2cee95271592a92ba485eea1dec66a363a6e
   react-native-netinfo: 076df4f9b07f6670acf4ce9a75aac8d34c2e2ccc
@@ -1585,6 +1596,7 @@ SPEC CHECKSUMS:
   RNCPicker: b7873ba797dc586bfaf3307d737cbdc620a9ff3e
   RNReanimated: f6b02d8f5eaa2830296411d4ec3b8ef5442dd13d
   RNScreens: 17e2f657f1b09a71ec3c821368a04acbb7ebcb46
+  RNSensors: 117ba71c7eeeea0407ea0c0bb79e3495d602049b
   RNSVG: cb24fb322de8c1ebf59904e7aca0447bb8dbed5a
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   UMAppLoader: 79d3ee6aa2447a1fe2e8b0d07acf2de106e55b58

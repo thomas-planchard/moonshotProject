@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
   userInformationMain: {
       marginTop: SIZES.xLarge,
       fontFamily: 'monospace',
-      fontSize: SIZES.xxLarge,
+      fontSize: SIZES.xLarge,
       color: COLORS.white,
       width: wp(30),
       textAlign: "center",

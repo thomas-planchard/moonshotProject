@@ -27,7 +27,6 @@ const Map: React.FC = () => {
   const [locationSubscription, setLocationSubscription] = useState<Location.LocationSubscription | null>(null);
   const [speed, setSpeed] = useState<number>(0);
   const [carbonFootprint, setCarbonFootprint] = useState<number>(0);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [destination, setDestination] = useState<string>('');
   const [routeCoords, setRouteCoords] = useState<Array<{ latitude: number; longitude: number }>>([]);
@@ -51,13 +50,6 @@ const Map: React.FC = () => {
   // Effect to request location permissions and watch for location changes
   useEffect(() => {
     (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setErrorMsg('Permission to access location was denied');
-        Alert.alert('Permission to access location was denied');
-        return;
-      }
-
       let location = await Location.getCurrentPositionAsync({});
       setLocation(location);
       setSpeed(location.coords.speed || 0);

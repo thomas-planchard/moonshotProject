@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { accelerometer, gyroscope, setUpdateIntervalForType, SensorTypes } from 'react-native-sensors';
+import * as Location from 'expo-location';
 import Geolocation from 'react-native-geolocation-service';
 import { map, filter } from 'rxjs/operators';
+import { storeActivity, getStoredActivities } from './AsyncStorage';
 
 type MovementType = 'Walking' | 'Driving' | 'Cycling or in a bus' | 'Uncertain'; //Possible output
 
@@ -22,6 +24,12 @@ export const useMovementDetector = ({
   const [lastUpdate, setLastUpdate] = useState<number>(Date.now());
 
   useEffect(() => {
+    const requestLocationPermission = async () => {
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          alert('Permission to access location was denied');
+          return;
+        }   
     // Start GPS tracking
     const watchId = Geolocation.watchPosition(
       (position) => {
@@ -39,7 +47,6 @@ export const useMovementDetector = ({
         interval: gpsUpdateInterval,
       }
     );
-
     // Initialize sensors with adaptive frequency
     const accelerometerSubscription = startAccelerometer();
     const gyroscopeSubscription = startGyroscope();
@@ -51,6 +58,8 @@ export const useMovementDetector = ({
       accelerometerSubscription?.unsubscribe();
       gyroscopeSubscription?.unsubscribe();
     };
+  };
+    requestLocationPermission();
   }, []);
 
   const adaptiveSensorUpdate = (speed: number | null) => {
@@ -115,7 +124,7 @@ export const useMovementDetector = ({
         .subscribe({
           next: (rotation) => {
             setGyroData((prevData) => {
-              // Use a fixed-size array to store the last 50 readings to avoid frequent memory allocations
+              // fixed-size array to store the last 50 readings to avoid frequent memory allocations
               const newData = [...prevData, rotation];
               return newData.slice(-50);
             });
@@ -148,6 +157,12 @@ export const useMovementDetector = ({
     } else if (meanGyro > 1) {
       movement = 'Cycling or in a bus';
     }
+    const activity = {
+        movement,
+        timestamp: Date.now(),
+      };
+    
+      storeActivity(activity);
 
     onMovementChange(movement);
   };

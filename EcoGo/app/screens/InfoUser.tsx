@@ -8,7 +8,7 @@ import PersonalInformation from '@/components/screens/infoUser/personalInfo/Pers
 import PoliciesContainer from '@/components/screens/infoUser/policies/Policies';
 import LogoutButton from '@/components/screens/infoUser/logoutButton/LogoutButton';
 
-const InfoUser: React.FC = () => {
+const InfoUser = () => {
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = useCallback(() => {

@@ -1,13 +1,10 @@
+import React from "react";
 import { SafeAreaView, ScrollView } from "react-native";
 import {
   NameAndProfile,
   TotalData,
   Graphique,
 } from "../../components";
-import React from "react";
-
-
-
 
 
 export default function Profile() {

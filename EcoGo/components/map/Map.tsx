@@ -20,7 +20,7 @@ import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 const MAX_ZOOM_OUT = 8; // Maximum zoom out level
 const REGULAR_ZOOM = 18.5; // Regular zoom level
 
-const Map: React.FC = () => {
+const Map = () => {
 
   // State variables
   const [location, setLocation] = useState<Location.LocationObject | null>(null);

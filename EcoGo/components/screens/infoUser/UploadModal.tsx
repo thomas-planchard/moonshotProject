@@ -1,8 +1,8 @@
 import React from 'react';
 import { Modal, View, Text, StyleSheet, Pressable, ActivityIndicator, TouchableOpacity } from 'react-native';
-import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
-import {COLORS} from '@/constants/theme.ts';
+import {COLORS} from '@/constants/theme';
 
 
 interface UploadModalProps {

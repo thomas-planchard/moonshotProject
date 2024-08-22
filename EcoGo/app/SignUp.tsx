@@ -11,7 +11,6 @@ import * as ImagePicker from 'expo-image-picker';
 import { typeOfCars, sizeOfCars } from '@/constants/index';
 import { Picker } from '@react-native-picker/picker';
 
-
 export default function SignUp() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -32,22 +31,34 @@ export default function SignUp() {
   const [passwordError, setPasswordError] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [emailError, setEmailError] = useState(false);
 
+  // Validation functions
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePassword = (password) => {
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+    return passwordRegex.test(password);
+  };
 
   const openPickerCarType = () => {
     setCarTypeModalVisible(true);
-  }
+  };
+
   const openPickerCarSize = () => {
     setCarSizeModalVisible(true);
-  }
+  };
 
   const closePickerCarType = () => {
     setCarTypeModalVisible(false);
-  }
+  };
 
   const closePickerCarSize = () => {
     setCarSizeModalVisible(false);
-  }
+  };
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -55,7 +66,6 @@ export default function SignUp() {
       allowsEditing: true,
       aspect: [1, 1],
       quality: 1,
-     
     });
 
     if (!result.canceled) {
@@ -65,10 +75,10 @@ export default function SignUp() {
 
   const handleRegister = async () => {
     if (
-      !emailRef.current || 
-      !passwordRef.current || 
-      !confirmPasswordRef.current || 
-      !usernameRef.current || 
+      !emailRef.current ||
+      !passwordRef.current ||
+      !confirmPasswordRef.current ||
+      !usernameRef.current ||
       image == null ||
       (carType === 'fuel' && !consumption)
     ) {
@@ -76,8 +86,25 @@ export default function SignUp() {
       return;
     }
 
+    if (!validateEmail(emailRef.current)) {
+      setEmailError(true);
+      return;
+    } else {
+      setEmailError(false);
+    }
+
+    if (!validatePassword(passwordRef.current)) {
+      Alert.alert('Error', 'Password must be at least 8 characters long, include at least one uppercase letter, one lowercase letter, and one number.');
+      return;
+    }
+
     if (passwordRef.current !== confirmPasswordRef.current) {
       setPasswordError(true);
+      return;
+    }
+
+    if (carType !== "No Car" && carSize == null) {
+      Alert.alert('Error', 'Please select your car size');
       return;
     }
 
@@ -112,7 +139,7 @@ export default function SignUp() {
   return (
     <CustomKeyboardView>
       <StatusBar style="dark" />
-      <ScrollView style={{ paddingTop: hp(7), paddingHorizontal: wp(5), height: hp(120) , backgroundColor:'white' }} className="flex-1 gap-12">
+      <ScrollView style={{ paddingTop: hp(7), paddingHorizontal: wp(5), height: hp(120), backgroundColor: 'white' }} className="flex-1 gap-12">
         <View className="items-center">
           <Image source={require('../assets/images/register.jpg')} resizeMode="contain" style={{ height: hp(20), alignSelf: 'center' }} />
         </View>
@@ -132,10 +159,10 @@ export default function SignUp() {
                 className="flex-1 font-semibold text-neutral-700"
                 placeholder="Username"
                 placeholderTextColor="grey"
-                autoComplete='name'
+                autoComplete="name"
               />
             </View>
-            <View style={{ height: hp(7) }} className="flex-row gap-4 px-4 bg-neutral-100 items-center rounded-2xl">
+            <View style={{ height: hp(7), borderColor: emailError ? 'red' : 'transparent', borderWidth: 1 }} className="flex-row gap-4 px-4 bg-neutral-100 items-center rounded-2xl">
               <Octicons name="mail" size={hp(2.7)} color="grey" />
               <TextInput
                 onChangeText={(value) => (emailRef.current = value)}
@@ -143,10 +170,15 @@ export default function SignUp() {
                 className="flex-1 font-semibold text-neutral-700"
                 placeholder="Email address"
                 placeholderTextColor="grey"
-                autoCapitalize='none'
-                autoComplete='email'
+                autoCapitalize="none"
+                autoComplete="email"
               />
             </View>
+            {emailError && (
+              <Text style={{ color: 'red', fontSize: hp(1.5), marginLeft: wp(2) }}>
+                Invalid email address.
+              </Text>
+            )}
             <View style={{ height: hp(7) }} className="flex-row gap-4 px-4 bg-neutral-100 items-center rounded-2xl">
               <Octicons name="lock" size={hp(2.7)} color="grey" />
               <TextInput
@@ -155,7 +187,7 @@ export default function SignUp() {
                 className="flex-1 font-semibold text-neutral-700"
                 placeholder="Password"
                 secureTextEntry={!showPassword}
-                autoComplete='new-password'
+                autoComplete="new-password"
                 placeholderTextColor="grey"
                 onBlur={checkPasswordsMatch}
               />
@@ -171,7 +203,7 @@ export default function SignUp() {
                 className="flex-1 font-semibold text-neutral-700"
                 placeholder="Confirm Password"
                 secureTextEntry={!showConfirmPassword}
-                autoComplete='new-password'
+                autoComplete="new-password"
                 placeholderTextColor="grey"
                 onBlur={checkPasswordsMatch}
               />
@@ -201,12 +233,12 @@ export default function SignUp() {
             {/* Car Type */}
             <TouchableOpacity style={{ height: hp(7) }} className="flex-row gap-4 px-4 bg-neutral-100 items-center rounded-2xl" onPress={openPickerCarType}>
               <MaterialCommunityIcons name="car-info" size={hp(2.7)} color="grey" />
-              <Text style={{ fontSize: hp(2), color: carType==null? "grey": "black" }} className="flex-1 font-semibold">{carType==null? "Select Car Type": carType}</Text>
+              <Text style={{ fontSize: hp(2), color: carType == null ? "grey" : "black" }} className="flex-1 font-semibold">{carType == null ? "Select Car Type" : carType}</Text>
             </TouchableOpacity>
             {carTypeModalVisible && (
               <Modal
                 transparent={true}
-                animationType="fade" 
+                animationType="fade"
                 visible={carTypeModalVisible}
                 onRequestClose={closePickerCarType}
               >
@@ -228,11 +260,14 @@ export default function SignUp() {
                 </View>
               </Modal>
             )}
-            {/* Car Size */}
-            <TouchableOpacity style={{ height: hp(7) }} className="flex-row gap-4 px-4 bg-neutral-100 items-center rounded-2xl" onPress={openPickerCarSize}>
-              <MaterialCommunityIcons name="car-multiple" size={hp(2.7)} color="grey" />
-              <Text style={{ fontSize: hp(2), color: carSize==null? "grey": "black" }} className="flex-1 font-semibold">{carSize==null? "Select Car Size": carSize}</Text>
-            </TouchableOpacity>
+
+            {/* Conditionally render car size picker if carType is not "No car" */}
+            {carType !== "No Car" && (
+              <TouchableOpacity style={{ height: hp(7) }} className="flex-row gap-4 px-4 bg-neutral-100 items-center rounded-2xl" onPress={openPickerCarSize}>
+                <MaterialCommunityIcons name="car-multiple" size={hp(2.7)} color="grey" />
+                <Text style={{ fontSize: hp(2), color: carSize == null ? "grey" : "black" }} className="flex-1 font-semibold">{carSize == null ? "Select Car Size" : carSize}</Text>
+              </TouchableOpacity>
+            )}
             {carSizeModalVisible && (
               <Modal
                 transparent={true}
@@ -258,6 +293,7 @@ export default function SignUp() {
                 </View>
               </Modal>
             )}
+
             {/* Car Consumption (only for fuel cars) */}
             {carType === "Fuel" || carType === "Gazoil" ? (
               <View style={{ height: hp(7) }} className="flex-row gap-4 px-4 bg-neutral-100 items-center rounded-2xl">
@@ -271,7 +307,7 @@ export default function SignUp() {
                   keyboardType="numeric"
                 />
               </View>
-            ):null}
+            ) : null}
 
             {/* Submit Button */}
             <View>
@@ -327,6 +363,5 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     margin: 20,
     padding: 20,
-  
   },
 });

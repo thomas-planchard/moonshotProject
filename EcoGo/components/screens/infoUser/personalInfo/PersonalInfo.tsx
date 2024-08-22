@@ -1,12 +1,13 @@
-import {useState} from 'react';
+import React, {useState} from 'react';
 import { View, TextInput, TouchableOpacity, Text, Alert } from 'react-native';
 import { Octicons } from '@expo/vector-icons';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import EditProfileModal from '@/components/screens/infoUser/editProfileModal/EditProfileComponent'; 
 import { COLORS } from '@/constants';
-import { getAuth, sendPasswordResetEmail } from 'firebase/auth';
+import { getAuth, sendPasswordResetEmail, Auth } from 'firebase/auth';
 import { useAuth } from '@/context/AuthContext';
-import styles from '../infoUser.style';
+import styles from './personalinfo.style';
+
 
 const PersonalInformation = () => {
     const auth = getAuth();
@@ -15,7 +16,7 @@ const PersonalInformation = () => {
 
   const [editModalVisible, setEditModalVisible] = useState(false);
 
-  const handlePasswordReset = async (auth, email) => {
+  const handlePasswordReset = async (auth: Auth, email: string): Promise<void> => {
     try {
       await sendPasswordResetEmail(auth, email);
       Alert.alert('Success', 'Password reset email sent!');

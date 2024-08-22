@@ -6,7 +6,13 @@ import { useAuth } from '@/context/AuthContext';
 import { typeOfCars, sizeOfCars } from '@/constants/index';
 import styles from './editProfile.style'; 
 
-const EditProfileModal = ({ modalVisible, onRequestClose, user }) => {
+interface EditProfileModalProps {
+  modalVisible: boolean;
+  onRequestClose: () => void;
+  user: any;
+}
+
+const EditProfileModal: React.FC<EditProfileModalProps> = ({ modalVisible, onRequestClose, user }) => {
 
   const { updateUser } = useAuth();  
 

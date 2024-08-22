@@ -3,7 +3,7 @@ import { accelerometer, gyroscope, setUpdateIntervalForType, SensorTypes } from 
 import * as Location from 'expo-location';
 import Geolocation from 'react-native-geolocation-service';
 import { map, filter } from 'rxjs/operators';
-import { storeActivity, getStoredActivities } from './AsyncStorage';
+import { storeActivity } from './AsyncStorage';
 
 type MovementType = 'Walking' | 'Driving' | 'Cycling or in a bus' | 'Uncertain'; //Possible output
 

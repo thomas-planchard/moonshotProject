@@ -8,6 +8,7 @@ import { useMovementDetector } from '@/utils/MovementDetection';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getStoredActivities } from "@/utils/AsyncStorage";
 import { useState, useEffect } from 'react';
+import * as Location from 'expo-location';
 import styles from "@/components/home/whitebackground/whitebackground.style";
 import { COLORS } from "@/constants";
 
@@ -20,38 +21,50 @@ export default function Home() {
   const [appState, setAppState] = useState(AppState.currentState);
 
 
-  // useMovementDetector({
-  //   onMovementChange: setMovement,
-  // });
+//   useMovementDetector({
+//     onMovementChange: setMovement,
+//   });
 
-console.log(movement);
+// console.log(movement);
+useEffect(() => {
+  const requestLocationPermission = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission to access location was denied');
+      return false;
+    }
+    return true;
+  };
 
-  useEffect(() => {
-    const checkForActivities = async () => {
-      const activities = await getStoredActivities();
-      if (activities.length > 0) {
-        const lastActivity = activities[activities.length - 1];
-        Alert.alert(
-          'Activity Detected',
-          `You were ${lastActivity.movement}`,
-          [{ text: 'OK', onPress: () => AsyncStorage.removeItem('activities') }]
-        );
-      }
-    };
+  const checkForActivities = async () => {
+    const activities = await getStoredActivities();
+    if (activities.length > 0) {
+      const lastActivity = activities[activities.length - 1];
+      Alert.alert(
+        'Activity Detected',
+        `You were ${lastActivity.movement}`,
+        [{ text: 'OK', onPress: () => AsyncStorage.removeItem('activities') }]
+      );
+    }
+  };
 
-    const handleAppStateChange = (nextAppState) => {
-      if (appState.match(/inactive|background/) && nextAppState === 'active') {
+  const handleAppStateChange = async (nextAppState) => {
+    if (appState.match(/inactive|background/) && nextAppState === 'active') {
+      const permissionGranted = await requestLocationPermission();
+      if (permissionGranted) {
         checkForActivities();
       }
-      setAppState(nextAppState);
-    };
+    }
+    setAppState(nextAppState);
+  };
 
-    const subscription = AppState.addEventListener('change', handleAppStateChange);
+  const subscription = AppState.addEventListener('change', handleAppStateChange);
 
-    return () => {
-      subscription.remove();
-    };
-  }, [appState]);
+  return () => {
+    subscription.remove();
+  };
+}, [appState]);
+
 
 
 

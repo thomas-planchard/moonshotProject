@@ -16,10 +16,30 @@ const styles = StyleSheet.create({
       justifyContent: 'space-between',
     },
 
+    tittleText: {
+      fontSize: hp(2.5), 
+      color: COLORS.greenForest, 
+      fontWeight: 'bold', 
+      marginBottom: hp(2)
+    },
+
     editButton: {
       color: COLORS.greenForest,
       fontSize: 16,
     },
+
+    inputContainer: {
+      height: hp(7)
+    },
+
+    inputStyle: {
+      fontSize: hp(2)
+    },
+
+    resetPasswordText: {
+      fontSize: hp(2),
+       color: '#333'
+      },  
 
   });
 

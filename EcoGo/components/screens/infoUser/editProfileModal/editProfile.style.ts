@@ -6,12 +6,14 @@ export default StyleSheet.create({
   container: {
     flex: 1,
   },
+
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.5)',
   },
+
   modalContent: {
     width: '80%',
     padding: 20,
@@ -19,22 +21,35 @@ export default StyleSheet.create({
     borderRadius: 10,
    
   },
+
   modalTitle: {
     fontSize: SIZES.large,
     fontWeight: 'bold',
     marginBottom: 10,
   },
+
+  inputContainer: {
+    height: hp(7),
+  },
+
+  selectText: {
+    fontSize: hp(2),
+    color: 'grey'
+  },
+
   picker: {
     width: wp(60),
     height: hp(5),
     marginBottom: hp(20),
   },
+
   pickerModalContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
+
   pickerModalContent: {
     backgroundColor: COLORS.greenWhite,
     borderRadius: 10,
@@ -42,6 +57,17 @@ export default StyleSheet.create({
     padding: 20,
   
   },
+
+  buttonContainer: {
+    marginTop: 20,
+     alignItems: "center" 
+  },
+
+  textInput: {
+    fontSize: hp(2)
+  },
+
+
   saveButton: {
     backgroundColor: COLORS.greenForest,
     padding: 10,

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, Modal, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { ProfilImage } from '@/components/common/ProfilImage';
 import { COLORS } from '@/constants/theme';
@@ -58,7 +58,7 @@ const ProfileSection= () => {
       <View>
         <ProfilImage imageState={imageLoaded} source={user?.profileImageUrl} style={styles.profileImage} setImageState={setImageLoaded} />
         <TouchableOpacity
-          style={{ backgroundColor: COLORS.lightWhite, borderRadius: 24, position: 'absolute', right: 5, bottom: 5, padding: 8 }}
+          style={styles.cameraIcon}
           onPress={() => setModalVisible(true)}
         >
           <Ionicons name="camera" size={24} color={COLORS.greenForest} />
@@ -69,8 +69,8 @@ const ProfileSection= () => {
           visible={isUploading}
           onRequestClose={() => setIsUploading(false)}
         >
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 10 }}>
+          <View style={styles.modalContainer}>
+            <View style={styles.progressContainer}>
               <Text>Uploading Image: {Math.round(progress)}%</Text>
               <ProgressBar progress={progress / 100} color={COLORS.darkGreen} />
             </View>

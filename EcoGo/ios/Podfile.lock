@@ -297,6 +297,30 @@ PODS:
   - FBLazyVector (0.74.5)
   - fmt (9.1.0)
   - glog (0.3.5)
+  - Google-Maps-iOS-Utils (4.2.2):
+    - Google-Maps-iOS-Utils/Clustering (= 4.2.2)
+    - Google-Maps-iOS-Utils/Geometry (= 4.2.2)
+    - Google-Maps-iOS-Utils/GeometryUtils (= 4.2.2)
+    - Google-Maps-iOS-Utils/Heatmap (= 4.2.2)
+    - Google-Maps-iOS-Utils/QuadTree (= 4.2.2)
+    - GoogleMaps (~> 7.3)
+  - Google-Maps-iOS-Utils/Clustering (4.2.2):
+    - Google-Maps-iOS-Utils/QuadTree
+    - GoogleMaps (~> 7.3)
+  - Google-Maps-iOS-Utils/Geometry (4.2.2):
+    - GoogleMaps (~> 7.3)
+  - Google-Maps-iOS-Utils/GeometryUtils (4.2.2):
+    - GoogleMaps (~> 7.3)
+  - Google-Maps-iOS-Utils/Heatmap (4.2.2):
+    - Google-Maps-iOS-Utils/QuadTree
+    - GoogleMaps (~> 7.3)
+  - Google-Maps-iOS-Utils/QuadTree (4.2.2):
+    - GoogleMaps (~> 7.3)
+  - GoogleMaps (7.4.0):
+    - GoogleMaps/Maps (= 7.4.0)
+  - GoogleMaps/Base (7.4.0)
+  - GoogleMaps/Maps (7.4.0):
+    - GoogleMaps/Base
   - hermes-engine (0.74.5):
     - hermes-engine/Pre-built (= 0.74.5)
   - hermes-engine/Pre-built (0.74.5)
@@ -1253,6 +1277,10 @@ PODS:
     - React-debug
   - react-native-geolocation-service (5.3.1):
     - React
+  - react-native-google-maps (1.14.0):
+    - Google-Maps-iOS-Utils (= 4.2.2)
+    - GoogleMaps (= 7.4.0)
+    - React-Core
   - react-native-maps (1.14.0):
     - React-Core
   - react-native-netinfo (11.3.1):
@@ -1604,6 +1632,7 @@ DEPENDENCIES:
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
   - react-native-geolocation-service (from `../node_modules/react-native-geolocation-service`)
+  - react-native-google-maps (from `../node_modules/react-native-maps`)
   - react-native-maps (from `../node_modules/react-native-maps`)
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
@@ -1641,6 +1670,8 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - Google-Maps-iOS-Utils
+    - GoogleMaps
     - lottie-ios
     - SocketRocket
 
@@ -1762,6 +1793,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   react-native-geolocation-service:
     :path: "../node_modules/react-native-geolocation-service"
+  react-native-google-maps:
+    :path: "../node_modules/react-native-maps"
   react-native-maps:
     :path: "../node_modules/react-native-maps"
   react-native-netinfo:
@@ -1863,6 +1896,8 @@ SPEC CHECKSUMS:
   FBLazyVector: ac12dc084d1c8ec4cc4d7b3cf1b0ebda6dab85af
   fmt: 4c2741a687cc09f0634a2e2c72a838b99f1ff120
   glog: fdfdfe5479092de0c4bdbebedd9056951f092c4f
+  Google-Maps-iOS-Utils: f77eab4c4326d7e6a277f8e23a0232402731913a
+  GoogleMaps: 032f676450ba0779bd8ce16840690915f84e57ac
   hermes-engine: 8c1577f3fdb849cbe7729c2e7b5abc4b845e88f8
   lottie-ios: fcb5e73e17ba4c983140b7d21095c834b3087418
   lottie-react-native: f851c0e235f171d99083c803f728f644be1dcf65
@@ -1891,6 +1926,7 @@ SPEC CHECKSUMS:
   React-logger: 257858bd55f3a4e1bc0cf07ddc8fb9faba6f8c7c
   React-Mapbuffer: 6c1cacdbf40b531f549eba249e531a7d0bfd8e7f
   react-native-geolocation-service: 608e1da71a1ac31b4de64d9ef2815f697978c55b
+  react-native-google-maps: 94df984b1647973baffe17c0b7b52828d6b69d94
   react-native-maps: cbf2f03bfeebfd7ec45966b066db13a075fd2af3
   react-native-netinfo: bdb108d340cdb41875c9ced535977cac6d2ff321
   react-native-safe-area-context: a240ad4b683349e48b1d51fed1611138d1bdad97
@@ -1927,6 +1963,6 @@ SPEC CHECKSUMS:
   UMAppLoader: f17a5ee8e85b536ace0fc254b447a37ed198d57e
   Yoga: 950bbfd7e6f04790fdb51149ed51df41f329fcc8
 
-PODFILE CHECKSUM: 11337a948dd4e82d2dc85fdc4d870597072385a7
+PODFILE CHECKSUM: e1d4cc1a6bd57482d4fac1a345550cf9e7bf9d9d
 
 COCOAPODS: 1.15.2

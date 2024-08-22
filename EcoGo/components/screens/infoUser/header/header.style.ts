@@ -16,6 +16,10 @@ const styles = StyleSheet.create({
       fontSize: SIZES.large,
       fontWeight: 'bold',
     },
+    backText: { 
+      fontSize: SIZES.large,
+      textDecorationLine: 'underline'
+    },
    
 });
   

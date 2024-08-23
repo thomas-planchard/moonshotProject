@@ -9,12 +9,14 @@ type MovementType = 'Walking' | 'Driving' | 'Cycling or in a bus' | 'Uncertain';
 
 interface MovementDetectorProps {
   onMovementChange: (movement: MovementType) => void;
+  isActive?: boolean;
   gpsUpdateInterval?: number;
   sensorUpdateInterval?: number;
 }
 
 export const useMovementDetector = ({
   onMovementChange,
+  isActive = true,
   gpsUpdateInterval = 10000, // 10 seconds 
   sensorUpdateInterval = 200,  // 200ms
 }: MovementDetectorProps) => {
@@ -24,43 +26,40 @@ export const useMovementDetector = ({
   const [lastUpdate, setLastUpdate] = useState<number>(Date.now());
 
   useEffect(() => {
-    const requestLocationPermission = async () => {
-        let { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== 'granted') {
-          alert('Permission to access location was denied');
-          return;
-        }   
-    // Start GPS tracking
-    const watchId = Geolocation.watchPosition(
-      (position) => {
-        const speed = position.coords.speed; // Speed in meters/second
-        setGpsSpeed(speed);
-        adaptiveSensorUpdate(speed);
-      },
-      (error) => {
-        // Surface the error to the user or a monitoring service
-        handleGeolocationError(error);
-      },
-      {
-        enableHighAccuracy: true,
-        distanceFilter: 10, // Minimum distance in meters to trigger an update
-        interval: gpsUpdateInterval,
-      }
-    );
-    // Initialize sensors with adaptive frequency
-    const accelerometerSubscription = startAccelerometer();
-    const gyroscopeSubscription = startGyroscope();
+    if (!isActive) {
+      return;
+    }
+    
+    const setUp = async () => {
+      const watchId = Geolocation.watchPosition(
+        (position) => {
+          const speed = position.coords.speed; // Speed in meters/second
+          setGpsSpeed(speed);
+          adaptiveSensorUpdate(speed);
+        },
+        (error) => {
+          handleGeolocationError(error);
+        },
+        {
+          enableHighAccuracy: true,
+          distanceFilter: 10, 
+          interval: gpsUpdateInterval,
+        }
+      );
 
-    return () => {
-      Geolocation.clearWatch(watchId);
+      const accelerometerSubscription = startAccelerometer();
+      const gyroscopeSubscription = startGyroscope();
 
-      // Properly unsubscribe to prevent memory leaks
-      accelerometerSubscription?.unsubscribe();
-      gyroscopeSubscription?.unsubscribe();
+      return () => {
+        Geolocation.clearWatch(watchId);
+        accelerometerSubscription?.unsubscribe();
+        gyroscopeSubscription?.unsubscribe();
+      };
     };
-  };
-    requestLocationPermission();
-  }, []);
+
+    setUp();
+  }, [isActive]); // Only activate when isActive is true
+
 
   const adaptiveSensorUpdate = (speed: number | null) => {
     const now = Date.now();

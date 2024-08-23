@@ -1,7 +1,7 @@
 const TRANSPORTATION_EMISSIONS: Readonly<{ [key: string]: number }> = {
   plane: 0.246, // kg CO2 per km
   bus: 0.101,   // kg CO2 per km 
-  cycling: 0.021,   // kg CO2 per km 
+  bicycle: 0.021,   // kg CO2 per km 
   walk: 0,     // kg CO2 per km (assumed zero emissions)
   fuel: 2.31,   // kg CO2 per liter (for cars using gasoline)
   gazoil: 2.68,   // kg CO2 per liter (for cars using diesel)

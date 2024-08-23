@@ -15,6 +15,10 @@ import {decodePolyline, getDistance, calculateHeading} from '@/utils/MapUtils';
 import FooterMap from './footer/FooterMap';
 import Instructions from './instructions/Instructions';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { doc, updateDoc, getDoc } from 'firebase/firestore';
+import { useAuth } from '@/context/AuthContext';
+import { db } from '@/FirebaseConfig';
+
 
 // Constants for map zoom levels
 const MAX_ZOOM_OUT = 8; // Maximum zoom out level
@@ -22,10 +26,11 @@ const REGULAR_ZOOM = 18.5; // Regular zoom level
 
 const Map = () => {
 
+  const { user } = useAuth(); // Get the user from the AuthContext
+
   // State variables
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
   const [locationSubscription, setLocationSubscription] = useState<Location.LocationSubscription | null>(null);
-  const [speed, setSpeed] = useState<number>(0);
   const [carbonFootprint, setCarbonFootprint] = useState<number>(0);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [destination, setDestination] = useState<string>('');
@@ -40,23 +45,22 @@ const Map = () => {
   const [countryCode, setCountryCode] = useState<string | null>('');
   const [transportOptions, setTransportOptions] = useState<Array<{ mode: string; duration: string; distance: string; polyline: { latitude: number; longitude: number }[] }>>([]);
   const [isFooterVisible, setIsFooterVisible] = useState<boolean>(true);
+  const [totalDistanceTraveled, setTotalDistanceTraveled] = useState<number>(0);
+  const previousLocation = useRef<{ latitude: number, longitude: number } | null>(null);
 
 
-  // Refs for map and navigation steps
+  // Refs 
   const mapRef = useRef<MapView>(null);
   const stepsRef = useRef<any[]>([]);
   const followingUser = useRef(true);
+  const distanceTraveled = useRef(0); // Track the cumulative distance traveled
 
-  // Effect to request location permissions and watch for location changes
+
+  // Effect to watch for location changes
   useEffect(() => {
     (async () => {
       let location = await Location.getCurrentPositionAsync({});
       setLocation(location);
-      setSpeed(location.coords.speed || 0);
-      // const calculatedCarbonFootprint = CalculateCarbonFootprint(location.coords.speed || 0);
-      // if (calculatedCarbonFootprint > 0) {
-      //   setCarbonFootprint(calculatedCarbonFootprint);
-      // }
       const reverseGeocode = await Location.reverseGeocodeAsync({
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
@@ -103,59 +107,170 @@ const Map = () => {
 
   // Function to update location state and instructions
   const updateLocation = (newLocation: Location.LocationObject) => {
+    if (!previousLocation.current) {
+      previousLocation.current = {
+        latitude: newLocation.coords.latitude,
+        longitude: newLocation.coords.longitude,
+      };
+    } else {
+      const newPoint = {
+        latitude: newLocation.coords.latitude,
+        longitude: newLocation.coords.longitude,
+      };
+      
+      const distance = getDistance(previousLocation.current, newPoint);
+      distanceTraveled.current += distance;
+      setTotalDistanceTraveled(prev => prev + distance); // Update total distance traveled
+
+      console.log(`Distance traveled: ${distanceTraveled.current} meters`);
+
+          // Calculate heading
+      const heading = calculateHeading(previousLocation.current, newPoint);
+
+
+
+      if (distanceTraveled.current >= 100) {
+        calculateAndUpdateCarbonFootprint(selectedMode, 100);
+        distanceTraveled.current -= 100; // Reset distance after calculation
+      }
+
+      previousLocation.current = newPoint; // Update the previous location
+      // Update the map camera heading
+      if (mapRef.current) {
+        mapRef.current.animateCamera({
+          center: {
+            latitude: newPoint.latitude,
+            longitude: newPoint.longitude,
+          },
+          heading: heading, // Apply the calculated heading
+          zoom: REGULAR_ZOOM,
+          pitch: 100,
+          altitude: 400,
+        }, { duration: 1000 });
+      }
+    }
+
     setLocation(newLocation);
     updateInstructions(newLocation);
   };
 
-// Function to simulate route navigation
-const startRouteSimulation = (routeCoords, speed = 50) => {
-  if (locationSubscription) {
-    locationSubscription.remove();
-    setLocationSubscription(null); // Clear the subscription
-  }
+  // Function to calculate and update carbon footprint
+  const calculateAndUpdateCarbonFootprint = async (mode: string, distance: number) => {
+    let newFootprint = 0;
+    console.log('Calculating carbon footprint for', mode);
 
-  let index = 0;
-  const updateInterval = 1000; // Update every second
-  const distancePerUpdate = (speed * 1000) / 3600; // Speed in meters per second
-  
-  const intervalId = setInterval(() => {
-    if (index < routeCoords.length - 1) {
-      const start = routeCoords[index];
-      const end = routeCoords[index + 1];
-      const segmentDistance = getDistance(start, end);
-
-      if (segmentDistance > distancePerUpdate) {
-        const fraction = distancePerUpdate / segmentDistance;
-        const newLatitude = start.latitude + (end.latitude - start.latitude) * fraction;
-        const newLongitude = start.longitude + (end.longitude - start.longitude) * fraction;
-        const newLocation = {
-          coords: {
-            latitude: newLatitude,
-            longitude: newLongitude,
-            speed: speed, // Set a fixed speed for simulation
-            heading: calculateHeading(start, end),
-            accuracy: 5,
-            altitude: 5,
-          },
-          timestamp: Date.now(),
-        };
-        setLocation(newLocation as Location.LocationObject);
-        updateInstructions(newLocation as Location.LocationObject);
-
-        // Adjust start position closer to the end position
-        routeCoords[index] = {
-          latitude: newLatitude,
-          longitude: newLongitude,
-        };
-      } else {
-        index++;
+    if (mode === 'DRIVE') {
+      // Fetch the user's car consumption from the database
+      try {
+        if (user?.userId) {
+          const userDataRef = doc(db, "userData", user.userId);
+          const docSnapshot = await getDoc(userDataRef);
+          const userData = docSnapshot.data();
+          const carConsumption = userData?.consumption || undefined;
+          const carType = userData?.carType;  
+            // Calculate carbon footprint using car consumption
+            newFootprint = CalculateCarbonFootprint(distance / 1000, carType.toLowerCase(), carConsumption);
+        }
+      } catch (error) {
+        console.error("Error fetching car consumption data from the database:", error);
+        return;
       }
     } else {
-      clearInterval(intervalId);
+      // Calculate carbon footprint for other modes
+      newFootprint = CalculateCarbonFootprint(distance / 1000, mode); // Convert distance to kilometers
     }
-  }, updateInterval); // Update location every second
-};
+    setCarbonFootprint(prev => {
+      const updatedFootprint = prev + newFootprint;
+      updateCarbonFootprintInDB(updatedFootprint);
+      return updatedFootprint;
+    });
+  };
+  const updateCarbonFootprintInDB = async (newFootprint: number) => {
+    if (user?.userId) {
+      const userDataRef = doc(db, "userData", user.userId);
+      try {
+        // Fetch the current carbon footprint from the database
+        const userDoc = await getDoc(userDataRef);
+        let currentFootprint = 0;
+  
+        if (userDoc.exists()) {
+          currentFootprint = parseFloat(userDoc.data()?.carbonFootprint || '0');
+        }
+  
+        // Add the new footprint to the current footprint
+        const updatedFootprint = currentFootprint + newFootprint;
+  
+        // Update the carbon footprint in the database
+        await updateDoc(userDataRef, {
+          carbonFootprint: updatedFootprint.toFixed(1), // Store as rounded value
+        });
+      } catch (error) {
+        console.error("Error updating carbon footprint:", error);
+      }
+    }
+  };
 
+  const startRouteSimulation = (routeCoords, speed = 50) => {
+    if (locationSubscription) {
+      locationSubscription.remove();
+      setLocationSubscription(null); // Clear the subscription
+    }
+  
+    let index = 0;
+    const updateInterval = 1000; // Update every second
+    const distancePerUpdate = (speed * 1000) / 3600; // Speed in meters per second
+    let simulatedDistanceTraveled = 0; // Track the distance traveled in simulation
+  
+    const intervalId = setInterval(() => {
+      if (index < routeCoords.length - 1) {
+        const start = routeCoords[index];
+        const end = routeCoords[index + 1];
+        const segmentDistance = getDistance(start, end);
+  
+        if (segmentDistance > distancePerUpdate) {
+          const fraction = distancePerUpdate / segmentDistance;
+          const newLatitude = start.latitude + (end.latitude - start.latitude) * fraction;
+          const newLongitude = start.longitude + (end.longitude - start.longitude) * fraction;
+          const newLocation = {
+            coords: {
+              latitude: newLatitude,
+              longitude: newLongitude,
+              speed: speed, // Set a fixed speed for simulation
+              heading: calculateHeading(start, end),
+              accuracy: 5,
+              altitude: 5,
+            },
+            timestamp: Date.now(),
+          };
+  
+          // Update the location and instructions
+          setLocation(newLocation as Location.LocationObject);
+          updateInstructions(newLocation as Location.LocationObject);
+  
+          // Calculate the traveled distance in this segment and add it to the total
+          const distanceTraveledInSegment = getDistance(start, { latitude: newLatitude, longitude: newLongitude });
+          simulatedDistanceTraveled += distanceTraveledInSegment;
+          console.log(`Simulated distance traveled: ${simulatedDistanceTraveled} meters`);
+  
+          // If 100 meters or more has been traveled, update the carbon footprint
+          if (simulatedDistanceTraveled >= 100) {
+            calculateAndUpdateCarbonFootprint(selectedMode, 100);
+            simulatedDistanceTraveled -= 100; // Reset the distance counter after calculation
+          }
+  
+          // Adjust the start position closer to the end position
+          routeCoords[index] = {
+            latitude: newLatitude,
+            longitude: newLongitude,
+          };
+        } else {
+          index++;
+        }
+      } else {
+        clearInterval(intervalId); // Clear the interval when simulation is complete
+      }
+    }, updateInterval); // Update location every second
+  };
 
 
   // Function to center map on current location
@@ -332,10 +447,14 @@ const startRouteSimulation = (routeCoords, speed = 50) => {
   
       // Move to the next step and update instructions
       currentStep = stepsRef.current[0];
+      let nextManeuver = 'straight'; // Default maneuver is straight
+      if(stepsRef.current.length > 1) {
+        nextManeuver = stepsRef.current[1].maneuver || 'straight';
+      }
       const nextInstruction = {
         instructions: currentStep.navigationInstruction?.instructions || '',
-        distance: currentStep.distanceMeters,
-        maneuver: currentStep.navigationInstruction?.maneuver || 'straight',
+        distance: distanceToStepEnd,
+        maneuver: nextManeuver,
       };
       setInstructions(nextInstruction);
     } else {

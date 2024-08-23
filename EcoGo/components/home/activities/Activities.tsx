@@ -21,7 +21,7 @@ const predefinedActivities = [
   { label: "Car", value: "Car", icon: ICONS.car },
   { label: "Bus", value: "Bus", icon: ICONS.frontBus },
   { label: "Plane", value: "Plane", icon: ICONS.blackPlane },
-  { label: "Cycling", value: "Cycling", icon: ICONS.cycling },
+  { label: "Bicycle", value: "Bicycle", icon: ICONS.cycling },
 ];
 
 export default function Activities() {

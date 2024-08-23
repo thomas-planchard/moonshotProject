@@ -19,56 +19,60 @@ export default function Home() {
 
   const [movement, setMovement] = useState<MovementType>('Uncertain');
   const [appState, setAppState] = useState(AppState.currentState);
+  const [isMovementDetectionActive, setIsMovementDetectionActive] = useState(false);
 
+  // Always call the useMovementDetector hook
+  useMovementDetector({
+    onMovementChange: setMovement,
+    isActive: isMovementDetectionActive, // Pass the isActive state to the hook
+  });
 
-//   useMovementDetector({
-//     onMovementChange: setMovement,
-//   });
-
-// console.log(movement);
-useEffect(() => {
-  const requestLocationPermission = async () => {
-    let { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission to access location was denied');
-      return false;
-    }
-    return true;
-  };
-
-  const checkForActivities = async () => {
-    const activities = await getStoredActivities();
-    if (activities.length > 0) {
-      const lastActivity = activities[activities.length - 1];
-      Alert.alert(
-        'Activity Detected',
-        `You were ${lastActivity.movement}`,
-        [{ text: 'OK', onPress: () => AsyncStorage.removeItem('activities') }]
-      );
-    }
-  };
-
-  const handleAppStateChange = async (nextAppState) => {
-    if (appState.match(/inactive|background/) && nextAppState === 'active') {
-      const permissionGranted = await requestLocationPermission();
-      if (permissionGranted) {
-        checkForActivities();
+  useEffect(() => {
+    const requestLocationPermission = async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission to access location was denied');
+        return false;
       }
-    }
-    setAppState(nextAppState);
-  };
+      return true;
+    };
 
-  const subscription = AppState.addEventListener('change', handleAppStateChange);
+    const checkForActivities = async () => {
+      const activities = await getStoredActivities();
+      if (activities.length > 0) {
+        const lastActivity = activities[activities.length - 1];
+        Alert.alert(
+          'Activity Detected',
+          `You were ${lastActivity.movement}`,
+          [{ text: 'OK', onPress: () => AsyncStorage.removeItem('activities') }]
+        );
+      }
+    };
 
-  return () => {
-    subscription.remove();
-  };
-}, [appState]);
+    const handleAppStateChange = async (nextAppState) => {
+      if (appState.match(/inactive|background/) && nextAppState === 'active') {
+        const permissionGranted = await requestLocationPermission();
+        if (permissionGranted) {
+          checkForActivities();
+        }
+      }
 
+      // Enable movement detection only when the app is in background or inactive state
+      if (nextAppState.match(/inactive|background/)) {
+        setIsMovementDetectionActive(true);
+      } else {
+        setIsMovementDetectionActive(false);
+      }
 
+      setAppState(nextAppState);
+    };
 
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
 
-  
+    return () => {
+      subscription.remove();
+    };
+  }, [appState]);
 
   return (
     

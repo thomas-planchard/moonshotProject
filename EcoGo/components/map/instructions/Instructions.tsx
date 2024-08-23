@@ -72,11 +72,11 @@ const getStreetName = (instruction: string) => {
   return match ? match[1] : instruction;
 };
 
-export const Instructions: React.FC<InstructionsProps> = ({ instructions, distance }) => {
+const Instructions: React.FC<InstructionsProps> = ({ instructions, distance }) => {
   const turnDirection = getTurnDirection(instructions.maneuver);
   const streetName = getStreetName(instructions.instructions);
 
-  console.log('Instructions:', instructions);
+  // console.log('Instructions:', instructions);
 
   return (
     <View style={styles.instructionContainer}>

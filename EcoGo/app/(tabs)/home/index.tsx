@@ -1,4 +1,5 @@
-import { ScrollView, View, AppState, Alert, Text } from "react-native";
+import React from "react";
+import { ScrollView, View, AppState, Alert } from "react-native";
 import {
   Activities,
   Recommendation,
@@ -9,7 +10,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getStoredActivities } from "@/utils/AsyncStorage";
 import { useState, useEffect } from 'react';
 import * as Location from 'expo-location';
+import {useAuth} from '@/context/AuthContext';
 import styles from "@/components/home/whitebackground/whitebackground.style";
+import fetchUserData from "@/utils/fetchUserData";
 import { COLORS } from "@/constants";
 
 
@@ -20,6 +23,26 @@ export default function Home() {
   const [movement, setMovement] = useState<MovementType>('Uncertain');
   const [appState, setAppState] = useState(AppState.currentState);
   const [isMovementDetectionActive, setIsMovementDetectionActive] = useState(false);
+
+  // Get the user object from the AuthContext
+  const { user } = useAuth();
+
+  // Variables to hold user data
+  const [userData, setUserData] = useState<{ consumption?: number; carType?: string; carbonFootprint?: string; distance?: number; calories?: number; steps?: number  }>({});
+
+
+    // Effect to fetch user data from the database
+    useEffect(() => {
+      if (user?.userId) {
+        const fetchData = async () => {
+          const data = await fetchUserData(user.userId, ['consumption', 'carType', 'carbonFootprint', 'distance', 'calories', 'steps']);
+          setUserData(data || {});
+        };
+    
+        fetchData();
+      }
+    }, [user]);
+  
 
   // Always call the useMovementDetector hook
   useMovementDetector({
@@ -80,7 +103,9 @@ export default function Home() {
       <ScrollView showsVerticalScrollIndicator={false}>
           <Dashboard/>
           <View style = {styles.whiteBackground}>
-          <Activities />
+          <Activities 
+          data={userData}
+          />
           <Recommendation />
           </View>
       </ScrollView>

@@ -15,7 +15,8 @@ import {decodePolyline, getDistance, calculateHeading} from '@/utils/MapUtils';
 import FooterMap from './footer/FooterMap';
 import Instructions from './instructions/Instructions';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import { doc, updateDoc, getDoc } from 'firebase/firestore';
+import { updateDoc, doc } from 'firebase/firestore';
+import fetchUserData from '@/utils/fetchUserData';
 import { useAuth } from '@/context/AuthContext';
 import { db } from '@/FirebaseConfig';
 
@@ -47,6 +48,10 @@ const Map = () => {
   const [isFooterVisible, setIsFooterVisible] = useState<boolean>(true);
   const [totalDistanceTraveled, setTotalDistanceTraveled] = useState<number>(0);
   const previousLocation = useRef<{ latitude: number, longitude: number } | null>(null);
+
+  //Variables to hold user data
+  const [userData, setUserData] = useState<{ consumption?: number; carType?: string; carbonFootprint?: string }>({});
+
 
 
   // Refs 
@@ -88,6 +93,19 @@ const Map = () => {
       };
     })();
   }, []);
+
+  // Effect to fetch user data from the database
+  useEffect(() => {
+    if (user?.userId) {
+      const fetchData = async () => {
+        const data = await fetchUserData(user.userId, ['consumption', 'carType', 'carbonFootprint']);
+        setUserData(data || {});
+        console.log('Fetched Data:', data);
+      };
+  
+      fetchData();
+    }
+  }, [user]);
 
   // Effect to update map camera on location change
   useEffect(() => {
@@ -163,9 +181,6 @@ const Map = () => {
       // Fetch the user's car consumption from the database
       try {
         if (user?.userId) {
-          const userDataRef = doc(db, "userData", user.userId);
-          const docSnapshot = await getDoc(userDataRef);
-          const userData = docSnapshot.data();
           const carConsumption = userData?.consumption || undefined;
           const carType = userData?.carType;  
             // Calculate carbon footprint using car consumption
@@ -185,24 +200,20 @@ const Map = () => {
       return updatedFootprint;
     });
   };
+
   const updateCarbonFootprintInDB = async (newFootprint: number) => {
     if (user?.userId) {
       const userDataRef = doc(db, "userData", user.userId);
       try {
         // Fetch the current carbon footprint from the database
-        const userDoc = await getDoc(userDataRef);
-        let currentFootprint = 0;
-  
-        if (userDoc.exists()) {
-          currentFootprint = parseFloat(userDoc.data()?.carbonFootprint || '0');
-        }
-  
+        
+        console.log('Current Carbon Footprint:', userData?.carbonFootprint);
         // Add the new footprint to the current footprint
-        const updatedFootprint = currentFootprint + newFootprint;
+        const updatedFootprint = parseFloat(userData.carbonFootprint ?? '0') + newFootprint;
   
         // Update the carbon footprint in the database
         await updateDoc(userDataRef, {
-          carbonFootprint: updatedFootprint.toFixed(1), // Store as rounded value
+          carbonFootprint: updatedFootprint.toFixed(2), // Store as rounded value
         });
       } catch (error) {
         console.error("Error updating carbon footprint:", error);
@@ -397,7 +408,6 @@ const Map = () => {
   const updateInstructions = (newLocation) => {
     if (!destination || stepsRef.current.length === 0) return; // No destination set or no steps available
   
-    console.log('Current Steps:', stepsRef.current);
   
     const currentLatLng = {
       latitude: newLocation.coords.latitude,
@@ -573,7 +583,6 @@ const updateRemainingDistanceAndDuration = () => {
       }
 
       stepsRef.current = filteredSteps; // Update stepsRef to only include steps for the selected mode
-      console.log('Filtered Steps2:', stepsRef.current);
       startRouteSimulation(selectedOption.polyline);
       setModalVisible(false);
     } else {

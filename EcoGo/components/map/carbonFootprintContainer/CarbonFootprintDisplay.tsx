@@ -77,7 +77,7 @@ const CarbonFootprintDisplay: React.FC<CarbonFootprintDisplayProps> = ({ carbonF
         </G>
         </Svg>
         <View style={styles.carbonFootprintTextContainer}>
-          <Text style={styles.carbonFootprintText}>{carbonFootprint.toFixed(0)}</Text>
+          <Text style={styles.carbonFootprintText}>{carbonFootprint.toFixed(1)}</Text>
           <Text style={styles.carbonFootprintText2}>KG</Text>
         </View>
       </View>

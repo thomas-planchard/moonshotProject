@@ -28,14 +28,14 @@ export default function Home() {
   const { user } = useAuth();
 
   // Variables to hold user data
-  const [userData, setUserData] = useState<{ consumption?: number; carType?: string; carbonFootprint?: string; distance?: number; calories?: number; steps?: number  }>({});
+  const [userData, setUserData] = useState<{ consumption?: number; carType?: string; carbonFootprint?:number; }>({});
 
 
     // Effect to fetch user data from the database
     useEffect(() => {
       if (user?.userId) {
         const fetchData = async () => {
-          const data = await fetchUserData(user.userId, ['consumption', 'carType', 'carbonFootprint', 'distance', 'calories', 'steps']);
+          const data = await fetchUserData(user.userId, ['consumption', 'carType', 'carbonFootprint']);
           setUserData(data || {});
         };
     
@@ -103,9 +103,7 @@ export default function Home() {
       <ScrollView showsVerticalScrollIndicator={false}>
           <Dashboard/>
           <View style = {styles.whiteBackground}>
-          <Activities 
-          data={userData}
-          />
+          <Activities data={userData}/>
           <Recommendation />
           </View>
       </ScrollView>

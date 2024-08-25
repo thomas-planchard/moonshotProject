@@ -21,9 +21,6 @@ interface ActivityProps {
     consumption?: number;
      carType?: string; 
      carbonFootprint?: string; 
-     distance?: number; 
-     calories?: number; 
-     steps?: number
   };
 }
 

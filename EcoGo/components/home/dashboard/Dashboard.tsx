@@ -4,7 +4,7 @@ import { Pedometer } from "expo-sensors";
 import { widthPercentageToDP as wp } from "react-native-responsive-screen";
 import styles from "./dashboard.style";
 import { ICONS } from "@/constants";
-import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
+import { doc, onSnapshot, updateDoc, Unsubscribe } from 'firebase/firestore';
 import { db } from '../../../FirebaseConfig';
 import { useRouter } from "expo-router";
 import { ProfilImage } from "@/components/common/ProfilImage";
@@ -20,6 +20,7 @@ const Dashboard = () => {
   const [distance, setDistance] = useState(0);
   const [stepCount, setStepCount] = useState(0);
 
+
   // Define constants
   const strideLength = 0.78; // meters per step
   const userWeight = 70; // kg
@@ -34,75 +35,80 @@ const Dashboard = () => {
     return (metValue * userWeight * durationInHours).toFixed(2);
   };
 
-  useEffect(() => {
-    let subscription;
 
-    const subscribe = async () => {
+useEffect(() => {
+  let unsubscribe;
+  const fetchData = async () => {
+    try {
+      if (user && user.userId) {
+        const userDataRef = doc(db, "userData", user.userId);
+        unsubscribe = onSnapshot(userDataRef, (doc) => {
+          if (doc.exists()) {
+            const userData = doc.data();
+            setCarbonFootprint(userData.carbonFootprint || 0);
+            setCalories(userData.calories || 0);
+            setDistance(userData.distance || 0);
+            setStepCount(userData.steps || 0);
+          }
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  };
+  fetchData();
+  return () => {
+    if (unsubscribe) unsubscribe();
+  };
+}, [user]);
+
+
+  useEffect(() => {
+    let pedometerSubscription;
+
+    const initializePedometer = async () => {
       try {
-        const result = await Pedometer.isAvailableAsync();
-        setPedometerAvailability(result);
-        if (result) {
-          subscription = Pedometer.watchStepCount((result) => {
+        const isAvailible = await Pedometer.isAvailableAsync();
+        setPedometerAvailability(isAvailible);
+        if (isAvailible) {
+          pedometerSubscription = Pedometer.watchStepCount((result) => {
             const newSteps = result.steps;
+            const totalSteps = stepCount + newSteps;
+
+            console.log("New steps:", totalSteps);
             setStepCount((prevSteps) => prevSteps + newSteps); // Update steps locally
-            setDistance(calculateDistance(newSteps)); // Update distance locally
-            setCalories(calculateCalories(newSteps)); // Update calories locally
+            setDistance(parseFloat(calculateDistance(totalSteps))); // Update distance locally
+            setCalories(parseFloat(calculateCalories(totalSteps))); // Update calories locally
           });
         } else {
           Alert.alert("Pedometer not available", "Your device does not support the Pedometer sensor.");
         }
       } catch (error) {
-        setPedometerAvailability(false);
         console.error("Pedometer availability check failed:", error);
+        setPedometerAvailability(false);
       }
     };
 
-    subscribe();
+    initializePedometer();
 
     return () => {
-      subscription && subscription.remove();
+      if (pedometerSubscription) pedometerSubscription.remove();
     };
-  }, []);
+  }, [stepCount]);
 
-  useEffect(() => {
-    let unsubscribe;
-    const fetchData = async () => {
-      try {
-        if (user && user.userId) {
-          const userDataRef = doc(db, "userData", user.userId);
-          unsubscribe = onSnapshot(userDataRef, (doc) => {
-            if (doc.exists()) {
-              const userData = doc.data();
-              setCarbonFootprint(userData.carbonFootprint || 0);
-              setCalories(userData.calories || 0);
-              setDistance(userData.distance || 0);
-              setStepCount(userData.steps || 0);
-            }
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-      }
-    };
 
-    fetchData();
 
-    return () => {
-      if (unsubscribe) {
-        unsubscribe();
-      }
-    };
-  }, [user]);
 
   useEffect(() => {
     if (user && user.userId) {
       const intervalId = setInterval(async () => {
         try {
+          console.log("Updating user data...",distance, calories, stepCount); 
           const userDataRef = doc(db, "userData", user.userId);
           await updateDoc(userDataRef, {
             steps: stepCount,
-            calories: parseFloat(calories),
-            distance: parseFloat(distance),
+            calories: calories,
+            distance: distance,
           });
         } catch (error) {
           console.error("Error updating user data:", error);

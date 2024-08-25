@@ -30,6 +30,7 @@ const Map = () => {
   const { user } = useAuth(); // Get the user from the AuthContext
 
   // State variables
+  const [simulateTrip, setSimulateTrip] = useState<boolean | null>(null);
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
   const [locationSubscription, setLocationSubscription] = useState<Location.LocationSubscription | null>(null);
   const [carbonFootprint, setCarbonFootprint] = useState<number>(0);
@@ -61,7 +62,22 @@ const Map = () => {
   const distanceTraveled = useRef(0); // Track the cumulative distance traveled
 
 
-  // Effect to watch for location changes
+
+  // Effect to fetch user data from the database
+  useEffect(() => {
+      if (user?.userId) {
+        const fetchData = async () => {
+          const data = await fetchUserData(user.userId, ['consumption', 'carType', 'carbonFootprint']);
+          setUserData(data || {});
+          console.log('Fetched Data:', data);
+        };
+    
+        fetchData();
+      }
+  }, [user]);
+
+
+  // Effect to fetch the real location initially
   useEffect(() => {
     (async () => {
       let location = await Location.getCurrentPositionAsync({});
@@ -94,18 +110,8 @@ const Map = () => {
     })();
   }, []);
 
-  // Effect to fetch user data from the database
-  useEffect(() => {
-    if (user?.userId) {
-      const fetchData = async () => {
-        const data = await fetchUserData(user.userId, ['consumption', 'carType', 'carbonFootprint']);
-        setUserData(data || {});
-        console.log('Fetched Data:', data);
-      };
-  
-      fetchData();
-    }
-  }, [user]);
+
+
 
   // Effect to update map camera on location change
   useEffect(() => {
@@ -192,7 +198,12 @@ const Map = () => {
       }
     } else {
       // Calculate carbon footprint for other modes
+      if (mode === "TRANSIT") {
+        mode = "BUS";
+      }
+      else{
       newFootprint = CalculateCarbonFootprint(distance / 1000, mode); // Convert distance to kilometers
+      }
     }
     setCarbonFootprint(prev => {
       const updatedFootprint = prev + newFootprint;
@@ -304,7 +315,6 @@ const Map = () => {
   };
 
 
-
   const getRoute = async () => {
     if (!location || !destination) return;
   
@@ -403,7 +413,6 @@ const Map = () => {
     }
   };
 
-
   
   const updateInstructions = (newLocation) => {
     if (!destination || stepsRef.current.length === 0) return; // No destination set or no steps available
@@ -451,7 +460,7 @@ const Map = () => {
           distance: 0,
           maneuver: 'straight',
         });
-        resetMapState(); // Reset the map state
+        resetMapState(false); // Reset the map state
         return;
       }
   
@@ -506,8 +515,7 @@ const updateRemainingDistanceAndDuration = () => {
 };
 
 
-
-  // Function to handle zoom changes + detect if the user touches the map
+// Function to handle zoom changes + detect if the user touches the map
   const handleZoomChange = async () => {
     if (mapRef.current) {
       const camera = await mapRef.current?.getCamera();
@@ -538,58 +546,80 @@ const updateRemainingDistanceAndDuration = () => {
         });
       }
     }
+ };
+
+const resetMapState = async (cancel: boolean) => {
+  const resetActions = () => {
+    setRouteCoords([]); // Clear the polyline
+    setInstructions(null); // Clear the instructions
+    stepsRef.current = []; // Clear the steps
+    setDestination(''); // Clear the destination
+    setArrivalTime(''); // Clear the arrival time
+    setDistance(0); // Reset the distance
+    setDuration(''); // Clear the duration
   };
 
-
-  const resetMapState = async () => {
-    // Set a 10-second delay before resetting the map
-    setTimeout(async () => {
-      setRouteCoords([]); // Clear the polyline
-      setInstructions(null); // Clear the instructions
-      stepsRef.current = []; // Clear the steps
-      setDestination(''); // Clear the destination
-      setArrivalTime(''); // Clear the arrival time
-      setDistance(0); // Reset the distance
-      setDuration(''); // Clear the duration
-  
-      // Optionally, restart location updates
-      if (!locationSubscription) {
-        const subscription = await Location.watchPositionAsync(
-          {
-            accuracy: Location.Accuracy.High,
-            distanceInterval: 10,
-            timeInterval: 1000,
-          },
-          (newLocation) => {
-            updateLocation(newLocation);
-          }
-        );
-        setLocationSubscription(subscription);
-      }
-    }, 10000); // 10 seconds delay (10000 milliseconds)
-  };
-
+  if (cancel) {
+    resetActions();
+  } else {
+    // Set a 10-second delay before resetting the map if not cancelled
+    setTimeout(resetActions, 10000); // 10 seconds delay (10000 milliseconds)
+  }
+};
 
   const startNavigation = () => {
     const selectedOption = transportOptions.find(option => option.mode === selectedMode);
-    
-    if (selectedOption && selectedOption.polyline && selectedOption.polyline.length > 0) {
-      // Filter steps based on selected mode
-      const filteredSteps = stepsRef.current.filter(step => step.travelMode === selectedMode);
 
-      if (filteredSteps.length === 0) {
-        console.error(`No steps found for the selected mode: ${selectedMode}`);
+    if (!selectedOption || !selectedOption.polyline || selectedOption.polyline.length === 0) {
+        console.error('Selected option does not have a valid polyline');
         return;
-      }
-
-      stepsRef.current = filteredSteps; // Update stepsRef to only include steps for the selected mode
-      startRouteSimulation(selectedOption.polyline);
-      setModalVisible(false);
-    } else {
-      console.error('Selected option does not have a valid polyline');
     }
-  };
 
+    // Prompt the user to choose between simulation or real navigation
+    Alert.alert(
+        'Start Trip',
+        'Do you want to simulate the trip or use real navigation?',
+        [
+            {
+                text: 'Simulate Trip',
+                onPress: () => {
+                    setSimulateTrip(true);
+                    startRouteSimulation(selectedOption.polyline); // Start the simulation
+                    setModalVisible(false);
+                }
+            },
+            {
+                text: 'Use Real Location',
+                onPress: () => {
+                    setSimulateTrip(false);
+                    if (locationSubscription) {
+                        // If there's an existing location subscription, resume it
+                        locationSubscription.remove(); // Stop the subscription to prevent multiple updates
+                    }
+                    const filteredSteps = stepsRef.current.filter(step => step.travelMode === selectedMode);
+
+                    if (filteredSteps.length === 0) {
+                        console.error(`No steps found for the selected mode: ${selectedMode}`);
+                        return;
+                    }
+
+                    stepsRef.current = filteredSteps; // Update stepsRef to only include steps for the selected mode
+                    setLocationSubscription(locationSubscription); // Resume real location updates
+                    setModalVisible(false);
+                }
+            },
+            {
+                text: 'Cancel',
+                style: 'cancel',
+                onPress: () => {
+                    resetMapState(true); // Reset the map state
+                    console.log('Navigation canceled');
+                }
+            },
+        ],
+        { cancelable: true }
+    );
+};
 
 
   useEffect(() => {
@@ -599,7 +629,33 @@ const updateRemainingDistanceAndDuration = () => {
   }, [selectedMode, transportOptions]);
 
 
+  const startSimulationOrNavigation = () => {
+    if (simulateTrip) {
+      startRouteSimulation(routeCoords);
+    } else {
+      startNavigation();
+    }
+  };
 
+  // Function to confirm destination and present the choice to simulate or navigate
+  const confirmDestination = () => {
+    if (!destination) return;
+
+    setModalVisible(true); // Show modal to choose travel mode
+
+    // Present the user with an option to simulate or use real location for the trip
+    Alert.alert(
+      'Start Trip',
+      'Do you want to simulate the trip or use real navigation?',
+      [
+        { text: 'Simulate Trip', onPress: () => setSimulateTrip(true) },
+        { text: 'Use Real Location', onPress: () => setSimulateTrip(false) },
+        { text: 'Cancel', style: 'cancel' },
+      ],
+      { cancelable: true }
+    );
+  };
+  
 
   // If location is not available, show loading screen
   if (!location) {

@@ -2,6 +2,7 @@ import { StyleSheet } from "react-native";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 import { SIZES, COLORS } from "../../constants";
+import { Button } from "react-native-paper";
 
 const styles = StyleSheet.create({
     container: {
@@ -44,7 +45,7 @@ const styles = StyleSheet.create({
       justifyContent: "space-evenly",
       alignItems: "center",
       gap: wp(40),
-    },
+    }
   });
 
 

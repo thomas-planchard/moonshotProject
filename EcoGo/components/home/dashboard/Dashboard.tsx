@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { View, Text, Image, TouchableOpacity, Alert } from "react-native";
 import { Pedometer } from "expo-sensors";
 import { widthPercentageToDP as wp } from "react-native-responsive-screen";
@@ -20,6 +20,12 @@ const Dashboard = () => {
   const [distance, setDistance] = useState(0);
   const [stepCount, setStepCount] = useState(0);
 
+  // Create refs to store previous values
+  const prevStepCount = useRef(stepCount);
+  const prevCalories = useRef(calories);
+  const prevDistance = useRef(distance);
+
+
 
   // Define constants
   const strideLength = 0.78; // meters per step
@@ -27,10 +33,10 @@ const Dashboard = () => {
   const metValue = 3.5; // MET value for walking
 
   // Calculate distance in kilometers
-  const calculateDistance = (steps) => ((steps * strideLength) / 1000).toFixed(2);
+  const calculateDistance = (steps: number) => ((steps * strideLength) / 1000).toFixed(2);
 
   // Calculate calories burned
-  const calculateCalories = (steps) => {
+  const calculateCalories = (steps: number) => {
     const durationInHours = steps / 5000; // assuming 5000 steps/hour
     return (metValue * userWeight * durationInHours).toFixed(2);
   };
@@ -98,27 +104,36 @@ useEffect(() => {
 
 
 
-
   useEffect(() => {
     if (user && user.userId) {
       const intervalId = setInterval(async () => {
-        try {
-          console.log("Updating user data...",distance, calories, stepCount); 
+        // Only update Firestore if the values have changed
+        if (
+          stepCount !== prevStepCount.current ||
+          calories !== prevCalories.current ||
+          distance !== prevDistance.current
+        ) {
+          console.log("Updating user data...", distance, calories, stepCount);
+  
           const userDataRef = doc(db, "userData", user.userId);
           await updateDoc(userDataRef, {
             steps: stepCount,
             calories: calories,
             distance: distance,
           });
-        } catch (error) {
-          console.error("Error updating user data:", error);
+  
+          // Update the refs with the current values
+          prevStepCount.current = stepCount;
+          prevCalories.current = calories;
+          prevDistance.current = distance;
         }
       }, 60000); // Update every 60 seconds
-
-      return () => clearInterval(intervalId); // Clear interval on component unmount
+  
+      return () => clearInterval(intervalId);
     }
   }, [stepCount, calories, distance, user]);
 
+  
   const goToInfoUser = () => {
     routing.navigate("screens/InfoUser");
   };

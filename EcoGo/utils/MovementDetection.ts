@@ -5,7 +5,7 @@ import Geolocation from 'react-native-geolocation-service';
 import { map, filter } from 'rxjs/operators';
 import { storeActivity } from './AsyncStorage';
 
-type MovementType = 'Walking' | 'Driving' | 'Cycling or in a bus' | 'Uncertain'; //Possible output
+export type MovementType = 'Walking' | 'Driving' | 'Cycling or in a bus' | 'Uncertain'; //Possible output
 
 interface MovementDetectorProps {
   onMovementChange: (movement: MovementType) => void;

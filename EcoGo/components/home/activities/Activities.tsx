@@ -18,7 +18,7 @@ const predefinedActivities = [
 
 interface ActivityProps {
   data: {
-    consumption?: number;
+     consumption?: number;
      carType?: string; 
      carbonFootprint?: string; 
   };

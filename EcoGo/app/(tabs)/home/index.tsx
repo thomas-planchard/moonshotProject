@@ -5,7 +5,7 @@ import {
   Recommendation,
   Dashboard,
 } from "../../../components";
-import { useMovementDetector } from '@/utils/MovementDetection';
+import { useMovementDetector, MovementType } from '@/utils/MovementDetection';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getStoredActivities } from "@/utils/AsyncStorage";
 import { useState, useEffect } from 'react';
@@ -14,8 +14,6 @@ import {useAuth} from '@/context/AuthContext';
 import styles from "@/components/home/whitebackground/whitebackground.style";
 import fetchUserData from "@/utils/fetchUserData";
 import { COLORS } from "@/constants";
-
-
 
 
 export default function Home() {

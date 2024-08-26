@@ -60,6 +60,7 @@
 - [11. Technical Requirements](#11-technical-requirements)
   - [11.1. Risks and Assumptions](#111-risks-and-assumptions)
     - [➭ Assumptions](#-assumptions)
+- [12. Sources of Information](#12-sources-of-information)
 
 </details>
 
@@ -115,24 +116,28 @@ The development of EcoGo is driven by the global need for actionable steps towar
 ![Persona 1](./Img/persona1.png)
 
 
-**Persona 1 -Chris Iddleton:**
+**Persona 2 -Lucas Dubois:**
 
 ![Persona 2](./Img/persona2.png)
 
 
-**Persona 1 -Sam Rotter:**
+**Persona 3 -Emily Roberts:**
 
 ![Persona 3](./Img/persona3.png)
 
 
-**Persona 1 -Carla Joy:**
+**Persona 4 -Thomas Müller:**
 
 ![Persona 4](./Img/persona4.png)
 
 
-**Persona 1 -Fred Parker:**
+**Persona 5 -Aisha Khan:**
 
 ![Persona 5](./Img/persona5.png)
+
+**Persona 6 -Mark Johnson:**
+
+![Persona 5](./Img/persona6.png)
 
 
   
@@ -907,4 +912,9 @@ The initial design of the app was done using Figma. Figma facilitated the creati
 | **10. User Feedback:** It is assumed that users will actively provide feedback on the app. | Create easy channels for feedback within the app and incentivize users to share their thoughts. |
 
 
+
+## 12. Sources of Information
+
+https://ourworldindata.org/travel-carbon-footprint#:~:text=A%20domestic%20flight%20emits%20246%20grams%20per%20kilometer.
+https://www.epa.gov/greenvehicles/greenhouse-gas-emissions-typical-passenger-vehicle
 

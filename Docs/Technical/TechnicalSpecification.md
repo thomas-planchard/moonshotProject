@@ -49,7 +49,11 @@
       - [➭ Step-by-Step Navigation](#-step-by-step-navigation)
       - [➭ Simulating User Navigation](#-simulating-user-navigation)
     - [4.3.6. Determining The Mode Of Transportation](#436-determining-the-mode-of-transportation)
-    - [4.3.7.](#437)
+    - [4.3.7. Carbon Footprint Calculation](#437-carbon-footprint-calculation)
+      - [➭ Define Constants](#-define-constants)
+    - [➭ Function](#-function)
+    - [➭ Usage of the Function](#-usage-of-the-function)
+    - [➭ Usage In The Navigation](#-usage-in-the-navigation)
   - [5. Implementation Plan](#5-implementation-plan)
     - [5.1. Development Strategy](#51-development-strategy)
     - [5.2. Milestones and Phases](#52-milestones-and-phases)
@@ -298,20 +302,16 @@ Their usage will be described in detail in their respective section.
 ├── app/
 │   ├── SignIn.tsx
 │   ├── SignUp.tsx
-│   ├── _layout.tsx
 │   ├── index.tsx
 │   ├── (tabs)/
 │   │   ├── Challenges.tsx
 │   │   ├── Gps.tsx
 │   │   ├── Profile.tsx
 │   │   ├── Store.tsx
-│   │   ├── _layout.tsx
 │   │   └── home/
-│   │       ├── _layout.tsx
 │   │       └── index.tsx
 │   └── screens/
 │       ├── InfoUser.tsx
-│       ├── _layout.tsx
 │
 ├── assets/
 │   ├── icon.png
@@ -322,73 +322,11 @@ Their usage will be described in detail in their respective section.
 ├── components/
 │   ├── index.ts
 │   ├── common/
-│   │   ├── CheckConnection.tsx
-│   │   ├── CustomKeyboardView.tsx
-│   │   ├── Loading.tsx
-│   │   ├── LoadingMap.tsx
-│   │   ├── ProfilImage.tsx
-│   │   └── footer/
-│   │       └── footer.style.ts
 │   ├── home/
-│   │   ├── activities/
-│   │   │   ├── Activities.tsx
-│   │   │   └── activities.style.ts
-│   │   ├── dashboard/
-│   │   │   ├── Dashboard.tsx
-│   │   │   └── dashboard.style.ts
-│   │   └── recommendation/
-│   │       ├── Recommendation.tsx
-│   │       └── recommendation.style.ts
-│   ├── home/whitebackground/
-│   │   └── whitebackground.style.ts
 │   ├── map/
-│   │   ├── Map.tsx
-│   │   ├── map.style.ts
-│   │   ├── carbonFootprintContainer/
-│   │   │   ├── CarbonFootprintDisplay.tsx
-│   │   │   └── carbonfootprintcontainer.style.ts
-│   │   ├── footer/
-│   │   │   ├── FooterMap.tsx
-│   │   │   └── footer.style.ts
-│   │   ├── instructions/
-│   │   │   ├── Instructions.tsx
-│   │   │   └── instructions.style.ts
-│   │   └── modalTransportationChoice/
-│   │       ├── TransportationModal.tsx
-│   │       └── transportationmodal.style.ts
 │   ├── profil/
-│   │   ├── friendsnumber/
-│   │   │   ├── FriendsNumber.tsx
-│   │   │   └── friendsnumber.style.ts
-│   │   ├── graphique/
-│   │   │   ├── Graphique.tsx
-│   │   │   └── graphique.style.ts
-│   │   ├── nameandprofile/
-│   │   │   ├── NameAndProfile.tsx
-│   │   │   └── nameandprofile.style.ts
-│   │   └── totaldata/
-│   │       ├── TotalData.tsx
-│   │       └── totaldata.style.ts
 │   └── screens/infoUser/
-│       ├── infoUser.style.ts
-│       ├── editProfileModal/
-│       │   ├── EditProfileComponent.tsx
-│       │   └── editProfile.style.ts
-│       ├── personalInfo/
-│       │   └── PersonalInfo.tsx
-│       └── policies/
-│           ├── Policies.tsx
-│           └── policies.style.ts
 │   ├── store/
-│   │   ├── popularcategories/
-│   │   │   ├── PopularCategories.tsx
-│   │   │   └── popularcategories.style.ts
-│   │   ├── sales/
-│   │   │   ├── Sales.tsx
-│   │   │   └── sales.style.ts
-│   │   └── spotlight/
-│   │       ├── Spotlight.tsx
-│   │       └── spotlight.style.ts
 │
 ├── constants/
 │   ├── data.ts
@@ -410,17 +348,49 @@ Their usage will be described in detail in their respective section.
 
 ### 4.2. File and Directory Purposes
 
-//TODO: Add descriptions for each file and directory
+- **`.env`**: This file contains will contain the API key. It will be used to store sensitive information and environment variables securely.
 
-- **`app/`**: Contains all the principal pages of the app. Pages outside of tabs (e.g., `SignIn.tsx`, `SignUp.tsx`) are accessible without authentication, while pages within the tabs (e.g., `Challenges.tsx`, `Gps.tsx`) are protected by the `AuthContext` and require the user to be logged in.
+- **`.gitignore`**: Specifies files and directories that should be ignored by Git.
 
-- **`assets/`**: Stores all the static assets used in the app, including images, icons, and animations. These are used to provide visual content within the app.
+- **`FirebaseConfig.ts`**: Contains the configuration and initialization code for connecting the app to Firebase services, such as authentication and database.
 
-- **`constants/`**: Contains data that should remain constant throughout the app, such as paths to icons, theme settings, and standard data related to carbon emissions. These constants help ensure consistency across the app.
+- **`app.json`**: This file holds metadata about the app, including the name, version, and platform-specific settings for React Native.
 
-- **`context/`**: Contains the `AuthContext.tsx` file, which is responsible for managing the authentication state, including login and logout functionality. 
+- **`babel.config.js`**: Configuration file for Babel, a JavaScript compiler that transpiles modern JavaScript syntax for compatibility with older environments.
 
-- **`ios/`**: Contains all the files related to building the iOS version of the app. This includes configuration files, project settings, and other necessary components for compiling the app for iOS devices.
+- **`global.css`**: A global stylesheet that applies base styles across the entire application.
+
+- **`metro.config.js`**: Configuration for Metro, the JavaScript bundler used by React Native.
+
+- **`package-lock.json`**: Automatically generated file that locks the versions of installed dependencies, ensuring consistent installs across different environments.
+
+- **`package.json`**: Contains metadata about the project, including dependencies, scripts, and configurations. It is the core file for managing the Node.js project.
+
+- **`tailwind.config.js`**: Configuration for Tailwind CSS. This file customizes the design system used in the app.
+
+- **`tsconfig.json`**: Configuration file for TypeScript, specifying compiler options and settings that affect the type-checking behavior.
+
+- **`app/`**: 
+  - **Pages**: Houses the main pages of the app, and the various tabs under `(tabs)/`. Non-tab pages like `SignIn.tsx` are accessible without authentication, while tab pages are behind the authentication check.
+  - **`screens/`**: Stores additional screen components, which are used within the app’s navigation flow.
+
+- **`assets/`**: 
+  - **Static Assets**: Contains images, icons, and animations that the app uses to provide visual content.
+
+- **`components/`**: 
+  - **Reusable Components**: Contains common, home, map, profile, and store components. Each subfolder organizes components by their usage within different parts of the app, making it easier to maintain and reuse code.
+
+- **`constants/`**: 
+  - **App-Wide Constants**: Stores data that should remain consistent across the app, like icon paths (`icons.ts`), theme settings (`theme.ts`), and other standard data (`data.ts`, `index.ts`).
+
+- **`context/`**: 
+  - **Authentication State**: Contains the `AuthContext.tsx`, which manages the authentication state.
+
+- **`ios/`**: 
+  - **iOS-Specific Files**: Includes files necessary for building and running the app on iOS devices.
+
+- **`utils/`**: 
+  - **Utility Functions**: Houses utility functions and helper modules that provide reusable logic and operations used throughout the app.
 
 
 ### 4.3. Step-by-Step Project Setup and Development
@@ -889,8 +859,6 @@ Once the user selects a destination, another request will be sent to the Places 
        3. The API returns a list of place suggestions, which are sorted to favor places within the user's current country.
        4. The sorted suggestions are stored and displayed in a list below the input field.
 
-<!--! debouncing mechanism when fetching suggestions from the API, it will reduce the number of calls while improving the performances  -->
-
 
 ![Fetch Place Suggestions](./Img/inputLocation.png)
 
@@ -1017,7 +985,7 @@ In the response, the encoded polyline under `overview_polyline.points` needs to 
   ```
 
 4. **Send API Request**:
-   - The app makes a POST request to the **Google Maps Directions API** using the constructed request body and the API key. The API response includes the route details, which are then processed.
+   - The app constructs a POST request to the Google Maps Directions API using the built request body and the API key. To handle the multiple travel modes, all the requests are stored in an array. The array of requests is then executed using Promise.all, which sends all the requests simultaneously. This approach ensures that all route details for the different travel modes are retrieved efficiently.
 
    ```javascript
      `https://routes.googleapis.com/directions/v2:computeRoutes?key=${GOOGLE_MAPS_APIKEY}`,
@@ -1323,7 +1291,7 @@ The function `startRouteSimulation` will be central for this feature. It will be
 
 #### 4.3.6. Determining The Mode Of Transportation
 
-To calculate the carbon footprint of a user's journey, the app must first determine the mode of transportation being used. The app will utilize built-in sensors such as GPS, accelerometer, and gyroscope to detect the user's movement and infer the mode of transportation based on the data collected. Notably, these data are processed in real-time and are not stored in any form. The following steps outline how the app will handle transportation mode selection:
+To calculate the carbon footprint of a user's journey, the app must first determine the mode of transportation being used. The app will utilize built-in sensors such as GPS, accelerometer, and gyroscope to detect the user's movement and infer the mode of transportation based on the data collected. Notably, these data are processed in real-time and are not stored in the database. The following steps outline how the app will handle transportation mode selection:
 
 1. **Sensor Data Collection**:
    - The app will collect sensor data, including GPS location, accelerometer readings, and gyroscope data, to monitor the user's movement patterns.
@@ -1335,16 +1303,98 @@ To calculate the carbon footprint of a user's journey, the app must first determ
    - An algorithm will analyze the data to distinguish between walking, cycling, driving, and public transportation based on factors such as speed, acceleration, and movement patterns.
     ![Data Processing](./Img/detectionAlgorithm.png)
 3. **Limitations and Considerations**:
-   - The app will account for scenarios where multiple modes of transportation are used in a single journey (e.g., walking to a bus stop, then taking a bus).
-   - The algorithm will be designed to be robust, handling variations in sensor data due to factors like signal interference, device orientation, and user behavior.
-   - Privacy concerns will be addressed by ensuring that sensor data is anonymized, processed in real-time, and not stored on the device or transmitted to external servers.
+   - The app will account for scenarios where multiple modes of transportation are detected within a single journey. However, only those modes where the distance traveled exceeds 100 meters will be considered. If the user switches between several transportation modes without reopening the app, they will be prompted to review and confirm these activities the next time they open the app.
+   - The activity tracking data will be stored locally in the app’s cache until the user reopens the app. Upon reopening, the user will be prompted to review and confirm or dismiss the detected activities. Once the user has made their selection, the cache will be cleared to prevent the app from being overloaded with non-relevant information.
   
 **Why Use GPS Alongside Accelerometer and Gyroscope?**
 
 GPS data provides crucial location information, which can validate the inferences made from the accelerometer and gyroscope. By cross-referencing data from different sensors, the app can improve the accuracy of transportation mode detection. For instance, GPS can confirm that the user is moving at a speed consistent with driving when the accelerometer indicates high acceleration. Additionally, GPS can provide contextual data, such as proximity to road networks or transit routes, further enhancing mode detection accuracy.
 
 
-#### 4.3.7. 
+#### 4.3.7. Carbon Footprint Calculation
+
+In this section, we'll centralize the carbon footprint calculations to avoid redundant code across the app. The carbon footprint calculations will be encapsulated in a single function within a dedicated file, ensuring consistency and ease of maintenance. 
+
+##### ➭ Define Constants
+
+To avoid errors, it is better to define the constants that will be used in the formula. Specifically, the consumption rates for cars and the emissions factors for different modes of transportation should be clearly defined upfront.
+
+```typescript
+const TRANSPORTATION_EMISSIONS = {
+  plane: 0.246,    // kg CO2 per km
+  bus: 0.101,      // kg CO2 per km
+  bicycle: 0.021,  // kg CO2 per km
+  walk: 0,         // kg CO2 per km (assumed zero emissions)
+  fuel: 2.31,      // kg CO2 per liter (for cars using gasoline)
+  gazoil: 2.68,    // kg CO2 per liter (for cars using diesel)
+  electric: 0.012, // kg CO2 per kWh
+};
+
+const CONSUMPTION_RATES = {
+  fuel: 0.07,      // liters per km for gasoline cars
+  gazoil: 0.06,    // liters per km for diesel cars
+  electric: 0.139, // kWh per km for electric cars
+};
+```
+
+#### ➭ Function
+This function will take three parameters:
+
+- `distance`: The distance traveled in kilometers.
+- `transportation`: The mode of transportation used.
+- `consumption`: Optional consumption rate for vehicles (e.g., fuel consumption per km).
+
+The function will use these parameters to calculate the carbon footprint of the trip in kg CO2.
+
+1. **Initialization**: 
+   - `carbonFootprint` is initialized to 0. This variable will hold the final CO2 emissions value.
+
+2. **Fuel or Diesel Cars**:
+   - If the transportation mode is either 'fuel' (gasoline) or 'gazoil' (diesel), the formula first calculates the amount of fuel used over the given distance. 
+   - The fuel used is computed by multiplying the `consumption` rate (liters per 100 km) by the `distance` and then dividing by 100 to adjust for the units. 
+   - The carbon footprint is then calculated by multiplying the fuel used by the corresponding emissions factor from the `TRANSPORTATION_EMISSIONS` constant.
+
+3. **Electric Vehicles**:
+   - For electric vehicles, the formula calculates the electricity consumed either directly from a provided `consumption` rate or from a default rate stored in `CONSUMPTION_RATES`.
+   - The electricity used is then multiplied by the emissions factor for electricity, yielding the carbon footprint.
+
+4. **Other Transportation Modes**:
+   - For all other modes of transportation, the carbon footprint is directly calculated by multiplying the distance by the relevant emissions factor from `TRANSPORTATION_EMISSIONS`. 
+
+5. **Return Value**:
+   - The function returns the calculated `carbonFootprint` value, representing the CO2 emissions for the given trip.
+
+
+#### ➭ Usage of the Function
+
+Once the file is created and the function is implemented, it can be imported and used across the app. 
+
+**Example Use Case:**
+
+In the activity detection feature, when the user reopens the app and confirms the detected activity, the app will calculate the carbon footprint based on the mode of transportation and the distance traveled. 
+
+- **User Confirmation:** When the user confirms the activity details (e.g., mode and distance), the app calls the function with the corresponding parameters.
+- **Data Storage:** The returned carbon footprint value is then saved in the database, associated with the user's profile.
+
+#### ➭ Usage In The Navigation 
+
+To ensure efficient performance during navigation, the app will calculate the carbon footprint at intervals of every 100 meters traveled. This approach avoids continuous calculations that could slow down the app. 
+
+1. **Distance Tracking State**:
+   - We will maintain a state variable, `distanceAccumulated`, which tracks the cumulative distance traveled since the last carbon footprint calculation.
+
+2. **Distance Check**:
+   - Every time the app updates the user's location, the distance traveled since the last update is added to `distanceAccumulated`.
+
+3. **Carbon Footprint Calculation**:
+   - When `distanceAccumulated` reaches or exceeds 100 meters, the app triggers the carbon footprint calculation for the selected mode of transportation.
+   - The calculation is performed using the function for the carbon, which takes into account the 100 meters traveled and the user's chosen mode of transportation.
+   - After calculating the carbon footprint, the app subtracts 100 meters from `distanceAccumulated`. Any remaining distance (if `distanceAccumulated` was more than 100 meters) is carried over to the next calculation cycle.
+
+4. **Efficiency Consideration**:
+   - This method ensures that the carbon footprint is calculated efficiently, minimizing the processing load on the app. It strikes a balance between accuracy and performance, ensuring that the app remains responsive during navigation while still providing timely updates on the user's carbon emissions.
+
+![Carbon Footprint Calculation](./Img/footprintNavigation.png.png)
 
 ### 5. Implementation Plan
 

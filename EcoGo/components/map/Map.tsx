@@ -77,40 +77,20 @@ const Map = () => {
   }, [user]);
 
 
-  // Effect to fetch the real location initially
-  useEffect(() => {
-    (async () => {
-      let location = await Location.getCurrentPositionAsync({});
-      setLocation(location);
-      const reverseGeocode = await Location.reverseGeocodeAsync({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-      });
+ useEffect(() => {
+  (async () => {
+    let location = await Location.getCurrentPositionAsync({});
+    setLocation(location);
+    const reverseGeocode = await Location.reverseGeocodeAsync({
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude,
+    });
 
-      if (reverseGeocode.length > 0) {
-        setCountryCode(reverseGeocode[0].isoCountryCode);
-      }
-
-      const subscription = await Location.watchPositionAsync(
-        {
-          accuracy: Location.Accuracy.High,
-          distanceInterval: 10, // Update every 10 meters
-          timeInterval: 1000, // Update every second
-        },
-        (newLocation) => {
-          updateLocation(newLocation);
-        }
-      );
-
-      setLocationSubscription(subscription); // Store the subscription
-
-      return () => {
-        subscription.remove();
-      };
-    })();
-  }, []);
-
-
+    if (reverseGeocode.length > 0) {
+      setCountryCode(reverseGeocode[0].isoCountryCode);
+    }
+  })();
+}, []);
 
 
   // Effect to update map camera on location change
@@ -146,12 +126,7 @@ const Map = () => {
       distanceTraveled.current += distance;
       setTotalDistanceTraveled(prev => prev + distance); // Update total distance traveled
 
-      console.log(`Distance traveled: ${distanceTraveled.current} meters`);
-
-          // Calculate heading
       const heading = calculateHeading(previousLocation.current, newPoint);
-
-
 
       if (distanceTraveled.current >= 100) {
         calculateAndUpdateCarbonFootprint(selectedMode, 100);
@@ -173,7 +148,6 @@ const Map = () => {
         }, { duration: 1000 });
       }
     }
-
     setLocation(newLocation);
     updateInstructions(newLocation);
   };
@@ -181,8 +155,6 @@ const Map = () => {
   // Function to calculate and update carbon footprint
   const calculateAndUpdateCarbonFootprint = async (mode: string, distance: number) => {
     let newFootprint = 0;
-    console.log('Calculating carbon footprint for', mode);
-
     if (mode === 'DRIVE') {
       // Fetch the user's car consumption from the database
       try {
@@ -202,7 +174,7 @@ const Map = () => {
         mode = "BUS";
       }
       else{
-      newFootprint = CalculateCarbonFootprint(distance / 1000, mode); // Convert distance to kilometers
+      newFootprint = CalculateCarbonFootprint(distance / 1000, mode.toLowerCase()); // Convert distance to kilometers
       }
     }
     setCarbonFootprint(prev => {
@@ -216,12 +188,8 @@ const Map = () => {
     if (user?.userId) {
       const userDataRef = doc(db, "userData", user.userId);
       try {
-        // Fetch the current carbon footprint from the database
-        
-        console.log('Current Carbon Footprint:', userData?.carbonFootprint);
         // Add the new footprint to the current footprint
         const updatedFootprint = parseFloat(userData.carbonFootprint ?? '0') + newFootprint;
-  
         // Update the carbon footprint in the database
         await updateDoc(userDataRef, {
           carbonFootprint: updatedFootprint.toFixed(2), // Store as rounded value
@@ -237,7 +205,6 @@ const Map = () => {
       locationSubscription.remove();
       setLocationSubscription(null); // Clear the subscription
     }
-  
     let index = 0;
     const updateInterval = 1000; // Update every second
     const distancePerUpdate = (speed * 1000) / 3600; // Speed in meters per second
@@ -248,7 +215,6 @@ const Map = () => {
         const start = routeCoords[index];
         const end = routeCoords[index + 1];
         const segmentDistance = getDistance(start, end);
-  
         if (segmentDistance > distancePerUpdate) {
           const fraction = distancePerUpdate / segmentDistance;
           const newLatitude = start.latitude + (end.latitude - start.latitude) * fraction;
@@ -264,22 +230,17 @@ const Map = () => {
             },
             timestamp: Date.now(),
           };
-  
           // Update the location and instructions
           setLocation(newLocation as Location.LocationObject);
           updateInstructions(newLocation as Location.LocationObject);
-  
           // Calculate the traveled distance in this segment and add it to the total
           const distanceTraveledInSegment = getDistance(start, { latitude: newLatitude, longitude: newLongitude });
           simulatedDistanceTraveled += distanceTraveledInSegment;
-          console.log(`Simulated distance traveled: ${simulatedDistanceTraveled} meters`);
-  
           // If 100 meters or more has been traveled, update the carbon footprint
           if (simulatedDistanceTraveled >= 100) {
             calculateAndUpdateCarbonFootprint(selectedMode, 100);
             simulatedDistanceTraveled -= 100; // Reset the distance counter after calculation
-          }
-  
+          }  
           // Adjust the start position closer to the end position
           routeCoords[index] = {
             latitude: newLatitude,
@@ -317,9 +278,7 @@ const Map = () => {
 
   const getRoute = async () => {
     if (!location || !destination) return;
-  
     const [destinationLat, destinationLng] = destination.split(',').map(Number);
-  
     const origin = {
       location: {
         latLng: {
@@ -328,7 +287,6 @@ const Map = () => {
         },
       },
     };
-  
     const destinationObj = {
       location: {
         latLng: {
@@ -337,7 +295,6 @@ const Map = () => {
         },
       },
     };
-  
     const travelModes = ['DRIVE', 'WALK', 'TRANSIT', 'BICYCLE'];
     const fieldMask = 'routes.distanceMeters,routes.duration,routes.legs,routes.polyline.encodedPolyline';
   
@@ -352,7 +309,6 @@ const Map = () => {
         languageCode: 'en-US',
         units: 'METRIC',
       };
-  
       return axios.post(
         `https://routes.googleapis.com/directions/v2:computeRoutes?key=${GOOGLE_MAPS_APIKEY}`,
         requestBody,
@@ -390,12 +346,10 @@ const Map = () => {
         steps: [],
       }));
     });
-  
     try {
       // Execute all requests concurrently
       const results = await Promise.all(requests);
       const options = results;
-  
       // Flatten the steps across all modes, adding checks for endLocation
       const allSteps = options.flatMap(option => 
         option.steps.map(step => ({
@@ -404,7 +358,6 @@ const Map = () => {
           endLocation: step.endLocation || null,  // Ensure endLocation is always defined
         }))
       );
-  
       stepsRef.current = allSteps.filter(step => step.endLocation !== null); // Store all valid steps for all modes
       setTransportOptions(options);
       setModalVisible(true);
@@ -414,101 +367,91 @@ const Map = () => {
   };
 
   
-  const updateInstructions = (newLocation) => {
+  const updateInstructions = (newLocation: Location.LocationObject) => {
     if (!destination || stepsRef.current.length === 0) return; // No destination set or no steps available
-  
-  
     const currentLatLng = {
-      latitude: newLocation.coords.latitude,
-      longitude: newLocation.coords.longitude,
+        latitude: newLocation.coords.latitude,
+        longitude: newLocation.coords.longitude,
     };
-  
     let currentStep = stepsRef.current[0];
-  
     // Ensure the endLocation is defined for the current step
     if (!currentStep.endLocation || !currentStep.endLocation.latLng) {
-      console.error('End location or latLng is undefined for the current step');
-      return;
+        console.error('End location or latLng is undefined for the current step');
+        return;
     }
-  
     const stepEndLatLng = {
-      latitude: currentStep.endLocation.latLng.latitude,
-      longitude: currentStep.endLocation.latLng.longitude,
+        latitude: currentStep.endLocation.latLng.latitude,
+        longitude: currentStep.endLocation.latLng.longitude,
     };
-  
     // Calculate the distance to the end of the current step
     const distanceToStepEnd = getDistance(currentLatLng, stepEndLatLng);
     setDistance(distanceToStepEnd);
-
     // Update the remaining distance and duration
-    updateRemainingDistanceAndDuration();
-  
+    updateRemainingDistanceAndDuration(newLocation);
     // Define a completion threshold
     const completionThreshold = 20; // 20 meters threshold to consider the step complete
-  
     // Check if the user has passed the step's endpoint
     const userHasPassedStep = distanceToStepEnd <= completionThreshold;
-  
     if (userHasPassedStep) {
-      // Consider the step as completed and remove it from the steps array
-      stepsRef.current.shift();
-  
-      // If no more steps remain, the user has reached the destination
-      if (stepsRef.current.length === 0) {
-        setInstructions({
-          instructions: 'You have arrived at your destination',
-          distance: 0,
-          maneuver: 'straight',
-        });
-        resetMapState(false); // Reset the map state
-        return;
-      }
-  
-      // Move to the next step and update instructions
-      currentStep = stepsRef.current[0];
-      let nextManeuver = 'straight'; // Default maneuver is straight
-      if(stepsRef.current.length > 1) {
-        nextManeuver = stepsRef.current[1].maneuver || 'straight';
-      }
-      const nextInstruction = {
+        // Consider the step as completed and remove it from the steps array
+        stepsRef.current.shift();
+        // If no more steps remain, the user has reached the destination
+        if (stepsRef.current.length === 0) {
+            setInstructions({
+                instructions: 'You have arrived at your destination',
+                distance: 0,
+                maneuver: 'straight',
+            });
+            resetMapState(false); // Reset the map state
+            return;
+        }
+        // Move to the next step
+        currentStep = stepsRef.current[0];
+    }
+    // Set the next maneuver (considering the next step, if available)
+    let nextManeuver = currentStep.navigationInstruction?.maneuver || 'straight';
+    if (stepsRef.current.length > 1) {
+        const nextStep = stepsRef.current[1];
+        if (nextStep && nextStep.navigationInstruction && nextStep.navigationInstruction.maneuver) {
+            nextManeuver = nextStep.navigationInstruction.maneuver;
+        }
+    }
+    // Update the instructions based on the current step and upcoming maneuver
+    const nextInstruction = {
         instructions: currentStep.navigationInstruction?.instructions || '',
         distance: distanceToStepEnd,
         maneuver: nextManeuver,
-      };
-      setInstructions(nextInstruction);
-    } else {
-      // If the user has not yet completed the step, keep the current instructions
-      const currentInstruction = {
-        instructions: currentStep.navigationInstruction?.instructions || '',
-        distance: distanceToStepEnd,
-        maneuver: currentStep.navigationInstruction?.maneuver || 'straight',
-      };
-      setInstructions(currentInstruction);
-    }
-  };
-
+    };
+    setInstructions(nextInstruction);
+};
 
 // Function to update remaining distance and duration
-const updateRemainingDistanceAndDuration = () => {
+const updateRemainingDistanceAndDuration = (newLocation: Location.LocationObject) => {
   if (!destination) return;
-
   let remainingDistance = 0;
   let remainingDuration = 0;
 
-  for (let i = 0; i < stepsRef.current.length; i++) {
-    remainingDistance += stepsRef.current[i].distanceMeters;
+  remainingDistance += distance;
+  console.log(distance)
+
+  // Calculate remaining distance for all subsequent steps
+  for (let i = 0; i < stepsRef.current.length - 1; i++) {
+    const stepStart = stepsRef.current[i].endLocation.latLng;
+    const stepEnd = stepsRef.current[i + 1].endLocation.latLng;
+    remainingDistance += getDistance(
+      { latitude: stepStart.latitude, longitude: stepStart.longitude },
+      { latitude: stepEnd.latitude, longitude: stepEnd.longitude }
+    );
+    // Add the duration of each step (assumes duration is provided in seconds)
     remainingDuration += parseInt(stepsRef.current[i].staticDuration?.replace('s', '') || '0');
   }
-
   // Update total distance
   setTotalDistance(`${(remainingDistance / 1000).toFixed(1)} km`);
-
   // Update duration in "**h**" format
   const hours = Math.floor(remainingDuration / 3600);
   const minutes = Math.floor((remainingDuration % 3600) / 60);
   const formattedDuration = `${hours}h${minutes < 10 ? '0' : ''}${minutes}`;
   setDuration(formattedDuration);
-
   // Update arrival time
   const arrivalTime = new Date(Date.now() + remainingDuration * 1000);
   setArrivalTime(arrivalTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
@@ -536,9 +479,7 @@ const updateRemainingDistanceAndDuration = () => {
         latitude: point.latitude,
         longitude: point.longitude,
       }));
-  
       setRouteCoords(polylineCoords);
-
       if (mapRef.current) {
         mapRef.current.fitToCoordinates(polylineCoords, {
           edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
@@ -558,7 +499,6 @@ const resetMapState = async (cancel: boolean) => {
     setDistance(0); // Reset the distance
     setDuration(''); // Clear the duration
   };
-
   if (cancel) {
     resetActions();
   } else {
@@ -567,14 +507,14 @@ const resetMapState = async (cancel: boolean) => {
   }
 };
 
-  const startNavigation = () => {
+  const startNavigation =  () => {
     const selectedOption = transportOptions.find(option => option.mode === selectedMode);
-
     if (!selectedOption || !selectedOption.polyline || selectedOption.polyline.length === 0) {
         console.error('Selected option does not have a valid polyline');
         return;
     }
-
+    const filteredSteps = stepsRef.current.filter(step => step.travelMode === selectedMode);
+    stepsRef.current = filteredSteps; // Update the steps to only include the selected mode
     // Prompt the user to choose between simulation or real navigation
     Alert.alert(
         'Start Trip',
@@ -592,20 +532,27 @@ const resetMapState = async (cancel: boolean) => {
                 text: 'Use Real Location',
                 onPress: () => {
                     setSimulateTrip(false);
+                    // Stop any existing simulation
                     if (locationSubscription) {
-                        // If there's an existing location subscription, resume it
-                        locationSubscription.remove(); // Stop the subscription to prevent multiple updates
-                    }
-                    const filteredSteps = stepsRef.current.filter(step => step.travelMode === selectedMode);
+                      locationSubscription.remove(); // Stop the subscription to prevent multiple updates
+                  }
+                  // Set up real-time location tracking
+                  Location.watchPositionAsync(
+                      {
+                          accuracy: Location.Accuracy.High,
+                          distanceInterval: 0, // Update every 10 meters
+                          timeInterval: 1000, // Update every second
+                      },
+                      (newLocation) => {
+                          updateLocation(newLocation);
+                      }
+                  ).then(subscription => {
+                      setLocationSubscription(subscription);
+                  }).catch(error => {
+                      console.error('Error starting location tracking:', error);
+                  });
 
-                    if (filteredSteps.length === 0) {
-                        console.error(`No steps found for the selected mode: ${selectedMode}`);
-                        return;
-                    }
-
-                    stepsRef.current = filteredSteps; // Update stepsRef to only include steps for the selected mode
-                    setLocationSubscription(locationSubscription); // Resume real location updates
-                    setModalVisible(false);
+                  setModalVisible(false);
                 }
             },
             {
@@ -629,34 +576,6 @@ const resetMapState = async (cancel: boolean) => {
   }, [selectedMode, transportOptions]);
 
 
-  const startSimulationOrNavigation = () => {
-    if (simulateTrip) {
-      startRouteSimulation(routeCoords);
-    } else {
-      startNavigation();
-    }
-  };
-
-  // Function to confirm destination and present the choice to simulate or navigate
-  const confirmDestination = () => {
-    if (!destination) return;
-
-    setModalVisible(true); // Show modal to choose travel mode
-
-    // Present the user with an option to simulate or use real location for the trip
-    Alert.alert(
-      'Start Trip',
-      'Do you want to simulate the trip or use real navigation?',
-      [
-        { text: 'Simulate Trip', onPress: () => setSimulateTrip(true) },
-        { text: 'Use Real Location', onPress: () => setSimulateTrip(false) },
-        { text: 'Cancel', style: 'cancel' },
-      ],
-      { cancelable: true }
-    );
-  };
-  
-
   // If location is not available, show loading screen
   if (!location) {
     return (
@@ -666,7 +585,6 @@ const resetMapState = async (cancel: boolean) => {
       </View>
     );
   }
-
 
   // Main render
   return (

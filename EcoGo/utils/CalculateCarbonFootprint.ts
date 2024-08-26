@@ -31,9 +31,7 @@ function CalculateCarbonFootprint(
   if (!TRANSPORTATION_EMISSIONS.hasOwnProperty(transportation)) {
     throw new Error('Invalid transportation choice.');
   }
-
   let carbonFootprint = 0;
-
   if (transportation === 'fuel' || transportation === 'gazoil') {
     // Calculate fuel used and then the CO2 emissions
     const fuelUsed = (consumption/100) * distance;

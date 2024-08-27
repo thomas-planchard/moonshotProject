@@ -9,9 +9,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/othneildrew/Best-README-Template">
     <img src="EcoGo/assets/icon.png" alt="Logo" width="100" height="100">
-  </a>
 
   <h1 align="center">Moonshot Project EcoGo: Your Personal Carbon Footprint Tracker</h1>
 

@@ -1424,7 +1424,7 @@ To ensure efficient performance during navigation, the app will calculate the ca
 4. **Efficiency Consideration**:
    - This method ensures that the carbon footprint is calculated efficiently, minimizing the processing load on the app. It strikes a balance between accuracy and performance, ensuring that the app remains responsive during navigation while still providing timely updates on the user's carbon emissions.
 
-![Carbon Footprint Calculation](./Technical/Img/footprintNavigation.png)
+![Carbon Footprint Calculation](./Img/footprintNavigation.png)
 
 ### 5. Test Plan
 

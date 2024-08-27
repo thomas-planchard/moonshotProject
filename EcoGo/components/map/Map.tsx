@@ -491,6 +491,7 @@ const updateRemainingDistanceAndDuration = (newLocation: Location.LocationObject
 
 const resetMapState = async (cancel: boolean) => {
   const resetActions = () => {
+    console.log('Resetting states...');
     setRouteCoords([]); // Clear the polyline
     setInstructions(null); // Clear the instructions
     stepsRef.current = []; // Clear the steps
@@ -498,12 +499,13 @@ const resetMapState = async (cancel: boolean) => {
     setArrivalTime(''); // Clear the arrival time
     setDistance(0); // Reset the distance
     setDuration(''); // Clear the duration
+    console.log("Resetting done successfuly");
   };
   if (cancel) {
     resetActions();
   } else {
     // Set a 10-second delay before resetting the map if not cancelled
-    setTimeout(resetActions, 10000); // 10 seconds delay (10000 milliseconds)
+    setTimeout(resetActions, 10); // 10 seconds delay (10000 milliseconds)
   }
 };
 

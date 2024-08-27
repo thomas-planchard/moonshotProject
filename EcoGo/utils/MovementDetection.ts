@@ -90,7 +90,7 @@ export const useMovementDetector = ({
 
       return accelerometer
         .pipe(
-          map(({ x, y, z }) => Math.sqrt(x * x + y * y + z * z) - 9.81), // Remove gravity (thx Wikipedia)
+          map(({ x, y, z }) => Math.sqrt(x * x + y * y + z * z) - 9.81), // Remove gravity 
           filter((acceleration) => !isNaN(acceleration))
         )
         .subscribe({
@@ -143,7 +143,7 @@ export const useMovementDetector = ({
     const meanAccel = calculateMean(accData);
     const meanGyro = calculateMean(gyroData);
 
-    let movement: MovementType = 'Uncertain';
+    let movement: MovementType = 'Walking';
 
     if (speed !== null && speed > 5) {
       if (variance < 0.2) {

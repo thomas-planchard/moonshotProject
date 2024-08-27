@@ -61,7 +61,7 @@ EcoGo offers the following key features:
 
 ## Getting Started
 
-To get started with EcoGo, simply download the app from the App Store (iOS) or Google Play Store (Android). The app is free to use and does not require any additional hardware.
+To get started with EcoGo, simply download the app from the App Store (iOS). The app is free to use and does not require any additional hardware.
 // WILL BE UPDATED WHEN THE APP IS AVAILABLE
 
 ## Contributing

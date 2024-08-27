@@ -1,4 +1,3 @@
-<!-- PROJECT LOGO -->
 <br />
 <div align="center">
   <h1 align="center">Functional Specification</h1>
@@ -9,6 +8,7 @@
   </p>
 </div>
 
+<details>
 
 - [1. Executive Summary](#1-executive-summary)
 - [2. Background](#2-background)
@@ -28,11 +28,11 @@
       - [➭ Calculating System Carbon Emissions (Car)](#-calculating-system-carbon-emissions-car)
       - [➭ Calculating System Carbon Emissions (Electric Car)](#-calculating-system-carbon-emissions-electric-car)
       - [➭ Calculating System Carbon Emissions (Bus, Bicycle, and Subway)](#-calculating-system-carbon-emissions-bus-bicycle-and-subway)
-    - [8.2.5. Rewards System](#825-rewards-system)
+    - [8.2.5. GPS Navigation and Transportation Mode Selection](#825-gps-navigation-and-transportation-mode-selection)
+    - [8.2.6. Rewards System](#826-rewards-system)
       - [➭ Coin Allocation](#-coin-allocation)
       - [➭ Adjustments and Flexibility](#-adjustments-and-flexibility)
-    - [8.2.6. EcoGo Store](#826-ecogo-store)
-    - [8.2.7. Social Sharing](#827-social-sharing)
+    - [8.2.7. EcoGo Store](#827-ecogo-store)
     - [8.2.8. User Settings](#828-user-settings)
   - [8.3. Use Cases](#83-use-cases)
 - [9. Non-Functional Requirements](#9-non-functional-requirements)
@@ -60,8 +60,9 @@
 - [11. Technical Requirements](#11-technical-requirements)
   - [11.1. Risks and Assumptions](#111-risks-and-assumptions)
     - [➭ Assumptions](#-assumptions)
+- [12. Sources of Information](#12-sources-of-information)
 
-
+</details>
 
 ## 1. Executive Summary
 
@@ -85,15 +86,28 @@ The development of EcoGo is driven by the global need for actionable steps towar
  EcoGo is designed to cater to people who are environmentally conscious and seek actionable insights into reducing their carbon footprint. The application leverages real-time data tracking, gamification elements, and a reward system to foster sustainable behaviors among its users.
 
 ### 4.1. Objectives:
-- **Carbon Footprint Tracking:** To provide users with accurate, real-time tracking of their CO2 emissions based on their transportation modes, utilizing GPS and accelerometer data.
+
+1. **Enable Comprehensive Carbon Footprint Tracking**:
+   - Provide users with the ability to track carbon emissions across multiple transportation modes, including walking, cycling, public transport, and driving.
+
+2. **Implement Real-Time Emission Calculation**:
+   - Calculate carbon emissions in real time using GPS data, transportation mode, and distance traveled, ensuring users have up-to-date information on their environmental impact.
+
+3. **Offer GPS Navigation with Transportation Mode Selection**:
+   - Integrate GPS functionality that allows users to select a destination, choose their preferred mode of transportation, and receive guided directions within the app.
+
+4. **Visualize Carbon Footprint Over Time**:
+   - Develop interactive graphical tools that enable users to visualize their carbon footprint over time, providing insights into their environmental impact and progress.
+
+5. **Incorporate Gamification to Encourage Sustainable Behavior**:
+   - Introduce a gamification system where users earn virtual coins for reducing emissions, enhancing user engagement and promoting sustainable habits.
+
+6. **Establish an In-App Store for Eco-Friendly Rewards**:
+   - Create an in-app store where users can redeem earned coins for discounts and offers on eco-friendly products, carpooling services, and public transportation options.
+
+7. **Support Multi-Language Accessibility**:
+   - Ensure the app is available in both English and French to accommodate a diverse user base.
   
-- **User Engagement through Gamification:** To incorporate gamification elements such as earning coins, setting personal goals, and completing challenges to increase user engagement and promote sustained usage of the app.
-  
-- **Eco-Friendly Store System:** To develop a store system where users can spend virtual coins within the app, redeeming them for discounts and offers from eco-responsible brands and services, thereby incentivizing users to make greener choices.
-  
-- **Suggestions:** To offer user suggestions on reducing their carbon footprint through their transportation choices, for instance by suggesting carpooling or public transportation options.
-  
-- **Community and Social Engagement:** To integrate social sharing features that allow users to share their achievements and progress in reducing carbon emissions.
 
 ## 5. Target Audience:
 
@@ -102,24 +116,28 @@ The development of EcoGo is driven by the global need for actionable steps towar
 ![Persona 1](./Img/persona1.png)
 
 
-**Persona 1 -Chris Iddleton:**
+**Persona 2 -Lucas Dubois:**
 
 ![Persona 2](./Img/persona2.png)
 
 
-**Persona 1 -Sam Rotter:**
+**Persona 3 -Emily Roberts:**
 
 ![Persona 3](./Img/persona3.png)
 
 
-**Persona 1 -Carla Joy:**
+**Persona 4 -Thomas Müller:**
 
 ![Persona 4](./Img/persona4.png)
 
 
-**Persona 1 -Fred Parker:**
+**Persona 5 -Aisha Khan:**
 
 ![Persona 5](./Img/persona5.png)
+
+**Persona 6 -Mark Johnson:**
+
+![Persona 5](./Img/persona6.png)
 
 
   
@@ -131,7 +149,7 @@ The development of EcoGo is driven by the global need for actionable steps towar
 - The scope will initially concentrate on tracking emissions from 
   one or two primary transportation modes, such as driving and cycling, 
 
-- The application will not support store and social network sharing in its 
+- The application will not support store offers, the gamification system and the multi-language support in the
   initial version; these features are considered superficial for the first version.
 
 
@@ -261,7 +279,66 @@ For electric vehicles (EVs), the calculation is different and generally involves
 
 ---
 
-####  8.2.5. Rewards System
+#### 8.2.5. GPS Navigation and Transportation Mode Selection
+
+1. **Accessing the GPS Navigation:**
+   - The GPS is activated when the user clicks on the central button located in the app's footer.
+   - Upon activation, the user is initially presented with a loading animation while the map is being downloaded. 
+
+2. **Destination Input:**
+   - Once the map is displayed, the user can click on a text input area at the bottom of the screen to enter their destination.
+   - As the user begins typing, the app provides real-time suggestions based on the entered text, displaying these suggestions in a list below the input field.
+   - The user can then select their desired destination from this list, which will update dynamically as they type.
+
+3. **Transportation Mode Selection:**
+   - After the destination is selected, a pop-up window appears, presenting the user with four transportation modes: Cycling, Driving, Public Transport, and Walking.
+   - These modes were selected based on their global prevalence and usage, as supported by [statistical data](https://fr.statista.com/statistiques/1320820/modes-transport-courte-distance-monde/).
+   - For each transportation mode, the pop-up displays the following information:
+     - **Distance**: The total distance to be traveled in kilometers.
+     - **Time**: The estimated travel time in hours and minutes.
+     - **Carbon Footprint**: The estimated CO2 emissions associated with each mode, helping users understand the environmental impact of their choice.
+   - If a particular transportation mode is unavailable for the selected route, the corresponding data fields will be marked as "Not Available," and the user will not be able to select that mode.
+
+4. **Previewing the Route:**
+   - Before confirming their choice, users can preview the route on the map by selecting one of the transportation modes. The route is highlighted on the map with a blue line, allowing the user to see the entire path from start to destination.
+
+5. **Confirming the Transportation Mode:**
+   - Once the user selects a transportation mode and reviews the information, they can confirm their choice by clicking the "Confirm" button on the pop-up.
+   - Upon confirmation, the navigation system is activated, guiding the user to their destination.
+
+6. **Navigation Interface:**
+   - **Top of the Screen**:
+     - The top section displays the next instruction, including a directional arrow, street name, and the distance to the next turn or action in meters.
+   - **Bottom of the Screen**:
+     - This section shows the estimated arrival time, remaining travel time, and remaining distance.
+   - **On-Screen Map**:
+     - The user's current location is indicated by a blue marker.
+     - The entire route is shown with a blue line, helping users easily identify the path they need to follow.
+     - A button to re-center the map on the user's location is available, allowing users to manually adjust the map view if they move it with their fingers.
+   - **Real-Time Carbon Footprint Calculator**:
+     - A real-time display of the carbon footprint generated by the selected transportation mode is shown. This data is continuously updated based on the user's progress along the route, providing immediate feedback on the environmental impact of their journey.
+
+![Navigation System ](./Img/navigationSystem.png)
+
+**Mimicking System for Real-World Testing**
+
+Due to the app being fully developed on iOS, testing the app in real-world conditions presents a significant challenge. To address this, a parallel system will be developed to mimic user behavior during navigation.
+
+**System Overview:**
+ -	Once the user has selected a destination and confirmed their transportation mode, the mimic system will initiate a simulated journey.
+ -	This system will automatically follow the predefined path, updating the iPhone’s location data to replicate real-time movement.
+
+**Purpose:**
+  -	The mimic system is designed to facilitate thorough testing of the navigation feature in controlled environments, ensuring all aspects of the app’s functionality perform as expected.
+  - This system will also be instrumental in stress-testing the app’s performance under different scenarios, providing critical insights that inform further development and optimization.
+	
+**Technical Details:**
+   - The detailed implementation of this mimic system, including how it interfaces with the navigation and GPS features, will be outlined in the [technical specification](../Technical/TechnicalSpecification.md).
+
+
+--- 
+
+####  8.2.6. Rewards System
 
 Within the app, users accumulate coins as a reward for reducing their carbon footprint. The reward system is structured around several key criteria that directly relate to eco-friendly behaviors and choices:
 
@@ -308,21 +385,11 @@ Within the app, users accumulate coins as a reward for reducing their carbon foo
 - This reward system is subject to adjustments based on user feedback, the app's economic model, and the overarching goal of promoting sustainable behaviors. Future updates may refine coin values to better align with these objectives, ensuring the system remains effective and motivating for users.
 
 
-#### 8.2.6. EcoGo Store
+#### 8.2.7. EcoGo Store
 
 The EcoGo Store is a virtual marketplace within the app, showcasing offers from eco-conscious brands and restaurants. Users can spend their earned coins to redeem discounts and vouchers, engaging directly with businesses that share EcoGo's commitment to sustainability.
 
 While the implementation of this feature in the current version will be simulated, due to its status as a school project. 
-
-
-#### 8.2.7. Social Sharing
-Within the app, the profile page features a dedicated "Share" button, enabling users to effortlessly create and post content to their social media accounts. Clicking this button generates a pre-populated post that highlights key information from the user's profile, such as the amount of CO2 they've reduced over the day, week, and month, along with their preferred mode of eco-friendly transportation. This feature encourages users to share their environmental achievements, promoting awareness and inspiring others to join in making more sustainable transportation choices.
-
-![Social Wireframe](./Img/wireframeSocial.png)
-
-Above is a wireframe of the social sharing feature. It is only a wireframe, the final version may look different. This wireframe is generated by an AI.  
-
-![Social Sharing](./Img/share.png)
 
 
 #### 8.2.8. User Settings
@@ -543,24 +610,26 @@ Above is a wireframe of the social sharing feature. It is only a wireframe, the 
 
 ---
 
-- **Use Case 7: Sharing Eco-Friendly Achievements on Social Media**
+- **Use Case 7: Choose and Confirm The Transportation Mode**
 
   **Actors:**
   - User
 
   **Preconditions:**
-  - The user has achieved a notable milestone in carbon footprint reduction or completed a challenge.
+  - The user is about to start a trip and needs to select the mode of transportation.
 
   **Main Flow:**
-  1. The user navigates to their profile page and clicks the "Share" button.
-  2. The app generates a pre-populated post highlighting the user's achievements, such as CO2 reduction, preferred transportation mode, or completed challenges.
-  3. The user can customize the message if desired and selects the social media platforms where they want to share their achievement.
-  4. The user posts the achievement to their selected social media platforms directly from the app.
+  1. The user opens the EcoGo app and selects the option to start a new trip.
+  2. The app prompts the user to choose the mode of transportation from a list of options (e.g., walking, cycling, public transit, car).
+  3. The user selects the preferred mode of transportation.
+  4. The app displays a confirmation screen with the selected mode and asks the user to confirm.
+  5. The user confirms the selected mode, and the app begins tracking the trip.
 
   **Postconditions:**
-  - The user's achievements are shared on social media, increasing awareness and potentially motivating others to join EcoGo.
+  - The user's trip is successfully initiated with the selected mode of transportation.
 
   ![useCase7](./Img/useCase7.png)
+
 
 ---
 
@@ -843,4 +912,9 @@ The initial design of the app was done using Figma. Figma facilitated the creati
 | **10. User Feedback:** It is assumed that users will actively provide feedback on the app. | Create easy channels for feedback within the app and incentivize users to share their thoughts. |
 
 
+
+## 12. Sources of Information
+
+https://ourworldindata.org/travel-carbon-footprint#:~:text=A%20domestic%20flight%20emits%20246%20grams%20per%20kilometer.
+https://www.epa.gov/greenvehicles/greenhouse-gas-emissions-typical-passenger-vehicle
 

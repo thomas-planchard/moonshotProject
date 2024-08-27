@@ -27,28 +27,25 @@
 --- 
 
 
-
 # Project Idea
 ## Project Overview
-The Project is a software application aimed at promoting sustainable transportation choices and reducing carbon emissions. The application will track a user's transportation choices, calculate their carbon footprint, and provide personalized recommendations for reducing their environmental impact. The app will also incorporate features such as tracking ticket availability and carpool options, and providing information on the environmental impact of transportation choices.
+The project is a software application designed to promote sustainable transportation choices by tracking and calculating users' carbon emissions in real-time based on GPS data, distance traveled, and transportation mode. It offers features like GPS navigation, transportation mode selection, and interactive graphs to visualize carbon footprint over time. The app gamifies the experience by rewarding users with virtual coins for reducing emissions, which can be redeemed in an in-app store for eco-friendly products and services. It supports both English and French to cater to a diverse audience.
 
-The Project is a unique offering in the market, as it provides a comprehensive solution for promoting sustainable transportation choices, including personalized recommendations based on a user's specific transportation patterns. The app will appeal to environmentally conscious individuals who are looking to reduce their carbon footprint and make a positive impact on the environment.
-
-
+The project is a unique offering in the market. The app will appeal to environmentally conscious individuals who are looking to reduce their carbon footprint and make a positive impact on the environment.
 
 ## Project Goals/Objectives
-The main goal of the Project is to promote sustainable transportation choices and reduce carbon emissions. The application will aim to achieve this by:
+The main goal of the project is to promote sustainable transportation choices and reduce carbon emissions. The application will aim to achieve this by:
 
-- Tracking a user's transportation choices and calculating their carbon footprint: The app will track a user's transportation choices, such as driving, walking, biking, or taking public transit, and calculate their carbon footprint based on their mode of transportation and distance traveled.
-  
-- Providing personalized recommendations for reducing environmental impact: Based on a user's transportation patterns and carbon footprint, the app will provide personalized recommendations for reducing their environmental impact. For example, if a user drives a lot, the app may recommend carpooling, taking public transit, or biking.
-  
-- Incorporating features such as tracking ticket availability and carpool options: The app will integrate with local transportation providers to obtain real-time data on ticket availability and carpool options, making it easier for users to make sustainable transportation choices.
-  
-- Providing information on the environmental impact of transportation choices: The app will provide users with information on the environmental impact of their transportation choices. For example, users could see how much carbon emissions they would produce by taking a certain mode of transportation, or how much money they would save by carpooling instead of driving alone.
+The app will enable users to track and manage their carbon footprint by monitoring emissions from various transportation modes, such as walking, cycling, public transport, carpooling, and driving. It will calculate emissions in real time using GPS data, providing users with accurate information based on their travel distance and chosen mode of transport.
+
+Additionally, the app will offer GPS navigation, allowing users to select a destination, choose their preferred transportation mode, and receive turn-by-turn directions. Users will also be able to visualize their carbon footprint over time through interactive graphs, gaining insights into their environmental impact.
+
+To encourage eco-friendly behavior, the app will incorporate gamification elements, rewarding users with virtual coins for reducing their emissions. These coins can be redeemed in an in-app store for discounts on eco-friendly products and services, including carpooling and public transportation options.
+
+The app will be accessible in both English and French, ensuring it serves a broad user base.
 
 ## Project Scope
-The scope of the Project will include the following:
+The scope of the project will include the following:
 
 - Designing and developing a software application for iOS and Android platforms: The app will be designed and developed for both iOS and Android platforms, using modern design principles and development methodologies.
 
@@ -56,10 +53,9 @@ The scope of the Project will include the following:
   
 - Integrating with local transportation providers to obtain real-time data on ticket availability and carpool options: The app will integrate with local transportation providers to obtain real-time data on ticket availability and carpool options, making it easier for users to make sustainable transportation choices.
   
-- Implementing social features such as sharing transportation choices with friends and family to increase engagement and promote sustainable transportation choices.
 
 ## Project Challenges/Risks
-Some of the potential challenges and risks associated with the Project include:
+Some of the potential challenges and risks associated with the project include:
 
 - Obtaining accurate data on carbon emissions and transportation options: The app's effectiveness will depend on the accuracy of the data it uses, such as carbon emissions data and transportation options data. Ensuring the accuracy and reliability of this data may be a challenge.
   
@@ -71,7 +67,7 @@ Some of the potential challenges and risks associated with the Project include:
 
 
 ## Project Budget
-The Project budget will include the following:
+The project budget will include the following:
 
 - Design and development costs: This will include the costs associated with designing and developing the software application for both iOS and Android platforms, including user interface design, software development, and quality assurance testing.
   
@@ -80,7 +76,7 @@ The Project budget will include the following:
 - Marketing and advertising costs: This will include the costs associated with marketing and advertising the app to attract users and promote sustainable transportation choices.
   
 ## Project Timeline
-The Project timeline is as follows:
+The project timeline is as follows:
 
 - Month 1-2: Conduct market research and user surveys to identify user needs and preferences.
 - Month 3-4: Design and development of the software application.
@@ -89,5 +85,5 @@ The Project timeline is as follows:
 - Month 9: Launch of the app.
 
 ## Conclusion
-The Project is an innovative and comprehensive solution for promoting sustainable transportation choices and reducing carbon emissions. The app's unique features, such as personalized recommendations and real-time data on ticket availability and carpool options, make it a valuable tool for environmentally conscious individuals looking to reduce their carbon footprint. While there are potential challenges and risks associated with the Project, the benefits of promoting sustainable transportation choices and reducing carbon emissions far outweigh them. The Project is expected to be a success and make a positive impact on the environment.
+The Project is an innovative and comprehensive solution for promoting sustainable transportation choices and reducing carbon emissions. The app's unique features, such as personalized recommendations and real-time data on ticket availability and carpool options, make it a valuable tool for environmentally conscious individuals looking to reduce their carbon footprint. While there are potential challenges and risks associated with the project, the benefits of promoting sustainable transportation choices and reducing carbon emissions far outweigh them. The project is expected to be a success and make a positive impact on the environment.
 

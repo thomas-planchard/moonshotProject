@@ -16,7 +16,6 @@ import fetchUserData from "@/utils/fetchUserData";
 import { COLORS } from "@/constants";
 
 
-
 export default function Home() {
 
   const [movement, setMovement] = useState<MovementType>('Uncertain');

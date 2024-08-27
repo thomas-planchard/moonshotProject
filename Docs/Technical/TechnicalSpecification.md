@@ -51,12 +51,30 @@
     - [4.3.6. Determining The Mode Of Transportation](#436-determining-the-mode-of-transportation)
     - [4.3.7. Carbon Footprint Calculation](#437-carbon-footprint-calculation)
       - [➭ Define Constants](#-define-constants)
-    - [➭ Function](#-function)
-    - [➭ Usage of the Function](#-usage-of-the-function)
-    - [➭ Usage In The Navigation](#-usage-in-the-navigation)
-  - [5. Implementation Plan](#5-implementation-plan)
-    - [5.1. Development Strategy](#51-development-strategy)
-    - [5.2. Milestones and Phases](#52-milestones-and-phases)
+      - [➭ Function](#-function)
+      - [➭ Usage of the Function](#-usage-of-the-function)
+      - [➭ Usage In The Navigation](#-usage-in-the-navigation)
+  - [5. Test Plan](#5-test-plan)
+    - [5.1. Purpose of the Test Plan](#51-purpose-of-the-test-plan)
+    - [5.2. Scope](#52-scope)
+    - [5.3. Objectives](#53-objectives)
+    - [5.4. Test Items](#54-test-items)
+    - [5.5. Test Approach](#55-test-approach)
+      - [➭ Test Levels](#-test-levels)
+      - [➭ Test Types](#-test-types)
+      - [➭ Beta Testing](#-beta-testing)
+      - [➭ Accessibility Testing](#-accessibility-testing)
+    - [5.6. Test Environment](#56-test-environment)
+      - [➭ Hardware](#-hardware)
+      - [➭ Software](#-software)
+      - [➭ Network Environment](#-network-environment)
+    - [5.7. Entry and Exit Criteria](#57-entry-and-exit-criteria)
+      - [➭ Entry Criteria](#-entry-criteria)
+      - [➭ Exit Criteria](#-exit-criteria)
+  - [6. Deployment Plan](#6-deployment-plan)
+  - [7. Implementation Plan](#7-implementation-plan)
+    - [7.1. Development Strategy](#71-development-strategy)
+    - [7.2. Milestones and Phases](#72-milestones-and-phases)
 
 </details>
 
@@ -86,15 +104,27 @@ EcoGo is a native mobile application designed exclusively for iOS, aimed at help
 
 | Term              | Definition                                                                 |
 |-------------------|----------------------------------------------------------------------------|
-| Firebase          | A mobile and web application development platform developed by Firebase, Inc. in 2011, then acquired by Google in 2014. |
-| AuthContext       | A context provider in React that manages authentification state and user data. |
-| Backend           | The server-side part of an application that handles data processing, storage, and business logic, usually invisible to users. |
-| Frontend          | The client-side part of an application that users interact with, including the user interface and user experience. |
-| CI/CD (Continuous Integration/ Continuous Deployment) | A set of practices for automating the integration and deployment of code changes to ensure software is continuously tested and delivered. |
-| Decoded Polyline  | A sequence of latitude and longitude coordinates representing a route on a map, encoded to minimize size and decoded for rendering  |
-| Loading Spinner   | A UI element that indicates a process is ongoing, often used to show that the application is working or waiting for data. |
-| GPS (Global Positioning System) | A satellite-based navigation system that provides location and time information in all weather conditions, anywhere on or near the Earth. |
-| Carbon Footprint  | The total amount of greenhouse gases emitted directly or indirectly by human activities, usually expressed in equivalent tons of carbon dioxide (CO2). |
+| **Firebase**      | A mobile and web application development platform that provides a variety of tools and services, including authentication, real-time databases, and cloud storage. |
+| **AuthContext**   | A context provider in React that manages authentication state and user data throughout the app. |
+| **Backend**       | The server-side part of an application that handles data processing, storage, and business logic, usually invisible to users. |
+| **Frontend**      | The client-side part of an application that users interact with, including the user interface and user experience. |
+| **CI/CD (Continuous Integration/Continuous Deployment)** | A set of practices that automate the integration and deployment of code changes, ensuring software is continuously tested and delivered. |
+| **Decoded Polyline** | A sequence of latitude and longitude coordinates representing a route on a map, decoded from a compressed format used by Google Maps APIs. |
+| **Loading Spinner** | A UI element that indicates an ongoing process, such as loading or waiting for data, often represented by a spinning circle or bar. |
+| **GPS (Global Positioning System)** | A satellite-based navigation system that provides location and time information in all weather conditions, anywhere on or near the Earth. |
+| **Carbon Footprint** | The total amount of greenhouse gases emitted directly or indirectly by human activities, usually expressed in equivalent tons of carbon dioxide (CO2). |
+| **React Native** | A framework for building native mobile apps using React, a JavaScript library, allowing developers to use the same codebase for both iOS and Android platforms. |
+| **Expo** | A framework and platform for universal React applications that allows developers to build, deploy, and iterate on iOS, Android, and web apps quickly. |
+| **TypeScript** | A statically typed superset of JavaScript that compiles to plain JavaScript, offering type checking and improved tooling support. |
+| **Firestore Database** | A NoSQL cloud database provided by Firebase that stores data in documents and collections, offering real-time data synchronization and scalability. |
+| **Firestore Storage** | A service provided by Firebase for storing and serving user-generated content like photos and videos, with built-in security and scalability. |
+| **Google Maps APIs** | A set of APIs provided by Google that allows developers to integrate location-based services like maps, routes, and places into their applications. |
+| **Google Maps Place API** | An API that returns information about places using textual searches, phone numbers, and addresses, useful for location-based searches and autocomplete. |
+| **Google Maps Directions v2 API** | An API that provides directions between locations, offering route planning for different modes of transportation such as driving, walking, and cycling. |
+| **Google Maps SDK for iOS** | A software development kit that allows developers to integrate Google Maps into iOS applications, offering features like map rendering, markers, and routes. |
+| **Modal**          | A UI component that appears as an overlay on top of the current screen, used for dialogues, forms, or menus without navigating away from the current content. |
+| **ZigZag decoding** | A technique used to decode data, such as polylines, by converting encoded values back to their original form, often used in mapping applications. |
+| **Expo Tunnel**   | A feature provided by Expo that allows developers to run their React Native apps on physical devices without requiring the computer and device to be on the same network, facilitating remote testing and debugging. |
 
 
 ### 1.4. Objectives 
@@ -1337,7 +1367,7 @@ const CONSUMPTION_RATES = {
 };
 ```
 
-#### ➭ Function
+##### ➭ Function
 This function will take three parameters:
 
 - `distance`: The distance traveled in kilometers.
@@ -1365,7 +1395,7 @@ The function will use these parameters to calculate the carbon footprint of the 
    - The function returns the calculated `carbonFootprint` value, representing the CO2 emissions for the given trip.
 
 
-#### ➭ Usage of the Function
+##### ➭ Usage of the Function
 
 Once the file is created and the function is implemented, it can be imported and used across the app. 
 
@@ -1376,7 +1406,7 @@ In the activity detection feature, when the user reopens the app and confirms th
 - **User Confirmation:** When the user confirms the activity details (e.g., mode and distance), the app calls the function with the corresponding parameters.
 - **Data Storage:** The returned carbon footprint value is then saved in the database, associated with the user's profile.
 
-#### ➭ Usage In The Navigation 
+##### ➭ Usage In The Navigation 
 
 To ensure efficient performance during navigation, the app will calculate the carbon footprint at intervals of every 100 meters traveled. This approach avoids continuous calculations that could slow down the app. 
 
@@ -1394,27 +1424,176 @@ To ensure efficient performance during navigation, the app will calculate the ca
 4. **Efficiency Consideration**:
    - This method ensures that the carbon footprint is calculated efficiently, minimizing the processing load on the app. It strikes a balance between accuracy and performance, ensuring that the app remains responsive during navigation while still providing timely updates on the user's carbon emissions.
 
-![Carbon Footprint Calculation](./Img/footprintNavigation.png.png)
+![Carbon Footprint Calculation](./Technical/Img/footprintNavigation.png)
 
-### 5. Implementation Plan
+### 5. Test Plan
 
-#### 5.1. Development Strategy
+#### 5.1. Purpose of the Test Plan
+
+The purpose of this test plan is to outline the testing strategy and approach of the app. 
+
+#### 5.2. Scope
+
+- Application: EcoGo
+- Platforms: iOS
+- Technologies: React, React Native, Firebase, Google Maps API,
+- Objective: Ensure the application is fully functional, user-friendly, and provides accurate CO2 consumption data across both platforms.
+
+#### 5.3. Objectives
+
+- Validate the accuracy of the CO2 consumption calculations.
+- Confirm the application meets performance, security, and usability standards.
+- Verify seamless integration with third-party services and APIs.
+- Identify and resolve any bugs or issues.
+
+#### 5.4. Test Items
+
+- User authentication (Login, Register, Logout).
+- User activity tracking and data input.
+- CO2 consumption calculations logic and accuracy.
+- UI/UX consistency and responsiveness.
+- API integration and data retrieval.
+- Notifications. 
+- Data storage and retrieval.
+- Security aspects (eg. data encryption, secure connections).
+- Compatibility with various screen sizes and OS versions. 
+
+#### 5.5. Test Approach
+
+##### ➭ Test Levels
+
+- Unit Testing: Individual components and functions' logic.
+- Integration Testing: Interaction between frontend and backend components.
+- System Testing: End-to-end testing of the application on iOS.
+- Acceptance Testing: Final testing before deployment to ensure the application meets all requirements.
+
+##### ➭ Test Types
+
+- Functional testing: Verify the application functions according to the requirements.
+- UI/UX testing: Ensure the application is usable without any design flaws on any screen size.
+- Performance testing: Evaluate the application's performance under various conditions such as low network speed or high traffic.
+- Compatibility testing: Confirm the application works across different devices, screen sizes, and OS versions.
+- Security testing: Identify and resolve any security vulnerabilities.
+- Usability testing: Evaluate the application's ease of use and user satisfaction.
+- Regression testing: Ensure new updates or features do not negatively affect existing functionality.
+
+##### ➭ Beta Testing
+
+- Beta testing will be conducted to gather feedback from real users before the final release.
+- Beta testers will be selected from the target audience to provide valuable insights and suggestions.
+- Feedback will be collected through surveys, interviews, and user testing sessions.
+- Beta testing will help identify any issues or areas for improvement before the official launch.
+- The goal is to get as much feedback as possible from iOS users to ensure a successful launch.
+
+##### ➭ Accessibility Testing
+  
+- Accessibility testing will be conducted to ensure the application is usable by all users, including those with disabilities.
+- The application will be tested using screen readers, voice commands, and other assistive technologies.
+- The goal is to ensure the application is accessible to all users and complies with accessibility standards such as WCAG 2.0. (Web Content Accessibility Guidelines)
+
+#### 5.6. Test Environment
+
+##### ➭ Hardware
+
+- Devices for testing:
+  - iOS devices: iPhone 14 Pro, built-in MacOS emulator and Iphone 15 Pro Max.
+  - Tablets: iPad Pro 2021.
+
+##### ➭ Software
+
+- Operating Systems:
+  - iOS: iOS 14, iOS 15.
+- Development Tools:
+  - IDE: Visual Studio Code.
+  - Emulators: Xcode.
+- Testing Tools:
+  - Jest (Unit Testing).
+  - Detox (End-to-end Testing).
+  - Appium (UI Testing).
+  - Firebase Test Lab (Cloud Testing).
+  - Postman (API Testing).
+  - Jira (Bug Tracking).
+
+##### ➭ Network Environment
+
+- Network Speed:
+  - 3G.
+  - 4G.
+  - 5G.
+  - Edge.
+  - Slow Wi-Fi(ADSL).
+  - Fast Wi-Fi(Fiber).
+  - No Network.
+  - No Service.
+
+
+#### 5.7. Entry and Exit Criteria
+
+##### ➭ Entry Criteria
+
+- Development of features is complete.
+- Unit tests passed. Consider 80% code coverage.
+- Test environment is set up and stable.
+
+##### ➭ Exit Criteria
+
+- All critical and high-severity defects are resolved.
+- Test coverage meets the required threshold.
+- All acceptance test passed.
+- User feedback is positive.
+
+
+### 6. Deployment Plan 
+
+**Primary Deployment Platform: Apple App Store**
+
+Given that EcoGo is primarily designed for iOS, the deployment platform of choice will be the Apple App Store. However, deploying an app on the App Store is a complex and lengthy process, often taking up to a year for approval. Apple reviews every app submission thoroughly, and even a single warning can lead to the app being declined. Additionally, there is a $100 fee for submitting the app to the App Store.
+
+**API Request Considerations**
+
+An important factor to consider is the cost associated with API requests. As the number of users increases, so does the number of API requests, which can significantly increase operational costs. Given that the app currently has no business or financial plan to support these costs, it will be challenging to handle more than 2 or 3 users simultaneously for testing purposes.
+
+**Utilizing Expo Tunnel for Testing**
+
+To mitigate the challenges of deploying the app on the App Store and managing API request costs, we will use a method provided by Expo: **Expo Tunnel**.
+
+Expo Tunnel allows developers to run their React Native apps on physical devices without the need for the computer and device to be on the same network. This method is particularly useful for further testing of the app in real-world conditions.
+
+**Steps for Deployment Using Expo Tunnel:**
+
+1. **Build the App on iPhone Using Xcode:**
+   - First, the app will be built on an iPhone using Xcode. This involves connecting the iPhone to the computer via a USB cable. Once the iPhone is recognized by the computer, the app is built and deployed directly onto the device.
+
+2. **Starting the App with Expo Tunnel:**
+   - After building the app on the iPhone, navigate to the project's folder on your computer.
+   - Run the command `npx expo start --tunnel`. This command starts the Expo server and enables the tunnel flag, allowing the app to be used on the iPhone regardless of whether the computer and iPhone are on the same network.
+
+**Benefits of Using Expo Tunnel:**
+
+- **Remote Access:** Expo Tunnel enables the app to be accessed on the iPhone from anywhere, not just within the same network as the development machine. This is particularly useful for testing the app in different environments and locations.
+  
+- **Ease of Testing:** By using Expo Tunnel, the app can be tested on physical devices without the need for complex network configurations or the need to deploy on the App Store.
+  
+- **Cost Management:** By limiting the app’s use to a small number of testers (2 or 3 users), we can manage API request costs effectively while still ensuring thorough testing of the app’s core functionalities.
+
+
+While the ultimate goal is to deploy EcoGo on the Apple App Store, the use of Expo Tunnel provides a practical and cost-effective solution for ongoing development and testing. This method allows us to test the app in real-world scenarios, gather feedback, and refine the app without incurring the high costs and long delays associated with a full App Store deployment.
+
+
+### 7. Implementation Plan
+
+#### 7.1. Development Strategy
 
 The project will be developed using the Agile methodology. Agile is a flexible and iterative approach that focuses on continuous improvement through small, manageable work increments known as sprints. This method allows for adaptability in response to changes in requirements or team availability. The key reason for choosing Agile is to accommodate the inconsistent work schedules of the team members, making it preferable to avoid rigid deadlines and objectives. However, it’s important to note that this flexibility could potentially lead to delays in the overall app production if not carefully managed.
 
-#### 5.2. Milestones and Phases
-
-![Milestones](./Img/timeline.png)
+#### 7.2. Milestones and Phases
 
 
-1.  Deployment Plan
-
-	•	Environment Setup: Description of development, staging, and production environments.
-	•	Deployment Strategy: Steps and processes for deploying the app.
-	•	Rollback Plan: Steps to revert to a previous state in case of issues.
-
-2.  Maintenance and Support
-
-	•	Post-Launch Support: How issues will be handled post-launch.
-	•	Maintenance Plan: Regular updates, bug fixes, and improvements.
-
+| **Phase** | **Reasoning** | **Tasks** | **Estimated Timeline** |
+|-----------|---------------|-----------|------------------------|
+| **1. User Interface and Core Application Features** | Developing the front-end components first is crucial as it provides a clear idea of the app's overall architecture. | - Sign-Up/Sign-In: Implement user registration and authentication. <br> - Home: Create a dashboard displaying carbon footprint statistics and relevant user information. <br> - GPS: Develop the interface for navigation and transportation mode selection. <br> - Store (Future version): Plan for an in-app store for redeeming rewards. <br> - Settings: Provide user account management features. <br> - Profile: Develop a user profile displaying cumulative statistics and achievements. | 4-6 Weeks |
+| **2. Account Management** | Implementing account management early helps establish the database and data structure, which facilitates subsequent development tasks. | - Implement a system for user account creation, login, and logout. <br> - Provide features for modifying personal information, such as name, email, password, profile picture, and car information. | 2-3 Weeks |
+| **3. Database Management** | Early development of the database ensures a robust backend infrastructure that supports all app features. | - Design and manage a database with two primary collections: <br> - **User Collection:** Stores user-specific information, including account details. <br> - **User Data Collection:** Records data related to users' cars, transportation modes, and carbon emissions. | 3-4 Weeks |
+| **4. GPS Navigation and Transportation Mode Selection** | As one of the most time-consuming tasks, this phase will be tackled after the core app features are stable. | - Integrate a navigation system using the Google Maps API. <br> - Provide functionality for users to choose their preferred mode of transportation and display real-time navigation and emission data. <br> - Implement guided navigation, offering step-by-step directions and real-time updates. <br> - Develop a system to mimic user movement for simulated navigation and testing. | 5-7 Weeks |
+| **5. Carbon Footprint Tracking** | This phase is crucial for the app’s core functionality of tracking carbon emissions. | - Implement a background system to detect the user’s transportation mode. <br> - Develop a tracking mechanism to record time and distance traveled in various modes, including walking, cycling, public transport, and driving. | 3-4 Weeks |
+| **6. Real-Time Emission Calculation** | Once tracking is in place, developing the algorithm for real-time emission calculation is the next logical step. | - Create an algorithm that calculates the carbon footprint in real-time, based on speed and transportation mode. <br> - Ensure the algorithm dynamically adjusts calculations based on detected mode and GPS data. | 2-3 Weeks |

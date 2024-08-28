@@ -110,6 +110,7 @@ const Map = () => {
     }
   }, [location]);
 
+  
   // Function to update location state and instructions
   const updateLocation = (newLocation: Location.LocationObject) => {
     if (!previousLocation.current) {
@@ -152,6 +153,7 @@ const Map = () => {
     setLocation(newLocation);
     updateInstructions(newLocation);
   };
+
 
   // Function to calculate and update carbon footprint
   const calculateAndUpdateCarbonFootprint = async (mode: string, distance: number) => {
@@ -535,7 +537,7 @@ const resetMapState = (cancel: boolean) => {
     resetActions();
   } else {
     // Set a 10-second delay before resetting the map if not cancelled
-    setTimeout(resetActions, 10); // 10 seconds delay (10000 milliseconds)
+    setTimeout(resetActions, 10000); // 10 seconds delay (10000 milliseconds)
   }
 };
 

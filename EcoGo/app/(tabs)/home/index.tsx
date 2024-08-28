@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { ScrollView, View, AppState, Alert, ActivityIndicator } from "react-native";
+import { ScrollView, View, AppState, ActivityIndicator } from "react-native";
 import { Activities, Recommendation, Dashboard } from "../../../components";
 import { useMovementDetector, MovementType } from '@/utils/MovementDetection';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
 import { useAuth } from '@/context/AuthContext';
 import styles from "@/components/home/whitebackground/whitebackground.style";
-import fetchUserData from "@/utils/fetchUserData";
+import fetchUserData from "@/utils/FetchUserData";
 import { COLORS } from "@/constants";
 import { getDistance } from 'geolib';
 
@@ -16,9 +16,10 @@ export default function Home() {
   const [appState, setAppState] = useState(AppState.currentState);
   const [isMovementDetectionActive, setIsMovementDetectionActive] = useState(false);
   const [isCalculating, setIsCalculating] = useState(false);
+  const [activityData, setActivityData] = useState<{ activity?: string; distance?: string; time?: string; }>({});
 
   const { user } = useAuth();
-  const [userData, setUserData] = useState<{ consumption?: number; carType?: string; carbonFootprint?:number; }>({});
+  const [userData, setUserData] = useState<{ consumption?: number; carType?: string; carbonFootprint?: string; }>({});
 
   useEffect(() => {
     if (user?.userId) {
@@ -34,7 +35,6 @@ export default function Home() {
   useMovementDetector({
     onMovementChange: async (newMovement) => {
       setMovement(newMovement);
-      // Store detected movements in AsyncStorage
       let storedMovements = await AsyncStorage.getItem('movements');
       let movements = storedMovements ? JSON.parse(storedMovements) : [];
       movements.push(newMovement);
@@ -53,12 +53,15 @@ export default function Home() {
       return true;
     };
 
-    const calculateDistanceAndShowPopup = async () => {
+    const calculateDistanceAndPrepareActivity = async () => {
       setIsCalculating(true);
-      
-      // Get initial location from when the app went inactive/background
+      await new Promise(resolve => setTimeout(resolve, 100)); // Small delay to ensure the spinner appears
+
       let initialLocation = await AsyncStorage.getItem('initialLocation');
-      if (!initialLocation) return;
+      if (!initialLocation) {
+        setIsCalculating(false);
+        return;
+      }
 
       let startLocation = JSON.parse(initialLocation);
       let endLocation = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
@@ -67,7 +70,6 @@ export default function Home() {
         { latitude: endLocation.coords.latitude, longitude: endLocation.coords.longitude }
       );
 
-      // Get stored movements and determine the most frequent one
       let storedMovements = await AsyncStorage.getItem('movements');
       let movements = storedMovements ? JSON.parse(storedMovements) : [];
 
@@ -80,31 +82,29 @@ export default function Home() {
         movementFrequency[a] > movementFrequency[b] ? a : b
       , 'Uncertain');
 
-      // Clear stored data
+      // Prepare data for activity
+      setActivityData({
+        activity: mostFrequentMovement,
+        distance: distance.toFixed(2),
+        time: "100",
+      });
+
       await AsyncStorage.removeItem('initialLocation');
       await AsyncStorage.removeItem('movements');
-
-      // Show results
       setIsCalculating(false);
-      Alert.alert(
-        'Activity Detected',
-        `You were ${mostFrequentMovement} and traveled ${distance.toFixed(2)} meters.`,
-        [{ text: 'OK' }]
-      );
     };
 
     const handleAppStateChange = async (nextAppState) => {
       if (appState.match(/inactive|background/) && nextAppState === 'active') {
         const permissionGranted = await requestLocationPermission();
         if (permissionGranted) {
-          calculateDistanceAndShowPopup();
+          calculateDistanceAndPrepareActivity();
         }
       }
 
       if (nextAppState.match(/inactive|background/)) {
         setIsMovementDetectionActive(true);
 
-        // Store the initial location when going to background/inactive
         let location = await Location.getCurrentPositionAsync({});
         await AsyncStorage.setItem('initialLocation', JSON.stringify(location.coords));
       } else {
@@ -131,7 +131,7 @@ export default function Home() {
       <ScrollView showsVerticalScrollIndicator={false}>
         <Dashboard />
         <View style={styles.whiteBackground}>
-          <Activities data={userData} />
+          <Activities data={userData} autoActivity={{ activity: activityData.activity || '', distance: activityData.distance || '', time: activityData.time || '' }} />
           <Recommendation />
         </View>
       </ScrollView>

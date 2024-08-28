@@ -16,7 +16,7 @@ import FooterMap from './footer/FooterMap';
 import Instructions from './instructions/Instructions';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { updateDoc, doc } from 'firebase/firestore';
-import fetchUserData from '@/utils/fetchUserData';
+import fetchUserData from '@/utils/FetchUserData';
 import { useAuth } from '@/context/AuthContext';
 import { db } from '@/FirebaseConfig';
 
@@ -30,7 +30,7 @@ const Map = () => {
   const { user } = useAuth(); // Get the user from the AuthContext
 
   // State variables
-  const [simulateTrip, setSimulateTrip] = useState<boolean | null>(null);
+  const [simulateTrip, setSimulateTrip] = useState<boolean>(true);
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
   const [locationSubscription, setLocationSubscription] = useState<Location.LocationSubscription | null>(null);
   const [carbonFootprint, setCarbonFootprint] = useState<number>(0);
@@ -43,7 +43,7 @@ const Map = () => {
   const [selectedMode, setSelectedMode] = useState<string>('TRAVEL_MODE_UNSPECIFIED');
   const [arrivalTime, setArrivalTime] = useState<string>('');
   const [instructions, setInstructions] = useState<object | null>(null);
-  const [isMapToucehd, setIsMapTouched] = useState<boolean>(false);
+  const [isMapTouched, setIsMapTouched] = useState<boolean>(false);
   const [countryCode, setCountryCode] = useState<string | null>('');
   const [transportOptions, setTransportOptions] = useState<Array<{ mode: string; duration: string; distance: string; polyline: { latitude: number; longitude: number }[] }>>([]);
   const [isFooterVisible, setIsFooterVisible] = useState<boolean>(true);
@@ -200,7 +200,7 @@ const Map = () => {
     }
   };
 
-  const startRouteSimulation = (routeCoords, speed = 50) => {
+  const startRouteSimulation = (routeCoords: Array<{ latitude: number; longitude: number }>, speed = 50) => {
     if (locationSubscription) {
       locationSubscription.remove();
       setLocationSubscription(null); // Clear the subscription
@@ -211,6 +211,11 @@ const Map = () => {
     let simulatedDistanceTraveled = 0; // Track the distance traveled in simulation
   
     const intervalId = setInterval(() => {
+      if (simulateTrip === false) {
+        clearInterval(intervalId); // Clear the interval if simulation is stopped
+        return;
+      }
+      console.log(simulateTrip);
       if (index < routeCoords.length - 1) {
         const start = routeCoords[index];
         const end = routeCoords[index + 1];
@@ -387,7 +392,7 @@ const Map = () => {
     const distanceToStepEnd = getDistance(currentLatLng, stepEndLatLng);
     setDistance(distanceToStepEnd);
     // Update the remaining distance and duration
-    updateRemainingDistanceAndDuration(newLocation);
+    updateRemainingDistanceAndDuration();
     // Define a completion threshold
     const completionThreshold = 20; // 20 meters threshold to consider the step complete
     // Check if the user has passed the step's endpoint
@@ -426,7 +431,7 @@ const Map = () => {
 };
 
 // Function to update remaining distance and duration
-const updateRemainingDistanceAndDuration = (newLocation: Location.LocationObject) => {
+const updateRemainingDistanceAndDuration = () => {
   if (!destination) return;
   let remainingDistance = 0;
   let remainingDuration = 0;
@@ -489,9 +494,10 @@ const updateRemainingDistanceAndDuration = (newLocation: Location.LocationObject
     }
  };
 
-const resetMapState = async (cancel: boolean) => {
+const resetMapState = (cancel: boolean) => {
   const resetActions = () => {
     console.log('Resetting states...');
+    setSimulateTrip(false); // Reset the simulation flag
     setRouteCoords([]); // Clear the polyline
     setInstructions(null); // Clear the instructions
     stepsRef.current = []; // Clear the steps
@@ -499,6 +505,13 @@ const resetMapState = async (cancel: boolean) => {
     setArrivalTime(''); // Clear the arrival time
     setDistance(0); // Reset the distance
     setDuration(''); // Clear the duration
+    setTotalDistance(''); // Clear the total distance
+    setCarbonFootprint(0); // Reset the carbon footprint
+    setTransportOptions([]); // Clear the transport options
+    if (locationSubscription) {
+      locationSubscription.remove(); // Stop the subscription to prevent multiple updates
+    }
+    setLocationSubscription(null); // Clear the location subscription    
     console.log("Resetting done successfuly");
   };
   if (cancel) {
@@ -508,6 +521,8 @@ const resetMapState = async (cancel: boolean) => {
     setTimeout(resetActions, 10); // 10 seconds delay (10000 milliseconds)
   }
 };
+
+  
 
   const startNavigation =  () => {
     const selectedOption = transportOptions.find(option => option.mode === selectedMode);
@@ -525,7 +540,8 @@ const resetMapState = async (cancel: boolean) => {
             {
                 text: 'Simulate Trip',
                 onPress: () => {
-                    setSimulateTrip(true);
+                    setSimulateTrip(true); // Start the simulation
+                    console.log(simulateTrip);
                     startRouteSimulation(selectedOption.polyline); // Start the simulation
                     setModalVisible(false);
                 }
@@ -533,7 +549,6 @@ const resetMapState = async (cancel: boolean) => {
             {
                 text: 'Use Real Location',
                 onPress: () => {
-                    setSimulateTrip(false);
                     // Stop any existing simulation
                     if (locationSubscription) {
                       locationSubscription.remove(); // Stop the subscription to prevent multiple updates
@@ -643,12 +658,13 @@ const resetMapState = async (cancel: boolean) => {
         duration={duration}
         arrivalTime={arrivalTime}
         setIsMapTouched={setIsMapTouched}
-        isMapTouched={isMapToucehd}
+        isMapTouched={isMapTouched}
         userLocation={location}
         countryCode={countryCode}
         getRoute={getRoute}
         setDestination={setDestination}
         destination={destination}
+        resetMapState={resetMapState}
       />
       {modalVisible && (
         <TransportationModal

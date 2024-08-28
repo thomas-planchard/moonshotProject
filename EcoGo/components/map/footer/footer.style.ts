@@ -4,6 +4,7 @@ import { SIZES, COLORS } from "@/constants";
 
 const styles = StyleSheet.create({
   magnifierButton: {
+    zIndex:10,
     backgroundColor: COLORS.lightWhite, 
     borderRadius: 50,
     padding: 5,

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { View, Text, TouchableOpacity, Animated, TextInput, Keyboard, FlatList } from 'react-native';
+import { View, Text, TouchableOpacity, Animated, TextInput, Keyboard, FlatList, Alert } from 'react-native';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { MaterialIcons, Entypo } from '@expo/vector-icons';
 import { GOOGLE_MAPS_APIKEY } from '@env';
@@ -20,6 +20,7 @@ interface FooterMapProps {
   getRoute: () => void;
   setDestination: (destination: string) => void;
   destination: string;
+  resetMapState: (cancel:boolean ) => void;
 }
 
 const FooterMap: React.FC<FooterMapProps> = ({ 
@@ -34,7 +35,8 @@ const FooterMap: React.FC<FooterMapProps> = ({
   countryCode,
   getRoute,
   setDestination,
-  destination
+  destination,
+  resetMapState
   }) => {
 
   // State variables
@@ -137,12 +139,36 @@ const FooterMap: React.FC<FooterMapProps> = ({
     return null;
   }
 
+  const handlePausePress = () => {
+    console.log('Pause button pressed');
+    // Show a confirmation alert before resetting the map state
+    Alert.alert(
+      'Reset Map',
+      'Are you sure you want to reset the map?',
+      [
+        {
+          text: 'Cancel',
+          onPress: () => console.log('Reset canceled'),
+          style: 'cancel',
+        },
+        {
+          text: 'Confirm',
+          onPress: () => {
+            resetMapState(true);
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
+
   return (
     <Animated.View style={[styles.footerContainer, { height: heightAnim }]}>
       {arrivalTime ? (
         <>
-        <TouchableOpacity style={styles.magnifierButton} onPress={toggleExpand}>
-          <MaterialIcons name="search" size={34} color={COLORS.blueGreen} />
+        <TouchableOpacity style={styles.magnifierButton} onPress={handlePausePress}>
+          <MaterialIcons name="pause" size={34} color="red" />
         </TouchableOpacity>
         <View style={styles.infoSection}>
           <View style={styles.infoSectionRow}>

@@ -143,7 +143,7 @@ export const useMovementDetector = ({
     const meanAccel = calculateMean(accData);
     const meanGyro = calculateMean(gyroData);
 
-    let movement: MovementType = 'Uncertain';
+    let movement: MovementType = 'Walking';
 
     if (speed !== null && speed > 5) {
       if (variance < 0.2) {

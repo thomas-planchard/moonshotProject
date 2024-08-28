@@ -42,6 +42,7 @@ const FooterMap: React.FC<FooterMapProps> = ({
   // State variables
   const [expanded, setExpanded] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
+  const [inputValue, setInputValue] = useState('')
 
   // Animation variables
   const heightAnim = useRef(new Animated.Value(hp(20))).current;
@@ -85,6 +86,7 @@ const FooterMap: React.FC<FooterMapProps> = ({
 
   // Fetch suggestions from Google Maps API
   const fetchSuggestions = async (input: string) => {
+    setInputValue(input)
     if (input.length > 0 && userLocation) {
       try {
         const response = await axios.get(
@@ -155,6 +157,7 @@ const FooterMap: React.FC<FooterMapProps> = ({
           text: 'Confirm',
           onPress: () => {
             resetMapState(true);
+            setInputValue('')
           },
         },
       ],
@@ -190,6 +193,7 @@ const FooterMap: React.FC<FooterMapProps> = ({
             placeholderTextColor={COLORS.gray}
             onFocus={toggleExpand}
             onChangeText={fetchSuggestions}
+            value={inputValue}
           />
         </View>
       )}

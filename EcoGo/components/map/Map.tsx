@@ -71,7 +71,6 @@ const Map = () => {
           setUserData(data || {});
           console.log('Fetched Data:', data);
         };
-    
         fetchData();
       }
   }, [user]);
@@ -85,7 +84,6 @@ const Map = () => {
       latitude: location.coords.latitude,
       longitude: location.coords.longitude,
     });
-
     if (reverseGeocode.length > 0) {
       setCountryCode(reverseGeocode[0].isoCountryCode);
     }
@@ -494,6 +492,7 @@ const updateRemainingDistanceAndDuration = () => {
     }
  };
 
+
 const resetMapState = (cancel: boolean) => {
   const resetActions = () => {
     console.log('Resetting states...');
@@ -513,6 +512,7 @@ const resetMapState = (cancel: boolean) => {
     }
     setLocationSubscription(null); // Clear the location subscription    
     console.log("Resetting done successfuly");
+    console.log("simulateTrip state after reset:", simulateTrip);
   };
   if (cancel) {
     resetActions();
@@ -540,7 +540,6 @@ const resetMapState = (cancel: boolean) => {
             {
                 text: 'Simulate Trip',
                 onPress: () => {
-                    setSimulateTrip(true); // Start the simulation
                     console.log(simulateTrip);
                     startRouteSimulation(selectedOption.polyline); // Start the simulation
                     setModalVisible(false);

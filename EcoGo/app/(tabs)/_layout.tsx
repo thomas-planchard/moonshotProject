@@ -1,6 +1,7 @@
 import  {Tabs } from "expo-router";
 import { Image, View} from "react-native";
 import {ICONS} from "@/constants";
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import styles from "../../components/common/footer/footer.style";
 
 
@@ -15,13 +16,11 @@ export default function layout_ () {
                     tabBarStyle: {
                         backgroundColor: "#1a434e",
                         position: "absolute",
-                        bottom: 10,
-                        left: 20,
-                        right: 20,
+                        bottom: hp(2),
+                        left: wp(5),
+                        right: wp(5),
                         borderRadius: 15,
-                        height: 50,
-                        
-
+                        height: hp(6),
                     },
                 }
             
@@ -34,12 +33,9 @@ export default function layout_ () {
                             <Image 
                                 source={ICONS.icHome}
                                 style={{
-                                    tintColor: focused ? "#7cbb85" : "#FFFF",     
+                                    tintColor: focused ? "#7fff7f" : "#FFFF",     
                                     ...styles.icons}}
                              />
-                            {/* <Text style={{color: focused ? "#7fff7f" : "#FFFF", fontSize: 12}}>
-                            Home
-                            </Text> */}
                         </View>
                         )
                     }
@@ -57,9 +53,6 @@ export default function layout_ () {
                                     tintColor: focused ?"#7fff7f" : "#FFFF",        
                                     ...styles.icons}}
                             />
-                            {/* <Text style={{color: focused ? "#7fff7f" : "#FFFF", fontSize: 12}}>
-                            Store
-                            </Text> */}
                         </View>
                         )
                     }
@@ -80,20 +73,17 @@ export default function layout_ () {
                 
                 }
             />
-            <Tabs.Screen name="Settings"
+            <Tabs.Screen name="Challenges"
                 options = {
                     {
                         tabBarIcon: ({focused}) => (
                         <View style={{alignItems: "center", justifyContent: "center", top: 15}}>
                             <Image 
-                                source={ICONS.icSetting}
+                                source={ICONS.icCoin}
                                 style={{
                                     tintColor: focused ? "#7fff7f" : "#FFFF",        
                                     ...styles.icons}}
                             />
-                            {/* <Text style={{color: focused ? "#7fff7f" : "#FFFF", fontSize: 12}}>
-                            Settings
-                            </Text> */}
                         </View>
                         )
                     }
@@ -110,9 +100,6 @@ export default function layout_ () {
                                     tintColor: focused ?"#7fff7f" : "#FFFF",     
                                     ...styles.icons}}
                             />
-                            {/* <Text style={{color: focused ? "#7fff7f" : "#FFFF", fontSize: 12}}>
-                            Profile
-                            </Text> */}
                         </View>
                         )
                     }

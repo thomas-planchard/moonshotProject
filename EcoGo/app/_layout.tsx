@@ -1,5 +1,5 @@
-import { Stack, useSegments, Slot, useRouter } from "expo-router";
-import { useAuth, AuthContextProvider } from "../context/authContext";
+import { useSegments, Slot, useRouter } from "expo-router";
+import { useAuth, AuthContextProvider } from "../context/AuthContext";
 import { useEffect } from "react";
 import ConnectionCheck from "@/components/common/CheckConnection";
 import "../global.css";
@@ -16,7 +16,7 @@ const MainLayout = () => {
        const inApp = segments[0] =='(tabs)';
        if(isAuthenticated && !inApp){
         //redirect to home
-        router.replace('/(tabs)/Gps/')
+        router.replace('/(tabs)/home/')
        }else if(isAuthenticated == false ){
         //redirect to signIn
         router.replace('/SignIn')

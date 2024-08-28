@@ -1,12 +1,17 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Modal, Alert } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import { useAuth } from '@/context/authContext';
+import { useAuth } from '@/context/AuthContext';
 import { typeOfCars, sizeOfCars } from '@/constants/index';
 import styles from './editProfile.style'; 
 
-const EditProfileModal = ({ modalVisible, onRequestClose, user }) => {
+interface EditProfileModalProps {
+  modalVisible: boolean;
+  onRequestClose: () => void;
+  user: any;
+}
+
+const EditProfileModal: React.FC<EditProfileModalProps> = ({ modalVisible, onRequestClose, user }) => {
 
   const { updateUser } = useAuth();  
 
@@ -61,22 +66,22 @@ const EditProfileModal = ({ modalVisible, onRequestClose, user }) => {
         <View style={styles.modalContent} className="gap-4">
           <Text style={styles.modalTitle}>Edit Profile</Text>
 
-          <View style={{ height: hp(7) }} className="flex-row px-4 bg-neutral-100 items-center rounded-2xl">
+          <View style={styles.inputContainer} className="flex-row px-4 bg-neutral-100 items-center rounded-2xl">
             <TextInput
               value={username}
               onChangeText={setUsername}
-              style={{ fontSize: hp(2) }}
+              style={styles.textInput}
               className="flex-1 font-semibold text-neutral-700"
               placeholder="Username"
               placeholderTextColor="grey"
             />
           </View>
 
-          <View style={{ height: hp(7) }} className="flex-row  px-4 bg-neutral-100 items-center rounded-2xl">
+          <View style={styles.inputContainer} className="flex-row  px-4 bg-neutral-100 items-center rounded-2xl">
             <TextInput
               value={email}
               onChangeText={setEmail}
-              style={{ fontSize: hp(2) }}
+              style={styles.textInput}
               className="flex-1 font-semibold text-neutral-700"
               placeholder="Email address"
               placeholderTextColor="grey"
@@ -86,11 +91,11 @@ const EditProfileModal = ({ modalVisible, onRequestClose, user }) => {
 
           {/* Car Type */}
           <TouchableOpacity
-            style={{ height: hp(7) }}
+            style={styles.inputContainer}
             className="flex-row px-4 bg-neutral-100 items-center rounded-2xl"
             onPress={() => setCarTypeModalVisible(true)}
           >
-            <Text style={{ fontSize: hp(2), color: 'grey' }}>{carType}</Text>
+            <Text style={styles.selectText}>{carType}</Text>
           </TouchableOpacity>
 
           <Modal
@@ -120,11 +125,11 @@ const EditProfileModal = ({ modalVisible, onRequestClose, user }) => {
 
           {/* Car Size */}
           <TouchableOpacity
-            style={{ height: hp(7) }}
+            style={styles.inputContainer}
             className="flex-row gap-4 px-4 bg-neutral-100 items-center rounded-2xl"
             onPress={() => setCarSizeModalVisible(true)}
           >
-            <Text style={{ fontSize: hp(2), color: 'grey' }}>{carSize}</Text>
+            <Text style={styles.selectText}>{carSize}</Text>
           </TouchableOpacity>
 
           <Modal
@@ -154,11 +159,11 @@ const EditProfileModal = ({ modalVisible, onRequestClose, user }) => {
 
           {/* Car Consumption (only for fuel cars) */}
           {carType === "Fuel" || carType === "Gazoil" ?  (
-            <View style={{ height: hp(7) }} className="flex-row gap-4 px-4 bg-neutral-100 items-center rounded-2xl">
+            <View style={styles.inputContainer} className="flex-row gap-4 px-4 bg-neutral-100 items-center rounded-2xl">
               <TextInput
                 value={consumption}
                 onChangeText={setConsumption}
-                style={{ fontSize: hp(2) }}
+                style={styles.textInput}
                 className="flex-1 font-semibold text-neutral-700"
                 placeholder="Consumption (L/km)"
                 placeholderTextColor="grey"
@@ -168,7 +173,7 @@ const EditProfileModal = ({ modalVisible, onRequestClose, user }) => {
           ):null}
 
           {/* Save Button */}
-          <View style={{ marginTop: 20, alignItems: "center" }}>
+          <View style={styles.buttonContainer}>
             <TouchableOpacity onPress={handleSave} style={styles.saveButton}>
               <Text style={styles.saveButtonText}>Save</Text>
             </TouchableOpacity>

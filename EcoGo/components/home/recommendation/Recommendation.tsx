@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, Image, ScrollView, Linking } from "react-native";
+import { View, Text, TouchableOpacity, Image, Linking } from "react-native";
 import styles from "./recommendation.style";
 
 const images = [

@@ -1,11 +1,9 @@
-import { SafeAreaView, ScrollView, View, Image } from "react-native";
-
+import { SafeAreaView, ScrollView } from "react-native";
 import {
   PopularCategories,
   Sales,
   Spotlight,
 } from "../../components";
-
 import { COLORS } from "@/constants";
 
 

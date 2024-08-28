@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, Text, Image } from 'react-native';
-import { styles } from './map.style';
+import { View, Text } from 'react-native';
+import  styles  from './carbonfootprintcontainer.style';
 import { Circle, G, Svg, Line } from 'react-native-svg';
 import { COLORS } from '@/constants';
 
@@ -9,9 +9,9 @@ interface CarbonFootprintDisplayProps {
 }
 
 const getCarbonFootprintColor = (carbonFootprint: number) => {
-  if (carbonFootprint < 1000) {
+  if (carbonFootprint < 100) {
     return COLORS.lightgreen;
-  } else if (carbonFootprint >= 1000 && carbonFootprint <= 2000) {
+  } else if (carbonFootprint >= 100 && carbonFootprint <= 180) {
     return 'orange';
   } else {
     return 'red';
@@ -23,7 +23,7 @@ const getCarbonFootprintColor = (carbonFootprint: number) => {
 const CarbonFootprintDisplay: React.FC<CarbonFootprintDisplayProps> = ({ carbonFootprint }) => {
   const radius = 50;
   const strokeWidth = 10;
-  const progress = Math.min(carbonFootprint / 10000, 1); // Ensure progress doesn't exceed 100%
+  const progress = Math.min(carbonFootprint / 300, 1); // Ensure progress doesn't exceed 100%
 
   const dashArray = Array.from({ length: 30 }, (_, i) => i); // Create an array of 30 dashes
   const dashLength = 10; // Length of each dash
@@ -77,8 +77,8 @@ const CarbonFootprintDisplay: React.FC<CarbonFootprintDisplayProps> = ({ carbonF
         </G>
         </Svg>
         <View style={styles.carbonFootprintTextContainer}>
-          <Text style={styles.carbonFootprintText}>{carbonFootprint.toFixed(0)}</Text>
-          <Text style={styles.carbonFootprintText2}>LBS</Text>
+          <Text numberOfLines={1} style={styles.carbonFootprintText}>{carbonFootprint.toFixed(1)}</Text>
+          <Text style={styles.carbonFootprintText2}>KG</Text>
         </View>
       </View>
   );

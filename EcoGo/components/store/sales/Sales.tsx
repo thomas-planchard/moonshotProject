@@ -1,11 +1,10 @@
+import React from "react";
 import {
   ScrollView,
   View,
   Text,
   Image,
   TouchableOpacity,
-  FlatList,
-  ActivityIndicator,
 } from "react-native";
 
 import styles from "./sales.style"

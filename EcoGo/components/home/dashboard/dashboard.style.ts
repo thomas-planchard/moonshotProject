@@ -14,7 +14,6 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.blueGreen,
   },
 
-
  header: {
   flexDirection: "row",
   alignItems: "center",
@@ -26,34 +25,32 @@ const styles = StyleSheet.create({
     width: wp(16),
     height: hp(8),
     borderRadius: 100,
-
   },
 
   welcomeMessage: {
-    fontFamily: "Montserrat-Bold",
     fontSize: SIZES.medium,
     color: COLORS.gray2,
     marginTop:SIZES.xSmall,
-    
   },
+
   userName: {
-    fontFamily: "Montserrat-Bold",
     fontSize: SIZES.xLarge,
     color: COLORS.white,
   },
+
   stepImage: {
-    width: SIZES.small,
+    width: SIZES.medium,
     display: "flex",
-    height: SIZES.small,
-    marginRight: SIZES.xSmall,
-    
+    height: SIZES.medium,
+    marginBottom: SIZES.large,
   },
+
   carbonImage: {
     width: SIZES.medium,
     display: "flex",
     height: SIZES.medium,
-    marginRight: SIZES.xSmall,
-    
+    marginLeft: SIZES.xSmall,
+    marginBottom: SIZES.large,
   },
 
   containerStepCarbon: {
@@ -67,55 +64,62 @@ const styles = StyleSheet.create({
     top: 0,
     width: wp(100),
     resizeMode: 'stretch',
-    },
+  },
+
   infoContainer: {
       width: '40%',
       backgroundColor: COLORS.WhiteOpacity,
       borderRadius: 20,
       justifyContent: 'center',
       alignItems: 'center',
-    },
+  },
 
-    infoContainerLarge: {
+  infoContainerLarge: {
       flexDirection: "row",
       justifyContent: "space-around",
       alignItems: "center",
-      width: '90%',
+      width: wp(92),
       backgroundColor: COLORS.WhiteOpacity,
       borderRadius: 20,
       marginLeft: SIZES.medium,
       marginTop: SIZES.xxLarge,
-    },
+      marginBottom: SIZES.xLarge,
+  },
 
-    userInformationMain: {
+  userInformationMain: {
       marginTop: SIZES.xLarge,
-      fontFamily: "Montserrat-Bold",
-      fontSize: SIZES.xxLarge,
+      fontFamily: 'monospace',
+      fontSize: SIZES.xLarge,
       color: COLORS.white,
-    },
-    userInformationMain2: {
+      width: wp(30),
+      textAlign: "center",
+      paddingHorizontal: SIZES.small,
+  },
+
+  userInformationMain2: {
       marginTop: SIZES.medium,
       fontFamily: "Montserrat-Bold",
       fontSize: SIZES.medium,
       color: COLORS.white,
-    },
-    column: {
+  },
+
+  column: {
       flexDirection: "column",
       alignItems: "center",
-    },
-
-    userInformationSecondary: {
+  },
+  
+  userInformationSecondary: {
       marginBottom: SIZES.xLarge,
-      fontFamily: "Montserrat-Bold",
       fontSize: SIZES.small,
       color: COLORS.gray2,
-    },
-    userInformationSecondary2: {
+      textAlign: "center",
+  },
+
+  userInformationSecondary2: {
       marginBottom: SIZES.small,
-      fontFamily: "Montserrat-Bold",
       fontSize: SIZES.small,
       color: COLORS.gray2,
-    },
+  },
 });
 
 export default styles;

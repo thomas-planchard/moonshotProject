@@ -10,7 +10,7 @@ export const styles = StyleSheet.create({
         height: hp(40),
         width: wp(100),
         backgroundColor: 'rgb(0, 0, 0)',
-        bottom: hp(55),
+        top: hp(-35),
     },
     turnIcon: {
         marginLeft: wp(6),

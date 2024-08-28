@@ -1,13 +1,14 @@
 const typeOfCars = [
     { label: 'Electric', value: 'Electric' },
     { label: 'Fuel', value: 'Fuel' },
-    { label: 'Gazoil', value: 'Gazoil' }
+    { label: 'Gazoil', value: 'Gazoil' },
+    { label: 'No Car', value: 'No Car' }
   ];
   
   const sizeOfCars = [
     { label: 'City', value: 'City Car' },
     { label: 'SUV', value: 'SUV' },
-    { label: 'Saloon', value: 'Saloon' }
+    { label: 'Sedan', value: 'Sedan' }
   ];
   
 

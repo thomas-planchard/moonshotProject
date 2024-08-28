@@ -15,6 +15,8 @@ interface User {
   carType?: string;
   carSize?: string;
   consumption?: string | null;
+  steps ?: number;
+  calories ?: number;
 }
 
 interface AuthContextInterface {
@@ -158,6 +160,9 @@ export const AuthContextProvider: FC<AuthContextProviderProps> = ({ children }) 
       await setDoc(doc(db, "userData", response?.user?.uid), {
         ...userData,
         carbonFootprint: 0,
+        steps: 0,
+        calories: 0,
+        distance: 0,
         userId: response?.user?.uid
       });
 

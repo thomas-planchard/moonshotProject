@@ -12,7 +12,6 @@ import MapScreen from "./map/Map";
 
 // profile
 import NameAndProfile from "./profil/nameandprofile/NameAndProfile";
-import FriendsNumber from "./profil/friendsnumber/FriendsNumber";
 import TotalData from "./profil/totaldata/TotalData";
 import Graphique from "./profil/graphique/Graphique";
 
@@ -28,7 +27,6 @@ export {
   Recommendation,
   MapScreen,
   NameAndProfile,
-  FriendsNumber,
   TotalData,
   Graphique,
   PopularCategories,

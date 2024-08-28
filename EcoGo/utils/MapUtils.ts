@@ -32,66 +32,50 @@ export const calculateHeading = (from, to) => {
   
 
 // Function to decode a polyline string into an array of points (latitude and longitude).
-export const decodePolyline = (t: string): Array<{ latitude: number; longitude: number }> => {
-    if (!t || typeof t !== 'string') {
-      throw new Error('Invalid input: Input must be a non-empty string.');
-    }
-  
-    // Initialize an empty array to hold the decoded points.
-    let points: Array<{ latitude: number; longitude: number }> = [];
-    // Initialize index to start at the beginning of the string, and len as the total length of the string.
-    let index: number = 0;
-    const len: number = t.length;
-    // Initialize variables to hold the current latitude and longitude values being decoded.
-    let lat: number = 0;
-    let lng: number = 0;
-  
-  
-    // Loop through all characters in the input string.
-    while (index < len) {
-      let b: number;
-      let shift: number = 0;
-      let result: number = 0;
-      // Decode a single latitude or longitude value from the string.
-      do {
-        //! Check if the index is within the bounds of the string.
-        if (index >= len) {
-          throw new Error('Invalid encoding: Unexpected end of input.');
-        }
-        // Decode a single character, adjusting by the offset.
-        b = t.charCodeAt(index++) - 63;
-        // Accumulate the decoded value into result, handling continuation bits.
-        result |= (b & 0x1f) << shift;
-        shift += 5;
-      } while (b >= 0x20); // Continue decoding characters until a continuation bit is not set.
-      // Apply ZigZag decoding to get the actual latitude or longitude difference.
-      const dlat: number = (result & 1) ? ~(result >> 1) : (result >> 1);
-      lat += dlat; // Update the current latitude.
-  
-      // Reset variables to decode the next value, which will be longitude.
-      shift = 0;
+export const decodePolyline = (t: string) => {
+  // Initialize an empty array to hold the decoded points.
+  let points: Array<{ latitude: number; longitude: number }> = [];
+  // Initialize index to start at the beginning of the string, and len as the total length of the string.
+  let index = 0,
+    len = t.length;
+  // Initialize variables to hold the current latitude and longitude values being decoded.
+  let lat = 0,
+    lng = 0;
+
+  // Loop through all characters in the input string.
+  while (index < len) {
+    let b, shift = 0,
       result = 0;
-      do {
-        //! Check if the index is within the bounds of the string.
-        if (index >= len) {
-          throw new Error('Invalid encoding: Unexpected end of input.');
-        }
-        b = t.charCodeAt(index++) - 63;
-        result |= (b & 0x1f) << shift;
-        shift += 5;
-      } while (b >= 0x20);
-      // Decode the longitude difference using the same method as latitude.
-      const dlng: number = (result & 1) ? ~(result >> 1) : (result >> 1);
-      lng += dlng; // Update the current longitude.
-  
-      // Add the decoded latitude and longitude to the points array, adjusting the scale.
-      points.push({ latitude: lat / 1e5, longitude: lng / 1e5 });
-    }
-    // Return the array of decoded points.
-    return points;
-  };
-  
-  
+    // Decode a single latitude or longitude value from the string.
+    do {
+      // Decode a single character, adjusting by the offset.
+      b = t.charCodeAt(index++) - 63;
+      // Accumulate the decoded value into result, handling continuation bits.
+      result |= (b & 0x1f) << shift;
+      shift += 5;
+    } while (b >= 0x20); // Continue decoding characters until a continuation bit is not set.
+    // Apply ZigZag decoding to get the actual latitude or longitude difference.
+    let dlat = result & 1 ? ~(result >> 1) : result >> 1;
+    lat += dlat; // Update the current latitude.
+
+    // Reset variables to decode the next value, which will be longitude.
+    shift = 0;
+    result = 0;
+    do {
+      b = t.charCodeAt(index++) - 63;
+      result |= (b & 0x1f) << shift;
+      shift += 5;
+    } while (b >= 0x20);
+    // Decode the longitude difference using the same method as latitude.
+    let dlng = result & 1 ? ~(result >> 1) : result >> 1;
+    lng += dlng; // Update the current longitude.
+
+    // Add the decoded latitude and longitude to the points array, adjusting the scale.
+    points.push({ latitude: lat / 1e5, longitude: lng / 1e5 });
+  }
+  // Return the array of decoded points.
+  return points;
+};
   
   
   //? Another solution by pre-allocating the array size and updating the array directly

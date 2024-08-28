@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { View, Text, Image, TouchableOpacity, Alert } from "react-native";
 import { Pedometer } from "expo-sensors";
+import { widthPercentageToDP as wp } from "react-native-responsive-screen";
 import styles from "./dashboard.style";
 import { ICONS } from "@/constants";
-import { doc, onSnapshot} from  'firebase/firestore';
-import {db} from '../../../FirebaseConfig';
+import { doc, onSnapshot, updateDoc, Unsubscribe } from 'firebase/firestore';
+import { db } from '../../../FirebaseConfig';
 import { useRouter } from "expo-router";
 import { ProfilImage } from "@/components/common/ProfilImage";
-import { useAuth } from "@/context/authContext";
+import { useAuth } from "@/context/AuthContext";
 
 const Dashboard = () => {
   const routing = useRouter();
@@ -15,87 +16,127 @@ const Dashboard = () => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [isPedometerAvailable, setPedometerAvailability] = useState(false);
   const [carbonFootprint, setCarbonFootprint] = useState(0);
+  const [calories, setCalories] = useState(0);
+  const [distance, setDistance] = useState(0);
   const [stepCount, setStepCount] = useState(0);
 
+  // Create refs to store previous values
+  const prevStepCount = useRef(stepCount);
+  const prevCalories = useRef(calories);
+  const prevDistance = useRef(distance);
 
-  // Assuming an average stride length (in meters). Consider allowing the user to input their stride length.
-  const strideLength = 0.78; // meters
-  const userWeight = 70; // kg, consider allowing the user to input their weight
-  
-  // Distance covered in kilometers
-  const distanceCovered = ((stepCount * strideLength) / 1000).toFixed(2);
-  
-  // MET value for walking
-  const metValue = 3.5;
-  
-  // Duration in hours (assuming a constant step rate)
-  const durationInHours = stepCount / (5000); // assuming 5000 steps/hour
-  
-  // Calories burnt calculation
-  const caloriesBurnt = ((metValue * userWeight * durationInHours)).toFixed(2);
+
+
+  // Define constants
+  const strideLength = 0.78; // meters per step
+  const userWeight = 70; // kg
+  const metValue = 3.5; // MET value for walking
+
+  // Calculate distance in kilometers
+  const calculateDistance = (steps: number) => ((steps * strideLength) / 1000).toFixed(2);
+
+  // Calculate calories burned
+  const calculateCalories = (steps: number) => {
+    const durationInHours = steps / 5000; // assuming 5000 steps/hour
+    return (metValue * userWeight * durationInHours).toFixed(2);
+  };
+
+
+useEffect(() => {
+  let unsubscribe;
+  const fetchData = async () => {
+    try {
+      if (user && user.userId) {
+        const userDataRef = doc(db, "userData", user.userId);
+        unsubscribe = onSnapshot(userDataRef, (doc) => {
+          if (doc.exists()) {
+            const userData = doc.data();
+            setCarbonFootprint(userData.carbonFootprint || 0);
+            setCalories(userData.calories || 0);
+            setDistance(userData.distance || 0);
+            setStepCount(userData.steps || 0);
+          }
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  };
+  fetchData();
+  return () => {
+    if (unsubscribe) unsubscribe();
+  };
+}, [user]);
+
 
   useEffect(() => {
-    let subscription;
+    let pedometerSubscription;
 
-    const subscribe = async () => {
+    const initializePedometer = async () => {
       try {
-        const result = await Pedometer.isAvailableAsync();
-        setPedometerAvailability(result);
-        if (result) {
-          subscription = Pedometer.watchStepCount((result) => {
-            setStepCount(result.steps);
+        const isAvailible = await Pedometer.isAvailableAsync();
+        setPedometerAvailability(isAvailible);
+        if (isAvailible) {
+          pedometerSubscription = Pedometer.watchStepCount((result) => {
+            const newSteps = result.steps;
+            const totalSteps = stepCount + newSteps;
+
+            console.log("New steps:", totalSteps);
+            setStepCount((prevSteps) => prevSteps + newSteps); // Update steps locally
+            setDistance(parseFloat(calculateDistance(totalSteps))); // Update distance locally
+            setCalories(parseFloat(calculateCalories(totalSteps))); // Update calories locally
           });
         } else {
           Alert.alert("Pedometer not available", "Your device does not support the Pedometer sensor.");
         }
       } catch (error) {
-        setPedometerAvailability(false);
         console.error("Pedometer availability check failed:", error);
+        setPedometerAvailability(false);
       }
     };
 
-    subscribe();
+    initializePedometer();
 
     return () => {
-      subscription && subscription.remove();
+      if (pedometerSubscription) pedometerSubscription.remove();
     };
-  }, []);
+  }, [stepCount]);
+
 
 
   useEffect(() => {
-    let unsubscribe;
-    const fetchCarbonFootprint = async () => {
-      try {
-        if (user && user.userId) {
+    if (user && user.userId) {
+      const intervalId = setInterval(async () => {
+        // Only update Firestore if the values have changed
+        if (
+          stepCount !== prevStepCount.current ||
+          calories !== prevCalories.current ||
+          distance !== prevDistance.current
+        ) {
+          console.log("Updating user data...", distance, calories, stepCount);
+  
           const userDataRef = doc(db, "userData", user.userId);
-          unsubscribe = onSnapshot(userDataRef, (doc) => {
-            if (doc.exists()) {
-              const userData = doc.data();
-              setCarbonFootprint(userData.carbonFootprint || 0);
-            }
+          await updateDoc(userDataRef, {
+            steps: stepCount,
+            calories: calories,
+            distance: distance,
           });
+  
+          // Update the refs with the current values
+          prevStepCount.current = stepCount;
+          prevCalories.current = calories;
+          prevDistance.current = distance;
         }
-      } catch (error) {
-        console.error("Error fetching carbon footprint:", error);
-      }
-    };
+      }, 60000); // Update every 60 seconds
+  
+      return () => clearInterval(intervalId);
+    }
+  }, [stepCount, calories, distance, user]);
 
-    fetchCarbonFootprint();
-
-    return () => {
-      if (unsubscribe) {
-        unsubscribe();
-      }
-    };
-  }, [user]);
   
   const goToInfoUser = () => {
     routing.navigate("screens/InfoUser");
   };
-
-  
-
-
 
   return (
     <View style={styles.container}>
@@ -105,7 +146,7 @@ const Dashboard = () => {
           {user?.username ? (
             <Text style={styles.userName}>{user?.username}!</Text>
           ) : (
-            <Text>Chargement...</Text>
+            <Text>Loading...</Text>
           )}
         </View>
         <TouchableOpacity onPress={goToInfoUser}>
@@ -120,17 +161,17 @@ const Dashboard = () => {
       <View style={styles.containerStepCarbon}>
         <View style={styles.infoContainer}>
           <Text style={styles.userInformationMain}>{stepCount}</Text>
-          <Text style={styles.userInformationSecondary}>
+          <View style={{ flexDirection: 'row', alignItems: 'center'}}>
+            <Text style={[styles.userInformationSecondary,{width: wp(10),}]}>Steps</Text>
             <Image source={ICONS.steps} resizeMode="contain" style={styles.stepImage} />
-            Steps
-          </Text>
+          </View>
         </View>
         <View style={styles.infoContainer}>
-          <Text style={styles.userInformationMain}>{carbonFootprint}</Text>
-          <Text style={styles.userInformationSecondary}>
+          <Text numberOfLines={1} style={styles.userInformationMain}>{carbonFootprint} kg</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center'}}>
             <Image source={ICONS.carbon} resizeMode="contain" style={styles.carbonImage} />
-            Carbon Footprint
-          </Text>
+            <Text style={[styles.userInformationSecondary,{width: wp(25)}]}>Carbon Footprint</Text>
+          </View>
         </View>
       </View>
       <View style={styles.infoContainerLarge}>
@@ -139,11 +180,11 @@ const Dashboard = () => {
           <Text style={styles.userInformationSecondary2}>Coins</Text>
         </View>
         <View style={styles.column}>
-          <Text style={styles.userInformationMain2}>{distanceCovered} KM</Text>
+          <Text style={styles.userInformationMain2}>{distance} KM</Text>
           <Text style={styles.userInformationSecondary2}>Distance</Text>
         </View>
         <View style={styles.column}>
-          <Text style={styles.userInformationMain2}>{caloriesBurnt}</Text>
+          <Text style={styles.userInformationMain2}>{calories}</Text>
           <Text style={styles.userInformationSecondary2}>
             Calories
           </Text>

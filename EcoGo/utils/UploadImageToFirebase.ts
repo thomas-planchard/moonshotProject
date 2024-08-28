@@ -45,7 +45,6 @@ const uploadImage = async (
             'state_changed',
             (snapshot) => {
                 const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                console.log(`Upload is ${progress}% done`);
                 if (setProgress) {
                     setProgress(progress);
                 }
@@ -59,7 +58,6 @@ const uploadImage = async (
                 clearTimeout(timeout);
                 try {
                     const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-                    console.log('File available at', downloadURL);
                     resolve(downloadURL);
                 } catch (error) {
                     console.error("Error getting download URL:", error);

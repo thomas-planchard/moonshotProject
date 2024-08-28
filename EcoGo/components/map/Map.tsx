@@ -15,7 +15,7 @@ import {decodePolyline, getDistance, calculateHeading} from '@/utils/MapUtils';
 import FooterMap from './footer/FooterMap';
 import Instructions from './instructions/Instructions';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import { updateDoc, doc } from 'firebase/firestore';
+import { updateDoc, doc, increment } from 'firebase/firestore';
 import fetchUserData from '@/utils/FetchUserData';
 import { useAuth } from '@/context/AuthContext';
 import { db } from '@/FirebaseConfig';
@@ -191,11 +191,12 @@ const Map = () => {
     if (user?.userId) {
       const userDataRef = doc(db, "userData", user.userId);
       try {
-        // Add the new footprint to the current footprint
-        const updatedFootprint = parseFloat(userData.carbonFootprint ?? '0') + newFootprint;
         // Update the carbon footprint in the database
+        const roundedFootprint = parseFloat(newFootprint.toFixed(2));
+        console.log(roundedFootprint)
+        
         await updateDoc(userDataRef, {
-          carbonFootprint: updatedFootprint.toFixed(2), // Store as rounded value
+          carbonFootprint: increment(roundedFootprint), // Store as rounded value
         });
       } catch (error) {
         console.error("Error updating carbon footprint:", error);

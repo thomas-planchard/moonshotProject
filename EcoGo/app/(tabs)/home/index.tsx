@@ -10,7 +10,6 @@ import { getStoredActivities, storeActivity } from "@/utils/AsyncStorage";
 import * as Location from 'expo-location';
 import { useAuth } from '@/context/AuthContext';
 import styles from "@/components/home/whitebackground/whitebackground.style";
-import fetchUserData from "@/utils/FetchUserData";
 import { COLORS } from "@/constants";
 
 export default function Home() {
@@ -19,21 +18,11 @@ export default function Home() {
   const [isMovementDetectionActive, setIsMovementDetectionActive] = useState(false);
   const [totalDistance, setTotalDistance] = useState(0);
   const { user } = useAuth();
-  const [userData, setUserData] = useState<{ consumption?: number; carType?: string; carbonFootprint?:number; }>({});
   const [activityData, setActivityData] = useState<{activity?: string; distance?: string; }>({});
 
  
 
-  // Fetch user data
-  useEffect(() => {
-    if (user?.userId) {
-      const fetchData = async () => {
-        const data = await fetchUserData(user.userId, ['consumption', 'carType', 'carbonFootprint']);
-        setUserData(data || {});
-      };
-      fetchData();
-    }
-  }, [user]);
+
 
   // Always call the useMovementDetector hook
   useMovementDetector({
@@ -124,7 +113,7 @@ export default function Home() {
       <ScrollView showsVerticalScrollIndicator={false}>
         <Dashboard />
         <View style={styles.whiteBackground}>
-          <Activities data={userData} activityData={activityData} />
+          <Activities activityData={activityData} />
           <Recommendation />
         </View>
       </ScrollView>

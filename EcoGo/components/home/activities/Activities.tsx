@@ -2,11 +2,12 @@ import React, { useState, useEffect } from "react";
 import { ScrollView, View, Text, Image, TouchableOpacity, Modal, TextInput, Button, Alert} from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import  CalculateCarbonFootprint from "@/utils/CalculateCarbonFootprint";
-import { doc, updateDoc } from "firebase/firestore"; 
+import { doc, updateDoc, increment } from "firebase/firestore"; 
 import {db} from '../../../FirebaseConfig';
 import { useAuth } from "@/context/AuthContext";
 import {ICONS} from "@/constants"
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import fetchUserData from "@/utils/FetchUserData";
 import styles from "./activities.style";
 
 const predefinedActivities = [
@@ -19,18 +20,13 @@ const predefinedActivities = [
 
 
 interface ActivityProps {
-  data: {
-     consumption?: number;
-     carType?: string; 
-     carbonFootprint?: string; 
-  };
   activityData:{
     activity?: string;
     distance?: string
   }
 }
 
-const Activities: React.FC <ActivityProps> = ({ data, activityData })=> {
+const Activities: React.FC <ActivityProps> = ({ activityData })=> {
 
   const [modalVisible, setModalVisible] = useState(false);
   const [pickerVisible, setPickerVisible] = useState(false);
@@ -39,6 +35,20 @@ const Activities: React.FC <ActivityProps> = ({ data, activityData })=> {
   const [distance, setDistance] = useState('');
   const [activities, setActivities] = useState([]);
   const { user } = useAuth();
+  const [userData, setUserData] = useState<{ consumption?: number; carType?: string; carbonFootprint?:string; }>({});
+
+
+
+  useEffect(() => {
+    if (user?.userId) {
+      const fetchData = async () => {
+        const data = await fetchUserData(user.userId, ['consumption', 'carType', 'carbonFootprint']);
+        setUserData(data || {});
+      };
+      fetchData();
+    }
+  }, [user]);
+
 
 
   useEffect(() => {
@@ -80,24 +90,24 @@ const Activities: React.FC <ActivityProps> = ({ data, activityData })=> {
     let carbonFootprint = 0;
     
     if (selectedActivity === "Car") {
-          const carType = data.carType;
-          const consumption = data.consumption || undefined; 
+          const carType = userData.carType;
+          const consumption = userData.consumption || undefined; 
           carbonFootprint = CalculateCarbonFootprint(parseFloat(distance), carType.toLowerCase(), consumption); 
     } else {
       // Calculate carbon footprint for other activities
       carbonFootprint = CalculateCarbonFootprint(parseFloat(distance), selectedActivity.toLowerCase());
     }
          // Round the carbon footprint to 1 decimal place
-         carbonFootprint = parseFloat(carbonFootprint.toFixed(1));
+         carbonFootprint = parseFloat(carbonFootprint.toFixed(2));
 
          let totalCarbonFootprint = carbonFootprint;
    
-         const previousFootprint = parseFloat(data.carbonFootprint ?? '0'); // Ensure previousFootprint is a number
+         const previousFootprint = parseFloat(userData.carbonFootprint ?? '0'); // Ensure previousFootprint is a number
          totalCarbonFootprint += previousFootprint;
          
          // Update the accumulated carbon footprint
          await updateDoc(userDataRef, {
-           carbonFootprint: totalCarbonFootprint.toFixed(2)
+           carbonFootprint: increment(carbonFootprint)
          });
    
     setActivities([...activities, { name: selectedActivity, time, distance, icon: activityIcon }]);
@@ -124,7 +134,7 @@ const Activities: React.FC <ActivityProps> = ({ data, activityData })=> {
         {activities.map((activity, index) => (
           <View key={index} style={styles.card}>
             <Image style={styles.icons} source={activity.icon} />
-            <Text style={styles.activityTime}>{activity.time} min</Text>
+            <Text style={styles.activityTime}>{activity.distance} km</Text>
             <Text style={styles.activityName}>{activity.name}</Text>
           </View>
         ))}

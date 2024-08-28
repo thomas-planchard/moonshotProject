@@ -30,6 +30,8 @@ const Map = () => {
   const { user } = useAuth(); // Get the user from the AuthContext
 
   // State variables
+
+  
   const [simulateTrip, setSimulateTrip] = useState<boolean>(true);
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
   const [locationSubscription, setLocationSubscription] = useState<Location.LocationSubscription | null>(null);
@@ -54,12 +56,16 @@ const Map = () => {
   const [userData, setUserData] = useState<{ consumption?: number; carType?: string; carbonFootprint?: string }>({});
 
 
+  
+  
   // Refs 
   const mapRef = useRef<MapView>(null);
   const stepsRef = useRef<any[]>([]);
   const followingUser = useRef(true);
   const distanceTraveled = useRef(0); // Track the cumulative distance traveled
-
+  const simulationIntervalRef = useRef<NodeJS.Timeout | null>(null); // Ref to store interval ID
+  const simulateTripRef = useRef(simulateTrip); // Ref to track simulateTrip state
+  
 
   // Effect to fetch user data from the database
   useEffect(() => {
@@ -195,22 +201,40 @@ const Map = () => {
     }
   };
 
+
+    // Function to stop the simulation
+    const stopSimulation = () => {
+      setSimulateTrip(false);
+      simulateTripRef.current = false; // Update the ref immediately
+      if (simulationIntervalRef.current) {
+        clearInterval(simulationIntervalRef.current); // Clear the interval
+        simulationIntervalRef.current = null; // Reset the interval ref
+      }
+    };
+  
+
   const startRouteSimulation = (routeCoords: Array<{ latitude: number; longitude: number }>, speed = 50) => {
-    if (locationSubscription) {
-      locationSubscription.remove();
-      setLocationSubscription(null); // Clear the subscription
+      // Stop any ongoing simulation
+    if (simulationIntervalRef.current) {
+      clearInterval(simulationIntervalRef.current);
+      simulationIntervalRef.current = null;
     }
+
+    // Set simulation flag and ref
+    setSimulateTrip(true);
+    simulateTripRef.current = true;
+
     let index = 0;
     const updateInterval = 1000; // Update every second
     const distancePerUpdate = (speed * 1000) / 3600; // Speed in meters per second
     let simulatedDistanceTraveled = 0; // Track the distance traveled in simulation
   
-    const intervalId = setInterval(() => {
-      if (simulateTrip === false) {
-        clearInterval(intervalId); // Clear the interval if simulation is stopped
-        return;
+    simulationIntervalRef.current = setInterval(() => {
+      if (!simulateTripRef.current || index >= routeCoords.length - 1) {
+        clearInterval(simulationIntervalRef.current);
+        simulationIntervalRef.current = null;
+        return; // Exit if the simulation is stopped or route is complete
       }
-      console.log(simulateTrip);
       if (index < routeCoords.length - 1) {
         const start = routeCoords[index];
         const end = routeCoords[index + 1];
@@ -250,7 +274,6 @@ const Map = () => {
           index++;
         }
       } else {
-        clearInterval(intervalId); // Clear the interval when simulation is complete
       }
     }, updateInterval); // Update location every second
   };
@@ -491,7 +514,7 @@ const updateRemainingDistanceAndDuration = () => {
 
 const resetMapState = (cancel: boolean) => {
   const resetActions = () => {
-    setSimulateTrip(false); // Reset the simulation flag
+    stopSimulation();
     setRouteCoords([]); // Clear the polyline
     setInstructions(null); // Clear the instructions
     stepsRef.current = []; // Clear the steps

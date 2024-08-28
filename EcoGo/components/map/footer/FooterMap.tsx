@@ -142,7 +142,6 @@ const FooterMap: React.FC<FooterMapProps> = ({
   }
 
   const handlePausePress = () => {
-    console.log('Pause button pressed');
     // Show a confirmation alert before resetting the map state
     Alert.alert(
       'Reset Map',

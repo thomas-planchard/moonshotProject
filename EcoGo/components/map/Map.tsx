@@ -54,13 +54,11 @@ const Map = () => {
   const [userData, setUserData] = useState<{ consumption?: number; carType?: string; carbonFootprint?: string }>({});
 
 
-
   // Refs 
   const mapRef = useRef<MapView>(null);
   const stepsRef = useRef<any[]>([]);
   const followingUser = useRef(true);
   const distanceTraveled = useRef(0); // Track the cumulative distance traveled
-
 
 
   // Effect to fetch user data from the database
@@ -69,7 +67,6 @@ const Map = () => {
         const fetchData = async () => {
           const data = await fetchUserData(user.userId, ['consumption', 'carType', 'carbonFootprint']);
           setUserData(data || {});
-          console.log('Fetched Data:', data);
         };
         fetchData();
       }
@@ -435,7 +432,6 @@ const updateRemainingDistanceAndDuration = () => {
   let remainingDuration = 0;
 
   remainingDistance += distance;
-  console.log(distance)
 
   // Calculate remaining distance for all subsequent steps
   for (let i = 0; i < stepsRef.current.length - 1; i++) {
@@ -495,7 +491,6 @@ const updateRemainingDistanceAndDuration = () => {
 
 const resetMapState = (cancel: boolean) => {
   const resetActions = () => {
-    console.log('Resetting states...');
     setSimulateTrip(false); // Reset the simulation flag
     setRouteCoords([]); // Clear the polyline
     setInstructions(null); // Clear the instructions
@@ -511,7 +506,6 @@ const resetMapState = (cancel: boolean) => {
       locationSubscription.remove(); // Stop the subscription to prevent multiple updates
     }
     setLocationSubscription(null); // Clear the location subscription    
-    console.log("Resetting done successfuly");
     console.log("simulateTrip state after reset:", simulateTrip);
   };
   if (cancel) {
@@ -576,7 +570,6 @@ const resetMapState = (cancel: boolean) => {
                 style: 'cancel',
                 onPress: () => {
                     resetMapState(true); // Reset the map state
-                    console.log('Navigation canceled');
                 }
             },
         ],

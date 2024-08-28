@@ -27,7 +27,6 @@ function CalculateCarbonFootprint(
   transportation: string,
   consumption?: number
 ): number {
-  console.log('Calculating carbon footprint for', transportation);
   if (!TRANSPORTATION_EMISSIONS.hasOwnProperty(transportation)) {
     throw new Error('Invalid transportation choice.');
   }

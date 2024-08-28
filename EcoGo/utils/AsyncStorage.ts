@@ -13,6 +13,8 @@ interface Activity {
       const storedActivities = await AsyncStorage.getItem('activities');
       const activities: Activity[] = storedActivities ? JSON.parse(storedActivities) : [];
       activities.push(activity);
+      console.log('Storing Activity:', activity); // Debug log
+      //console.log('All Activities after push:', activities); // Debug log
       await AsyncStorage.setItem('activities', JSON.stringify(activities));
     } catch (error) {
       console.error('Error storing activity:', error);
@@ -22,7 +24,9 @@ interface Activity {
   const getStoredActivities = async (): Promise<Activity[]> => {
     try {
       const storedActivities = await AsyncStorage.getItem('activities');
-      return storedActivities ? JSON.parse(storedActivities) : [];
+      const activities = storedActivities ? JSON.parse(storedActivities) : [];
+      console.log('Retrieved Activities:', activities); // Debug log
+      return activities;
     } catch (error) {
       console.error('Error retrieving activities:', error);
       return [];

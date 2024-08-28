@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { ScrollView, View, Text, Image, TouchableOpacity, Modal, TextInput, Button } from "react-native";
+import { ScrollView, View, Text, Image, TouchableOpacity, Modal, TextInput, Button, Alert} from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import CalculateCarbonFootprint from "@/utils/CalculateCarbonFootprint";
+import  CalculateCarbonFootprint from "@/utils/CalculateCarbonFootprint";
 import { doc, updateDoc } from "firebase/firestore"; 
-import { db } from '../../../FirebaseConfig';
+import {db} from '../../../FirebaseConfig';
 import { useAuth } from "@/context/AuthContext";
-import { ICONS } from "@/constants";
+import {ICONS} from "@/constants"
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles from "./activities.style";
 
 const predefinedActivities = [
@@ -13,7 +14,9 @@ const predefinedActivities = [
   { label: "Bus", value: "Bus", icon: ICONS.frontBus },
   { label: "Plane", value: "Plane", icon: ICONS.blackPlane },
   { label: "Bicycle", value: "Bicycle", icon: ICONS.cycling },
+  { label: "Walk", value: "Walk", icon: ICONS.cycling },
 ];
+
 
 interface ActivityProps {
   data: {
@@ -21,29 +24,44 @@ interface ActivityProps {
      carType?: string; 
      carbonFootprint?: string; 
   };
-  autoActivity?: { activity: string; distance: string; time: string };
+  activityData:{
+    activity?: string;
+    distance?: string
+  }
 }
 
-const Activities: React.FC<ActivityProps> = ({ data, autoActivity }) => {
+const Activities: React.FC <ActivityProps> = ({ data, activityData })=> {
 
   const [modalVisible, setModalVisible] = useState(false);
   const [pickerVisible, setPickerVisible] = useState(false);
-  const [selectedActivity, setSelectedActivity] = useState(autoActivity?.activity || predefinedActivities[0].value);
-  const [time, setTime] = useState(autoActivity?.time || '');
-  const [distance, setDistance] = useState(autoActivity?.distance || '');
+  const [selectedActivity, setSelectedActivity] = useState(predefinedActivities[0].value);
+  const [time, setTime] = useState('');
+  const [distance, setDistance] = useState('');
   const [activities, setActivities] = useState([]);
   const { user } = useAuth();
-  const [hasOpenedModal, setHasOpenedModal] = useState(false);  // Flag to track modal opening
+
 
   useEffect(() => {
-    if (autoActivity && !hasOpenedModal) {
-      setSelectedActivity(autoActivity.activity);
-      setDistance(autoActivity.distance);
-      setTime(autoActivity.time);
-      setHasOpenedModal(true);  // Mark the modal as opened
-      openModal(); // Automatically open the modal if autoActivity is provided
+    // Pre-fill modal with activity data when activityData changes
+    if (parseFloat(activityData.distance ?? "0") > 0) {
+      if(activityData.activity == 'Cycling or in a bus'){
+        Alert.alert(
+          "Activity Detected",
+          "You were detected as Cycling or on a Bus. Can you please confirm which one?",
+          [
+            { text: "Cycling", onPress: () => setSelectedActivity("Cycling") },
+            { text: "Bus", onPress: () => setSelectedActivity("bus") }
+          ]
+        );
+      }
+      else{
+      setSelectedActivity(activityData.activity||predefinedActivities[0].value );
+      }
+      setDistance(activityData.distance || '');
+      AsyncStorage.removeItem('activities') 
+      openModal();
     }
-  }, [autoActivity, hasOpenedModal]);
+  }, [activityData]);
 
   const openModal = () => {
     setModalVisible(true);
@@ -62,22 +80,26 @@ const Activities: React.FC<ActivityProps> = ({ data, autoActivity }) => {
     let carbonFootprint = 0;
     
     if (selectedActivity === "Car") {
-      const carType = data.carType;
-      const consumption = data.consumption || undefined; 
-      carbonFootprint = CalculateCarbonFootprint(parseFloat(distance), carType.toLowerCase(), consumption); 
+          const carType = data.carType;
+          const consumption = data.consumption || undefined; 
+          carbonFootprint = CalculateCarbonFootprint(parseFloat(distance), carType.toLowerCase(), consumption); 
     } else {
+      // Calculate carbon footprint for other activities
       carbonFootprint = CalculateCarbonFootprint(parseFloat(distance), selectedActivity.toLowerCase());
     }
+         // Round the carbon footprint to 1 decimal place
+         carbonFootprint = parseFloat(carbonFootprint.toFixed(1));
 
-    carbonFootprint = parseFloat(carbonFootprint.toFixed(1));
-    let totalCarbonFootprint = carbonFootprint;
-    const previousFootprint = parseFloat(data.carbonFootprint ?? '0');
-    totalCarbonFootprint += previousFootprint;
-
-    await updateDoc(userDataRef, {
-      carbonFootprint: totalCarbonFootprint.toFixed(2)
-    });
-
+         let totalCarbonFootprint = carbonFootprint;
+   
+         const previousFootprint = parseFloat(data.carbonFootprint ?? '0'); // Ensure previousFootprint is a number
+         totalCarbonFootprint += previousFootprint;
+         
+         // Update the accumulated carbon footprint
+         await updateDoc(userDataRef, {
+           carbonFootprint: totalCarbonFootprint.toFixed(2)
+         });
+   
     setActivities([...activities, { name: selectedActivity, time, distance, icon: activityIcon }]);
     closeModal();
   };
@@ -104,13 +126,12 @@ const Activities: React.FC<ActivityProps> = ({ data, autoActivity }) => {
             <Image style={styles.icons} source={activity.icon} />
             <Text style={styles.activityTime}>{activity.time} min</Text>
             <Text style={styles.activityName}>{activity.name}</Text>
-            <Text style={styles.activityDistance}>{activity.distance} km</Text>
           </View>
         ))}
       </ScrollView>
       
       <Modal
-        animationType="slide"
+        animationType="fade"
         transparent={true}
         visible={modalVisible}
         onRequestClose={closeModal}
@@ -167,6 +188,6 @@ const Activities: React.FC<ActivityProps> = ({ data, autoActivity }) => {
       </Modal>
     </View>
   );
-};
+}
 
 export default Activities;

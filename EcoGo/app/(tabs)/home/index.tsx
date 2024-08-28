@@ -1,49 +1,49 @@
 import React, { useState, useEffect } from "react";
-import { ScrollView, View, AppState, ActivityIndicator } from "react-native";
-import { Activities, Recommendation, Dashboard } from "../../../components";
+import { ScrollView, View, AppState, Alert } from "react-native";
+import {
+  Activities,
+  Recommendation,
+  Dashboard,
+} from "../../../components";
 import { useMovementDetector, MovementType } from '@/utils/MovementDetection';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getStoredActivities, storeActivity } from "@/utils/AsyncStorage";
 import * as Location from 'expo-location';
 import { useAuth } from '@/context/AuthContext';
 import styles from "@/components/home/whitebackground/whitebackground.style";
 import fetchUserData from "@/utils/FetchUserData";
 import { COLORS } from "@/constants";
-import { getDistance } from 'geolib';
 
 export default function Home() {
-
   const [movement, setMovement] = useState<MovementType>('Uncertain');
   const [appState, setAppState] = useState(AppState.currentState);
   const [isMovementDetectionActive, setIsMovementDetectionActive] = useState(false);
-  const [isCalculating, setIsCalculating] = useState(false);
-  const [activityData, setActivityData] = useState<{ activity?: string; distance?: string; time?: string; }>({});
-
+  const [totalDistance, setTotalDistance] = useState(0);
   const { user } = useAuth();
-  const [userData, setUserData] = useState<{ consumption?: number; carType?: string; carbonFootprint?: string; }>({});
+  const [userData, setUserData] = useState<{ consumption?: number; carType?: string; carbonFootprint?:number; }>({});
+  const [activityData, setActivityData] = useState<{activity?: string; distance?: string; }>({});
 
+ 
+
+  // Fetch user data
   useEffect(() => {
     if (user?.userId) {
       const fetchData = async () => {
         const data = await fetchUserData(user.userId, ['consumption', 'carType', 'carbonFootprint']);
         setUserData(data || {});
       };
-  
       fetchData();
     }
   }, [user]);
 
+  // Always call the useMovementDetector hook
   useMovementDetector({
-    onMovementChange: async (newMovement) => {
-      setMovement(newMovement);
-      let storedMovements = await AsyncStorage.getItem('movements');
-      let movements = storedMovements ? JSON.parse(storedMovements) : [];
-      movements.push(newMovement);
-      await AsyncStorage.setItem('movements', JSON.stringify(movements));
-    },
+    onMovementChange: setMovement,
     isActive: isMovementDetectionActive,
   });
 
   useEffect(() => {
+    let locationSubscription;
+
     const requestLocationPermission = async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
@@ -53,62 +53,59 @@ export default function Home() {
       return true;
     };
 
-    const calculateDistanceAndPrepareActivity = async () => {
-      setIsCalculating(true);
-      await new Promise(resolve => setTimeout(resolve, 100)); // Small delay to ensure the spinner appears
+    const startTracking = async () => {
+      const permissionGranted = await requestLocationPermission();
+      if (!permissionGranted) return;
 
-      let initialLocation = await AsyncStorage.getItem('initialLocation');
-      if (!initialLocation) {
-        setIsCalculating(false);
-        return;
-      }
-
-      let startLocation = JSON.parse(initialLocation);
-      let endLocation = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
-      let distance = getDistance(
-        startLocation,
-        { latitude: endLocation.coords.latitude, longitude: endLocation.coords.longitude }
+      locationSubscription = await Location.watchPositionAsync(
+        {
+          accuracy: Location.Accuracy.High,
+          timeInterval: 10000, // Update every 10 seconds
+          distanceInterval: 10, // Update every 10 meters
+        },
+        (location) => {
+          setTotalDistance((prevDistance) => prevDistance + location.coords.speed * (10 / 3600)); // Distance in km
+        }
       );
+    };
 
-      let storedMovements = await AsyncStorage.getItem('movements');
-      let movements = storedMovements ? JSON.parse(storedMovements) : [];
+    const stopTracking = () => {
+      if (locationSubscription) {
+        locationSubscription.remove();
+      }
+    };
 
-      let movementFrequency = movements.reduce((acc, curr) => {
-        acc[curr] = (acc[curr] || 0) + 1;
-        return acc;
-      }, {});
+    const checkForActivities = async () => {
+      const activities = await getStoredActivities();
+      console.log(activities)
+      if (activities.length > 0) {
+        const activityCounts = activities.reduce((acc, activity) => {
+          acc[activity.movement] = (acc[activity.movement] || 0) + 1;
+          return acc;
+        }, {});
+        const mostFrequentMovement = Object.keys(activityCounts).reduce((a, b) => activityCounts[a] > activityCounts[b] ? a : b);
 
-      let mostFrequentMovement = Object.keys(movementFrequency).reduce((a, b) => 
-        movementFrequency[a] > movementFrequency[b] ? a : b
-      , 'Uncertain');
-
-      // Prepare data for activity
-      setActivityData({
-        activity: mostFrequentMovement,
-        distance: distance.toFixed(2),
-        time: "100",
-      });
-
-      await AsyncStorage.removeItem('initialLocation');
-      await AsyncStorage.removeItem('movements');
-      setIsCalculating(false);
+        setActivityData({
+          activity : mostFrequentMovement,
+          distance: totalDistance.toFixed(2)
+        })
+        console.log(activityData)
+  
+      }
     };
 
     const handleAppStateChange = async (nextAppState) => {
       if (appState.match(/inactive|background/) && nextAppState === 'active') {
-        const permissionGranted = await requestLocationPermission();
-        if (permissionGranted) {
-          calculateDistanceAndPrepareActivity();
-        }
+        checkForActivities();
+        stopTracking();
       }
 
       if (nextAppState.match(/inactive|background/)) {
         setIsMovementDetectionActive(true);
-
-        let location = await Location.getCurrentPositionAsync({});
-        await AsyncStorage.setItem('initialLocation', JSON.stringify(location.coords));
+        startTracking();
       } else {
         setIsMovementDetectionActive(false);
+        stopTracking();
       }
 
       setAppState(nextAppState);
@@ -118,20 +115,16 @@ export default function Home() {
 
     return () => {
       subscription.remove();
+      stopTracking();
     };
   }, [appState]);
 
   return (
     <View style={{ backgroundColor: COLORS.blueGreen }}>
-      {isCalculating && (
-        <View style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, justifyContent: 'center', alignItems: 'center', zIndex: 10 }}>
-          <ActivityIndicator size="large" color={COLORS.white} />
-        </View>
-      )}
       <ScrollView showsVerticalScrollIndicator={false}>
         <Dashboard />
         <View style={styles.whiteBackground}>
-          <Activities data={userData} autoActivity={{ activity: activityData.activity || '', distance: activityData.distance || '', time: activityData.time || '' }} />
+          <Activities data={userData} activityData={activityData} />
           <Recommendation />
         </View>
       </ScrollView>

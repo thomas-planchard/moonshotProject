@@ -76,7 +76,6 @@ const Instructions: React.FC<InstructionsProps> = ({ instructions, distance }) =
   const turnDirection = getTurnDirection(instructions.maneuver);
   const streetName = getStreetName(instructions.instructions);
 
-  // console.log('Instructions:', instructions);
 
   return (
     <View style={styles.instructionContainer}>

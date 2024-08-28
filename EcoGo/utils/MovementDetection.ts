@@ -5,7 +5,7 @@ import Geolocation from 'react-native-geolocation-service';
 import { map, filter } from 'rxjs/operators';
 import { storeActivity } from './AsyncStorage';
 
-export type MovementType = 'Walking' | 'Driving' | 'Cycling or in a bus' | 'Uncertain'; //Possible output
+export type MovementType = 'Walk' | 'Car' | 'Cycling or in a bus' | 'Uncertain'; //Possible output
 
 interface MovementDetectorProps {
   onMovementChange: (movement: MovementType) => void;
@@ -143,7 +143,7 @@ export const useMovementDetector = ({
     const meanAccel = calculateMean(accData);
     const meanGyro = calculateMean(gyroData);
 
-    let movement: MovementType = 'Walking';
+    let movement: MovementType = 'Walk';
 
     if (speed !== null && speed > 5) {
       if (variance < 0.2) {
@@ -152,7 +152,7 @@ export const useMovementDetector = ({
         movement = 'Cycling or in a bus'; // Could be cycling or in a bus if variance is higher
       }
     } else if (variance > 0.5 && meanAccel > 0.3 && meanGyro < 1) {
-      movement = 'Walking';
+      movement = 'Walk';
     } else if (meanGyro > 1) {
       movement = 'Cycling or in a bus';
     }

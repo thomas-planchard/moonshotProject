@@ -127,7 +127,7 @@ useEffect(() => {
           prevCalories.current = calories;
           prevDistance.current = distance;
         }
-      }, 60000); // Update every 60 seconds
+      }, 1000); // Update every 60 seconds
   
       return () => clearInterval(intervalId);
     }
@@ -167,7 +167,7 @@ useEffect(() => {
           </View>
         </View>
         <View style={styles.infoContainer}>
-          <Text numberOfLines={1} style={styles.userInformationMain}>{carbonFootprint} kg</Text>
+          <Text numberOfLines={1} style={styles.userInformationMain}>{carbonFootprint.toFixed(2)} kg</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center'}}>
             <Image source={ICONS.carbon} resizeMode="contain" style={styles.carbonImage} />
             <Text style={[styles.userInformationSecondary,{width: wp(25)}]}>Carbon Footprint</Text>

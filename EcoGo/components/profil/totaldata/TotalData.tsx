@@ -26,7 +26,7 @@ export default function TotalData () {
           unsubscribe = onSnapshot(userDataRef, (doc) => {
             if (doc.exists()) {
               const userData = doc.data();
-              setCarbonFootprint(userData.carbonFootprint || 0);
+              setCarbonFootprint((userData.carbonFootprint || 0).toFixed(2));
               setSteps(userData.steps || 0);
             }
           });

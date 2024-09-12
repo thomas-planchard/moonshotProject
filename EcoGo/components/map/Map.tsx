@@ -182,7 +182,7 @@ const Map = () => {
     }
     setCarbonFootprint(prev => {
       const updatedFootprint = prev + newFootprint;
-      updateCarbonFootprintInDB(updatedFootprint);
+      updateCarbonFootprintInDB(newFootprint);
       return updatedFootprint;
     });
   };

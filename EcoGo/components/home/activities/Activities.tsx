@@ -74,6 +74,9 @@ const Activities: React.FC <ActivityProps> = ({ activityData })=> {
   }, [activityData]);
 
   const openModal = () => {
+    setSelectedActivity(predefinedActivities[0].value);
+    setTime('');
+    setDistance('');
     setModalVisible(true);
   };
 
@@ -110,7 +113,7 @@ const Activities: React.FC <ActivityProps> = ({ activityData })=> {
            carbonFootprint: increment(carbonFootprint)
          });
    
-    setActivities([...activities, { name: selectedActivity, time, distance, icon: activityIcon }]);
+    setActivities([...activities, { name: selectedActivity, time, distance, icon: activityIcon }]);  
     closeModal();
   };
 

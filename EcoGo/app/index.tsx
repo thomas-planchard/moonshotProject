@@ -3,7 +3,7 @@ import { ActivityIndicator, View } from 'react-native';
 
 
 
-const StartPage = () => {
+const App = () => {
 	
 	return (
 	<View className="flex-1 justify-center">
@@ -13,5 +13,5 @@ const StartPage = () => {
   );
 };
 
-export default StartPage;
+export default App;
 

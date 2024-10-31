@@ -40,8 +40,19 @@ Meeting 1: Initial Contact with Founder
 	•	A knowledge-sharing system that prioritizes suppliers based on sustainable practices.
 	•	The tool would rank suppliers, such as those providing special effects, transport, or costumes, based on their carbon footprint and recommend more environmentally friendly options.
 
-3. Next Steps
+3. Meeting 2: Discussion on Potential Solutions
 
-	•	Meeting 2: Scheduled with Product Manager on October 29, 2024.
-	•	Deliverables: Present ideas for product improvements and discuss their feasibility with the team.
-
+	•	Date: October 31, 2024
+	•	Attendees: User, Marguerite Blank (Founder of magestion.pro)
+	•	Agenda:
+	•	Review of ideas for product improvements
+	•	Discussion on potential solutions and project direction
+	•	Planning next steps
+	•	Summary:
+	•	The meeting was held without the Product Manager due to an internal issue within the company.
+	•	Discussed various potential solutions to enhance the product offering.
+	•	Reached an agreement to work on developing a feature that involves scraping data from receipts. This data would then be sent to Carbon Clap, a carbon calculator, to streamline the process of calculating carbon emissions.
+	•	The proposed solution aims to simplify data entry for users and improve the accuracy of carbon footprint calculations.
+	•	Follow-up:
+	•	Plan to schedule a meeting with Franck Jeannin to ensure the project aligns with the requirements for the final degree.
+	•	Prepare necessary documentation to present the project’s feasibility and alignment with academic expectations.

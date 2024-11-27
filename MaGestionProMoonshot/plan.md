@@ -84,3 +84,23 @@ Optical Character Recognition (OCR) technology has made significant strides, yet
 4.	Improved Accuracy through AI and Machine Learning: The integration of advanced AI algorithms and deep learning models is leading to significant improvements in OCR accuracy. These technologies enable OCR systems to better handle complex fonts, varied layouts, and degraded document quality, reducing errors and the need for manual corrections. ￼
 
 5.	Cloud-Based OCR Solutions: The adoption of cloud-based OCR services offers scalability, flexibility, and cost-effectiveness. These solutions allow businesses to process large volumes of documents efficiently and access OCR capabilities without the need for extensive on-premises infrastructure. ￼
+
+
+
+
+
+## Which type of data for each folder
+
+- ESSENCE: LITRAGE, EUROS ???
+
+
+class ReceiptData(BaseModel):
+    category:               str
+    name_of_trip:           str
+    type_of_transport:      str
+    step_of_production:     str
+    are_kilometers_known:   bool
+    number_of_kilometers:   Optional[float] = None
+    departure:              Optional[str] = None  
+    arrival:                Optional[str] = None    
+    number_of_trips:        int

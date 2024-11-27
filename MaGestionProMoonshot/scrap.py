@@ -1,58 +1,61 @@
-from fastapi import FastAPI, UploadFile, HTTPException
-from pydantic import BaseModel
 import pdfplumber
-from typing import Optional
+import re
 
-app = FastAPI()
-
-
-
-class ReceiptData(BaseModel):
-    category: str
-    name_of_trip: str
-    type_of_transport: str
-    step_of_production: str
-    are_kilometers_known: bool
-    number_of_kilometers: Optional[float] = None
-    departure: Optional[str] = None  # Make this optional
-    arrival: Optional[str] = None    # Make this optional
-    number_of_trips: int
-
-@app.post("/extract-data", response_model=ReceiptData)
-async def extract_data(file: UploadFile):
-    if not file.filename.endswith(".pdf"):
-        raise HTTPException(status_code=400, detail="Invalid file format. Only PDFs are accepted.")
-
+def inspect_pdf_structure(pdf_file_path):
+    """
+    Inspect the structure of a PDF to identify distinct areas or parts.
+    """
     try:
-        # Extract text from the PDF
-        with pdfplumber.open(file.file) as pdf:
-            text = "".join([page.extract_text() for page in pdf.pages])
-
-        # Parse the data from the text (to be implemented)
-        data = parse_pdf_text(text)
-
-        # Validate against the schema
-        extracted_data = ReceiptData(**data)
-        return extracted_data
+        with pdfplumber.open(pdf_file_path) as pdf:
+            for page_number, page in enumerate(pdf.pages):
+                print(f"--- Page {page_number + 1} ---")
+                
+                # Extract and display table data if available
+                text = page.extract_text_lines()
+                tables = page.extract_tables()
+                print (text)
+                if tables:
+                    print(f"  Tables found on Page {page_number + 1}:")
+                    for table in tables:
+                        for row in table:
+                            print(f"    {row}")
+                else:
+                    print(f"  No tables found on Page {page_number + 1}.")
+                return text
+            
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error processing file: {str(e)}")
+        print(f"Error inspecting PDF structure: {str(e)}")
 
-def parse_pdf_text(text: str) -> dict:
-    # Implement parsing logic here
-    # Match against expected fields, regex patterns, etc.
-    # Return data as a dictionary
-    return {
-        "category": "Road Transport",
-        "name_of_trip": "Example Trip",
-        "type_of_transport": "Taxi",
-        "step_of_production": "Shooting",
-        "are_kilometers_known": True,
-        "number_of_kilometers": 100,
-        "departure": None,
-        "arrival": None,
-        "number_of_trips": 1
+# Test the function with a sample PDF
+
+
+
+def extract_cities(text: str) -> dict:
+    """
+    Extract departure and arrival cities from the ticket text.
+    """
+    result = {
+        "departure_city": None,
+        "arrival_city": None,
     }
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    # Regex for time and city
+    time_city_pattern = r"(\d{1,2}h\d{2}) ([\w\-éèàç]+(?: [\w\-éèàç]+)*)"
+    matches = re.findall(time_city_pattern, text)
+
+    # Extract departure and arrival if matches are found
+    if matches:
+        result["departure_city"] = matches[0][1]  # First match is the departure city
+        result["arrival_city"] = matches[-1][1]  # Last match is the arrival city
+
+    # Additional check for directional patterns like "PARIS > CANNES"
+    direction_pattern = r"([\w\-éèàç]+) > ([\w\-éèàç]+)"
+    directional_match = re.search(direction_pattern, text)
+    if directional_match:
+        result["departure_city"] = directional_match.group(1)
+        result["arrival_city"] = directional_match.group(2)
+
+    return result
+
+output = extract_cities(inspect_pdf_structure("NDF/Trains/Train Paris Cannes.pdf"))
+print(output)

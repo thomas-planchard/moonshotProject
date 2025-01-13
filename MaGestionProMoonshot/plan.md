@@ -1,3 +1,4 @@
+
 # MagestionPro Receipt Data Extraction Plan 
 
 MagestionPro requires a system that can extract information from receipts and communicate with an external API. The external API will calculate the carbon footprint based on the provided data.

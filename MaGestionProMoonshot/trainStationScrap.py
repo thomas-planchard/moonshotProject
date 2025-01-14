@@ -80,34 +80,41 @@ def find_nearest_stations(matches, reference_position):
 
     # Sort by distance and return the two closest matches
     sorted_matches = sorted(matches_with_distances, key=lambda x: x[3])
-    print ("Sorted Matches:", sorted_matches)
     return [match[:3] for match in sorted_matches[:2]]
 
 
 def remove_similar_matches(matches):
     """
-    Remove duplicates or similar matches, keeping only the most specific ones.
+    Remove duplicates or overlapping matches, keeping only the most specific ones.
+    Also ensures only one instance of each unique city is retained.
+    
     Args:
-    - matches: List of tuples (station, start, end, distance).
+    - matches: List of tuples (station_name, start, end).
     
     Returns:
     - Filtered list of matches with the most specific entries retained.
     """
-    # Sort matches by the length of the station name in descending order
-    # Longer names are likely to be more specific
-    matches = sorted(matches, key=lambda x: (x[3], -len(x[0])))
+    # Sort matches by their start position and length of the name in descending order
+    matches = sorted(matches, key=lambda x: (x[1], -len(x[0])))
 
     filtered_matches = []
+    seen_names = set()
+    
     for current in matches:
-        station, start, end, _ = current
-        # Check if the current station overlaps with any already filtered station
-        if not any(
-            start >= filtered[1] and end <= filtered[2] for filtered in filtered_matches
-        ):
-            filtered_matches.append(current)
+        station, start, end = current
+
+        # Ensure unique city names are kept, based on first occurrence
+        if station not in seen_names:
+            # Check if the current match overlaps with any already included match
+            if not any(
+                start >= filtered[1] and end <= filtered[2] or  # Fully subsumed
+                (start <= filtered[2] and end >= filtered[1])  # Overlapping
+                for filtered in filtered_matches
+            ):
+                filtered_matches.append(current)
+                seen_names.add(station)
 
     return filtered_matches
-
 
 def process_pdf_with_dates(pdf_path, countries=["FR"]):
     """
@@ -123,35 +130,38 @@ def process_pdf_with_dates(pdf_path, countries=["FR"]):
 
     # Find all dates and times in the text
     date_matches, time_matches = find_dates_and_times(pdf_text)
-    print("Dates Found:", date_matches)
-    print("Times Found:", time_matches)
 
     # Find all matching stations and their positions
     station_matches = find_matching_stations_with_positions(pdf_text, countries)
     print("Station Matches with Positions:", station_matches)
+    station_matches = remove_similar_matches(station_matches)
+    print("Station Matches with Positions:", station_matches)
 
-    if not date_matches:
-        print("No dates found. Returning the first two station matches.")
+    if not date_matches and not time_matches:
+        print("No dates or times found. Returning the first two station matches.")
         return {"stations": [station[0] for station in station_matches[:2]], "dates": date_matches, "times": time_matches}
 
-    # Use the first date as the reference point
-    reference_position = time_matches[0][1]
+    # Determine the reference position (prefer time over date)
+    if time_matches:
+        reference_position = time_matches[0][1]  # Use the position of the first time match
+        print("Using time match as reference:", time_matches[0])
+    elif date_matches:
+        reference_position = date_matches[0][1]  # Use the position of the first date match
+        print("Using date match as reference:", date_matches[0])
+    else:
+        # If no matches are found, fall back to default behavior
+        return {"stations": [station[0] for station in station_matches[:2]], "dates": date_matches, "times": time_matches}
 
-    # Find the two stations nearest to the date
+    # Find the two stations nearest to the reference position
     nearest_stations = find_nearest_stations(station_matches, reference_position)
-    print("Nearest Stations:", nearest_stations)
-
-    
 
     # Return results
-    return {
-        "stations": [station[0] for station in nearest_stations],
-    }
+    return nearest_stations[0][0], nearest_stations[1][0]
 
 
 # Example Usage
 if __name__ == "__main__":
     # Specify the PDF path and countries to match stations
-    pdf_path = "NDF/Trains/01-Billet train.pdf"
+    pdf_path = "NDF/Trains/Train Paris Cannes.pdf"
     result = process_pdf_with_dates(pdf_path, countries=["FR"])
     print("\nResult:", result)

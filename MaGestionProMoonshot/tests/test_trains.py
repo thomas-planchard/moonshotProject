@@ -7,9 +7,9 @@ def test_process_pdf_with_dates():
     """
     test_cases = [
         {
-            "pdf_path": "NDF/Trains/01-Billet train.pdf",
+            "pdf_path": "MaGestionProMoonshot/NDF/Trains/01-Billet train.pdf",
             "countries": ["FR"],
-            "expected_result": ("Paris", "Cannes")
+            "expected_result": ("Paris", "Aix-en-Provence")
         },
         {
             "pdf_path": "NDF/Trains/02-Billet train.pdf",

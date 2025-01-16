@@ -117,7 +117,7 @@ def process_pdf_with_dates(pdf_path, countries=["FR"]):
 
     if not pdf_text:
         print("No text found in PDF.")
-        return {"stations": [None, None], "dates": [], "times": []}
+        return [None, None]
 
     # Find all dates and times in the text
     date_matches, time_matches = find_dates_and_times(pdf_text)
@@ -130,7 +130,7 @@ def process_pdf_with_dates(pdf_path, countries=["FR"]):
 
     if not date_matches and not time_matches:
         print("No dates or times found. Returning the first two station matches.")
-        return {"stations": [station[0] for station in station_matches[:2]], "dates": date_matches, "times": time_matches}
+        return [station[0] for station in station_matches[:2]]
 
     # Determine the reference position (prefer time over date)
     if time_matches:

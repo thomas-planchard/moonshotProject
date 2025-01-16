@@ -1,12 +1,17 @@
 import pandas as pd
 import unicodedata
 import re
+import os
 
 import MaGestionProMoonshot.utils as utils
 
 
+
+# Dynamically construct the path relative to the script's location
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+csv_path = os.path.join(BASE_DIR, "Data/train_stations.csv")
+
 # Load CSV with station data
-csv_path = "Data/train_stations.csv"
 station_df = pd.read_csv(csv_path)
 
 

@@ -1,7 +1,8 @@
-import pdfplumber
 import pandas as pd
 import unicodedata
 import re
+
+import utils as utils
 
 
 # Load CSV with station data
@@ -16,21 +17,6 @@ def normalize_text(text):
     return unicodedata.normalize("NFKD", text).encode("ASCII", "ignore").decode("utf-8").lower()
 
 
-def extract_text_from_pdf(pdf_file_path):
-    """
-    Extract text from a PDF file.
-    """
-    try:
-        with pdfplumber.open(pdf_file_path) as pdf:
-            text = ""
-            for page in pdf.pages:
-                page_text = page.extract_text()
-                if page_text:
-                    text += page_text + "\n"
-            return text
-    except Exception as e:
-        print(f"Error reading PDF: {str(e)}")
-        return ""
 
 
 def find_matching_stations_with_positions(pdf_text, countries):
@@ -122,7 +108,7 @@ def process_pdf_with_dates(pdf_path, countries=["FR"]):
     Also finds dates/times and selects stations nearest to them.
     """
     # Extract text from PDF
-    pdf_text = extract_text_from_pdf(pdf_path)
+    pdf_text = utils.extract_text_from_pdf(pdf_path)
 
     if not pdf_text:
         print("No text found in PDF.")

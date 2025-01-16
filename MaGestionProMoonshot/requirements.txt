@@ -1,0 +1,5 @@
+pandas 
+unicodedata
+re
+pytest
+pdfplumber

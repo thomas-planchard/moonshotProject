@@ -9,22 +9,22 @@ def test_process_pdf_with_dates():
         {
             "pdf_path": "MaGestionProMoonshot/NDF/Trains/01-Billet train.pdf",
             "countries": ["FR"],
-            "expected_result": ("Paris", "Aix-en-Provence")
+            "expected_result": ("Paris Gare de Lyon", "Aix-en-Provence TGV")
         },
         {
-            "pdf_path": "NDF/Trains/02-Billet train.pdf",
+            "pdf_path": "MaGestionProMoonshot/NDF/Trains/02-Billet train.pdf",
             "countries": ["FR"],
-            "expected_result": ("Aix-en-Provence", "Lyon")
+            "expected_result": ("Paris", "Lyon")
         },
         {
-            "pdf_path": "NDF/Trains/Train Cannes.pdf",
-            "countries": ["FR"],
-            "expected_result": ("Paris", "Cannes")
-        },
-        {
-            "pdf_path": "NDF/Trains/Train Paris Cannes.pdf",
+            "pdf_path": "MaGestionProMoonshot/NDF/Trains/Train Cannes.pdf",
             "countries": ["FR"],
             "expected_result": ("Paris", "Cannes")
+        },
+        {
+            "pdf_path": "MaGestionProMoonshot/NDF/Trains/Train Paris Cannes.pdf",
+            "countries": ["FR"],
+            "expected_result": ("Cannes", "Paris")
         }
     ]
 

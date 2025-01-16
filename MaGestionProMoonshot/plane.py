@@ -128,7 +128,7 @@ def process_pdf_with_dates(pdf_path, countries=["FR"]):
 
     if not date_matches:
         print("No dates or times found. Returning the first two station matches.")
-        return {"stations": [station[0] for station in airport_matches[:2]], "dates": date_matches}
+        return [station[0] for station in airport_matches[:2]]
 
     # Determine the reference position (prefer time over date)
     if date_matches:
@@ -136,13 +136,13 @@ def process_pdf_with_dates(pdf_path, countries=["FR"]):
         print("Using time match as reference:", date_matches[0])
     else:
         # If no matches are found, fall back to default behavior
-        return {"stations": [station[0] for station in airport_matches[:2]], "dates": date_matches}
+        return [station[0] for station in airport_matches[:2]]
 
     # Find the two stations nearest to the reference position
     nearest_stations = find_nearest_stations(airport_matches, reference_position)
 
     # Return results
-    return nearest_stations
+    return nearest_stations[0][0], nearest_stations[1][0]
 
 
 # Example Usage

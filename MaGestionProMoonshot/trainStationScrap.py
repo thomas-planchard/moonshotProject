@@ -153,6 +153,6 @@ def process_pdf_with_dates(pdf_path, countries=["FR"]):
 # Example Usage
 if __name__ == "__main__":
     # Specify the PDF path and countries to match stations
-    pdf_path = "NDF/Trains/Train Paris Cannes.pdf"
+    pdf_path = "NDF/Trains/01-Billet train.pdf"
     result = process_pdf_with_dates(pdf_path, countries=["FR"])
     print("\nResult:", result)

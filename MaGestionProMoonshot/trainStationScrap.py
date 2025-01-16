@@ -2,7 +2,7 @@ import pandas as pd
 import unicodedata
 import re
 
-import utils as utils
+import MaGestionProMoonshot.utils as utils
 
 
 # Load CSV with station data

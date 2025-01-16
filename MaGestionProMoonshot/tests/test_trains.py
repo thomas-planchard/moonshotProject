@@ -1,5 +1,5 @@
 import pytest
-from trainStationScrap import process_pdf_with_dates
+from MaGestionProMoonshot.trainStationScrap import process_pdf_with_dates
 
 def test_process_pdf_with_dates():
     """

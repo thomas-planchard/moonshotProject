@@ -3,9 +3,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from enum import Enum
 from typing import Optional
-import pdfplumber
-from PIL import Image
-import io
+from utils.files_reader import extract_text_from_pdf, extract_text_from_image
 
 app = FastAPI()
 
@@ -59,31 +57,6 @@ async def extract_data(
         return ReceiptData(category=category, extracted_text=extracted_text)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error processing file: {str(e)}")
-
-
-def extract_text_from_pdf(pdf_file) -> str:
-    """
-    Extract text from a PDF file using pdfplumber.
-    """
-    try:
-        with pdfplumber.open(pdf_file) as pdf:
-            text = "".join([page.extract_text() or "" for page in pdf.pages])
-        return text.strip()
-    except Exception as e:
-        raise Exception(f"Error extracting text from PDF: {str(e)}")
-
-
-def extract_text_from_image(image_file) -> str:
-    """
-    Extract text from an image file using OCR (Tesseract).
-    """
-    from pytesseract import image_to_string
-    try:
-        image = Image.open(io.BytesIO(image_file.read()))
-        text = image_to_string(image, lang="fra")
-        return text.strip()
-    except Exception as e:
-        raise Exception(f"Error extracting text from image: {str(e)}")
 
 
 if __name__ == "__main__":

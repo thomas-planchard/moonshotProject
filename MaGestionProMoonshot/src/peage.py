@@ -37,32 +37,37 @@ def extract_text_from_pdf(pdf_file_path):
     
 
 
-def extract_volume_value(text):
+def extract_sortie_entree_values(text):
     """
-    Extract the numeric value before the words 'litre' or 'volume' in the given text.
+    Extract the values after 'Sortie:' and 'Entrée:' in the given text.
     
     Args:
     - text (str): The input text to search in.
     
     Returns:
-    - float: The extracted volume value if found, otherwise None.
+    - dict: A dictionary with 'sortie' and 'entree' keys and their corresponding values.
     """
-    # Define regex to capture a number before 'litre' or 'volume'
-    pattern = r"(\d+(?:[.,]\d+)?)\s*(?:litre|volume)"
-    match = re.search(pattern, text, re.IGNORECASE)
+    # Define regex patterns for 'Sortie' and 'Entrée'
+    sortie_pattern = r"Sortie:\s*([\w\s]+)"
+    entree_pattern = r"Entrée:\s*(\w+)"
     
-    if match:
-        # Convert the matched number to float and return
-        value = match.group(1).replace(",", ".")  # Replace comma with dot for float conversion
-        return float(value)
-    return None
+    # Search for matches
+    sortie_match = re.search(sortie_pattern, text, re.IGNORECASE)
+    entree_match = re.search(entree_pattern, text, re.IGNORECASE)
+    
+    # Extract and return the values
+    result = {
+        "sortie": sortie_match.group(1).strip() if sortie_match else None,
+        "entree": entree_match.group(1).strip() if entree_match else None
+    }
+    return result
 
 
 
-# Example Usage
+# Example Usage   
 if __name__ == "__main__":              
     # Specify the PDF path and countries to match stations
-    pdf_path = "../NDF/Essence/TotalEssence.jpeg"
+    pdf_path = "../NDF/Péages/3 Péage.jpeg"
     txt = extract_text_from_image(pdf_path)
-    result = extract_volume_value(txt)
+    result = extract_sortie_entree_values(txt)
     print("\nResult:", result)

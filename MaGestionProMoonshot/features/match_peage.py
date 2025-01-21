@@ -1,8 +1,5 @@
 import re 
 
-
-
-
 def match_peage(text):
     """
     Extract the values after 'Sortie:' and 'Entrée:' in the given text.

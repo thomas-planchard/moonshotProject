@@ -1,6 +1,6 @@
 import re
 
-def extract_volume_value(text):
+def match_fuel_volume(text):
     """
     Extract the numeric value associated with 'litre' or 'volume' in the given text.
 

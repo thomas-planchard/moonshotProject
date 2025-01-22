@@ -8,7 +8,7 @@ def match_peage(text):
     - text (str): The input text to search in.
     
     Returns:
-    - dict: A dictionary with 'sortie' and 'entree' keys and their corresponding values.
+    - Tuple: A tuple containing 2 values that correspond to the sortie and entree.
     """
     # Define regex patterns for 'Sortie' and 'Entrée'
     sortie_pattern = r"Sortie:\s*([\w\s]+)"
@@ -19,10 +19,10 @@ def match_peage(text):
     entree_match = re.search(entree_pattern, text, re.IGNORECASE)
     
     # Extract and return the values
-    result = {
-        "sortie": sortie_match.group(1).strip() if sortie_match else None,
-        "entree": entree_match.group(1).strip() if entree_match else None
-    }
+    result = [ 
+        sortie_match.group(1).strip() if sortie_match else None,
+        entree_match.group(1).strip() if entree_match else None]
+    
     return result
 
 

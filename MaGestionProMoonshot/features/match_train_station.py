@@ -8,9 +8,19 @@ from utils.remove_similar_matches import remove_similar_matches
 from utils.receipt_data import ReceiptData
 
 
+# class ReceiptData(BaseModel):
+#     category: Category
+#     name_of_trip: str
+#     type_of_transport: Optional[str]
+#     are_kilometers_known: bool
+#     number_of_kilometers: Optional[float] = None
+#     departure: Optional[str] = None  
+#     arrival: Optional[str] = None    
+#     number_of_trips: int
 
 
-def match_train_station(pdf_path, countries=["FR"]):
+
+def match_train_station(pdf_path, countries):
     """
     Process a PDF to extract departure and arrival cities based on station data.
     Also finds dates/times and selects stations nearest to them.
@@ -20,9 +30,7 @@ def match_train_station(pdf_path, countries=["FR"]):
         countries (list of str): List of country codes to filter station matches. Default is ["FR"].
 
     Returns:
-        dict: A dictionary containing:
-              - "departure_station": The nearest departure station.
-              - "arrival_station": The nearest arrival station.
+        ReceiptData: An object containing the formatted receipt data.
     """
 
     # Get the directory of the current script
@@ -38,10 +46,7 @@ def match_train_station(pdf_path, countries=["FR"]):
     pdf_text = extract_text_from_pdf(pdf_path)
 
     if not pdf_text:
-        return {
-            "departure_station": None,
-            "arrival_station": None
-        }
+        raise ValueError("No text found in PDF. Ensure the file contains readable content.")
 
     # Find all dates and times in the text
     date_matches, time_matches = extract_time(pdf_text)
@@ -51,10 +56,7 @@ def match_train_station(pdf_path, countries=["FR"]):
     station_matches = remove_similar_matches(station_matches)
 
     if not date_matches and not time_matches:
-        return {
-            "departure_station": nearest_stations[0][0] if nearest_stations else None,
-            "arrival_station": nearest_stations[1][0] if len(nearest_stations) > 1 else None
-        }
+       raise ValueError("No stations found in the text. Ensure the text includes valid station names.")
 
     # Determine the reference position (prefer time over date)
     if time_matches:
@@ -77,10 +79,13 @@ def match_train_station(pdf_path, countries=["FR"]):
      # Construct the name of the trip
     name_of_trip = f"{departure_station} to {arrival_station}"
 
-    # Return results as a dictionary
-    return {
-        "departure": nearest_stations[0][0] if nearest_stations else None,
-        "arrival": nearest_stations[1][0] if len(nearest_stations) > 1 else None
-    }
+    return ReceiptData(
+        category='trains',
+        name_of_trip=name_of_trip,
+        are_kilometers_known=False,
+        departure=departure_station,
+        arrival=arrival_station,
+        number_of_trips=1
+    )
 
 

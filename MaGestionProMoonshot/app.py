@@ -1,4 +1,5 @@
-from fastapi import FastAPI, UploadFile, HTTPException, Form
+from fastapi import FastAPI, UploadFile, HTTPException, Form, Query
+from typing import List, Optional
 from fastapi.responses import JSONResponse
 from utils.receipt_data import ReceiptData, Category
 from features.match_train_station import match_train_station
@@ -21,7 +22,8 @@ category_function_mapping = {
 @app.post("/extract-data", response_model=ReceiptData)
 async def extract_data(
     file: UploadFile,
-    category: Category = Form(...)  
+    category: Category = Form(...)  ,  # Required category parameter
+    countries: Optional[List[str]] = Query(None)  # Optional countries parameter
 ):
     allowed_extensions = ["pdf", "jpg", "jpeg", "png"]
 
@@ -39,13 +41,14 @@ async def extract_data(
         if not processing_function:
             raise HTTPException(status_code=400, detail=f"Unknown category: {category}")
 
-        result = processing_function(file.file)
+        # Pass countries only for the relevant categories
+        if category.value in ["trains", "avions"]:
+            result = processing_function(file.file, countries=countries or ["FR"])
+        else:
+            result = processing_function(file.file)
 
         # Create the response data
-        response_data = ReceiptData(
-            category=category,
-            **result  # Use the processed result to populate the fields dynamically
-        )
+        response_data = result
 
         return response_data
     except Exception as e:

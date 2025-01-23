@@ -12,7 +12,7 @@ class Category(str, Enum):
 class ReceiptData(BaseModel):
     category: Category
     name_of_trip: str
-    type_of_transport: Optional[str]
+    type_of_transport: Optional[str] = None
     are_kilometers_known: bool
     number_of_kilometers: Optional[float] = None
     departure: Optional[str] = None  

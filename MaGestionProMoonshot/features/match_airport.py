@@ -8,8 +8,6 @@ from utils.remove_similar_matches import remove_similar_matches
 
 
 
-
-
 def match_airport(pdf_path, countries=["FR"]):
     """
     Process a PDF to extract departure and arrival cities based on airport data.
@@ -25,7 +23,7 @@ def match_airport(pdf_path, countries=["FR"]):
     """
 
     # Get the directory of the current script
-    current_dir = Path(__file__).parent
+    current_dir = Path(__file__).parent.parent
 
     # Construct the dynamic path to the CSV file
     csv_path = current_dir / "Data" / "airport.csv"
@@ -40,14 +38,11 @@ def match_airport(pdf_path, countries=["FR"]):
         return [None, None]
 
     # Find all dates and times in the text
-    date_matches = extract_time(pdf_text, include_time = False)
-
+    date_matches, time_matches = extract_time(pdf_text, include_time = False)
     # Find all matching stations and their positions
     airport_matches = find_matching_entities_with_positions(pdf_text, countries, airport_df, "iso_country", "municipality")
     airport_matches = remove_similar_matches(airport_matches)
 
-    if not date_matches:
-        return [station[0] for station in airport_matches[:2]]
 
     # Determine the reference position (prefer time over date)
     if date_matches:
@@ -61,5 +56,6 @@ def match_airport(pdf_path, countries=["FR"]):
 
     # Return results
     return nearest_stations[0][0], nearest_stations[1][0]
+
 
 

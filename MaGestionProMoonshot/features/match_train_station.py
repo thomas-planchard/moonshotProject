@@ -5,6 +5,7 @@ from utils.extract_date_time import extract_time
 from utils.nearest_station import find_nearest_stations
 from utils.files_reader import extract_text_from_pdf
 from utils.remove_similar_matches import remove_similar_matches
+from utils.receipt_data import ReceiptData
 
 
 
@@ -19,12 +20,13 @@ def match_train_station(pdf_path, countries=["FR"]):
         countries (list of str): List of country codes to filter station matches. Default is ["FR"].
 
     Returns:
-        tuple: A tuple containing the names of the two nearest train stations
-               (departure, arrival), or [None, None] if no stations are found.
+        dict: A dictionary containing:
+              - "departure_station": The nearest departure station.
+              - "arrival_station": The nearest arrival station.
     """
 
     # Get the directory of the current script
-    current_dir = Path(__file__).parent
+    current_dir = Path(__file__).parent.parent
 
     # Construct the dynamic path to the CSV file
     csv_path = current_dir / "Data" / "train_stations.csv"
@@ -36,7 +38,10 @@ def match_train_station(pdf_path, countries=["FR"]):
     pdf_text = extract_text_from_pdf(pdf_path)
 
     if not pdf_text:
-        return [None, None] 
+        return {
+            "departure_station": None,
+            "arrival_station": None
+        }
 
     # Find all dates and times in the text
     date_matches, time_matches = extract_time(pdf_text)
@@ -46,7 +51,10 @@ def match_train_station(pdf_path, countries=["FR"]):
     station_matches = remove_similar_matches(station_matches)
 
     if not date_matches and not time_matches:
-        return [station[0] for station in station_matches[:2]]
+        return {
+            "departure_station": nearest_stations[0][0] if nearest_stations else None,
+            "arrival_station": nearest_stations[1][0] if len(nearest_stations) > 1 else None
+        }
 
     # Determine the reference position (prefer time over date)
     if time_matches:
@@ -54,13 +62,25 @@ def match_train_station(pdf_path, countries=["FR"]):
     elif date_matches:
         reference_position = date_matches[0][1]  # Use the position of the first date match
     else:
-        # If no matches are found, fall back to default behavior
-        return [station[0] for station in station_matches[:2]]
-
+        reference_position = None
+        
     # Find the two stations nearest to the reference position
-    nearest_stations = find_nearest_stations(station_matches, reference_position)
+    nearest_stations = find_nearest_stations(station_matches, reference_position) if reference_position else station_matches[:2]
 
-    # Return results
-    return nearest_stations[0][0], nearest_stations[1][0]
+    # Extract departure and arrival stations
+    departure_station = nearest_stations[0][0] if nearest_stations else None
+    arrival_station = nearest_stations[1][0] if len(nearest_stations) > 1 else None
+
+    if not departure_station or not arrival_station:
+        raise ValueError("Unable to determine both departure and arrival stations.")
+
+     # Construct the name of the trip
+    name_of_trip = f"{departure_station} to {arrival_station}"
+
+    # Return results as a dictionary
+    return {
+        "departure": nearest_stations[0][0] if nearest_stations else None,
+        "arrival": nearest_stations[1][0] if len(nearest_stations) > 1 else None
+    }
 
 

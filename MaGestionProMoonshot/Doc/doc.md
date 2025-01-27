@@ -81,16 +81,17 @@ Pour la catégorie trains :
 }
 ```
 
-Pour la catégorie peage :
+Pour la catégorie essence :
 
 ```json
 {
-  "category": "peage",
-  "name_of_trip": "Sortie: 25008000 à Entrée: Lyon",
+  "category": "essence",
+  "name_of_trip": "fuel",
   "type_of_transport": null,
   "are_kilometers_known": false,
-  "departure": "25008000",
-  "arrival": "Lyon",
+  "number_of_kilometers": 32.0, // Nombre de litres d'essence
+  "departure": null,
+  "arrival": null,
   "number_of_trips": 1
 }
 ```

@@ -23,22 +23,22 @@ def extract_text_from_pdf(pdf_file):
 
 
 
-def extract_text_from_image(image_file: str, lang: str = "fra"):
+
+def extract_text_from_image(image_file, lang: str = "fra"):
     """
     Extract text from an image file using OCR (Tesseract).
-    
+
     Args:
-        image_file (str): Path to the image file.
-        lang (str): Language code for OCR (default is "eng").
-    
+        image_file (file-like object): The image file to process.
+        lang (str): Language code for OCR (default is "fra").
+
     Returns:
         str: Extracted text from the image.
     """
     try:
-        with open(image_file, "rb") as f:
-            image = Image.open(io.BytesIO(f.read()))
+        # If image_file is a file-like object, read its content
+        image = Image.open(image_file)
         text = image_to_string(image, lang=lang)
         return text.strip()
     except Exception as e:
         raise Exception(f"Error extracting text from image: {str(e)}")
-    

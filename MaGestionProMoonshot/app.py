@@ -45,7 +45,7 @@ async def extract_data(
         if category.value in ["trains", "avions"]:
             result = processing_function(file.file, countries=countries or ["FR"])
         else:
-            result = processing_function(file.file)
+            result = processing_function(file.file, file_extension)
 
         # Create the response data
         response_data = result

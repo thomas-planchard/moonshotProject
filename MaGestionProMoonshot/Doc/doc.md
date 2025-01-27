@@ -2,7 +2,7 @@
 
 ## Présentation
 
-L’API permet aux utilisateurs de traiter des reçus ou des billets (PDF ou images) pour extraire des informations structurées telles que les lieux de départ et d’arrivée, les dates de voyage, et plus encore. Elle prend en charge plusieurs catégories, notamment les trains, les avions et les péages.
+L’API est conçue pour traiter des reçus ou des billets (PDF ou images) afin d’extraire des informations structurées telles que les lieux de départ et d’arrivée, les dates de voyage, et d’autres détails pertinents. L’objectif principal de l’API est de fournir une réponse formatée selon les spécifications requises par l’outil de calcul de l’empreinte carbone Carbon Clap, facilitant ainsi l’intégration des données extraites dans le processus de calcul des émissions de CO₂.
 
 ## URL de Base
 

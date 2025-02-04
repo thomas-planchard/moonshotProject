@@ -8,19 +8,8 @@ from utils.remove_similar_matches import remove_similar_matches
 from utils.receipt_data import ReceiptData
 
 
-# class ReceiptData(BaseModel):
-#     category: Category
-#     name_of_trip: str
-#     type_of_transport: Optional[str]
-#     are_kilometers_known: bool
-#     number_of_kilometers: Optional[float] = None
-#     departure: Optional[str] = None  
-#     arrival: Optional[str] = None    
-#     number_of_trips: int
 
-
-
-def match_train_station(pdf_path, countries):
+def match_train_station(pdf_path, countries=["FR"]):
     """
     Process a PDF to extract departure and arrival cities based on station data.
     Also finds dates/times and selects stations nearest to them.
@@ -52,7 +41,7 @@ def match_train_station(pdf_path, countries):
     date_matches, time_matches = extract_time(pdf_text)
 
     # Find all matching stations and their positions
-    station_matches = find_matching_entities_with_positions(pdf_text, countries, station_df, "country", "name_norm")
+    station_matches = find_matching_entities_with_positions(pdf_text, station_df, "country", "name_norm", countries)
     station_matches = remove_similar_matches(station_matches)
 
     if not date_matches and not time_matches:
@@ -68,6 +57,7 @@ def match_train_station(pdf_path, countries):
         
     # Find the two stations nearest to the reference position
     nearest_stations = find_nearest_stations(station_matches, reference_position) if reference_position else station_matches[:2]
+
 
     # Extract departure and arrival stations
     departure_station = nearest_stations[0][0] if nearest_stations else None

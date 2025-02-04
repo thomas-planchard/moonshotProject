@@ -8,7 +8,7 @@ from utils.remove_similar_matches import remove_similar_matches
 from utils.receipt_data import ReceiptData
 
 
-def match_airport(pdf_path, countries):
+def match_airport(pdf_path, countries=["FR"]):
     """
     Process a PDF to extract departure and arrival cities based on airport data.
     Also finds dates/times and selects airports nearest to them.
@@ -40,7 +40,7 @@ def match_airport(pdf_path, countries):
     date_matches, time_matches = extract_time(pdf_text)
 
     # Find all matching airports and their positions
-    airport_matches = find_matching_entities_with_positions(pdf_text, countries, airport_df, "iso_country", "municipality")
+    airport_matches = find_matching_entities_with_positions(pdf_text, airport_df, "iso_country", "municipality", countries)
     airport_matches = remove_similar_matches(airport_matches)
 
     if not airport_matches:

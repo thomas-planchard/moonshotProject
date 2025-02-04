@@ -1,7 +1,7 @@
 import re
 from utils.text_normalizer import normalize_text
 
-def find_matching_entities_with_positions(pdf_text, countries, data, country_column, name_column):
+def find_matching_entities_with_positions(pdf_text, data, country_column, name_column, countries=["FR"],):
     """
     Find matching entities (e.g., train stations or airports) in the provided text based on the dataset and country filter.
     Returns entity names along with their positions in the text.

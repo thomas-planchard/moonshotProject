@@ -2,3 +2,7 @@
 *.DS_Store
 **/.DS_Store
 
+
+/MaGestionProMoonshot/NDF
+/MaGestionProMoonshot/features/__pycache__
+/MaGestionProMoonshot/utils/__pycache__

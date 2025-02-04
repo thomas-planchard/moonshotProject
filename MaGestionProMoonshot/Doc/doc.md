@@ -55,8 +55,7 @@ curl -X POST https://votre-domaine-api.com/api/v1/extract \
 
 |Champ|	Type|	Description|
 |---|---|---|
-|category|	String|	La catégorie du reçu (trains, avions, peage, essence
-).|
+|category|	String|	La catégorie du reçu (trains, avions, peage, essence).|
 |name_of_trip|	String|	Une chaîne formatée indiquant le trajet (par exemple, Paris à Lyon).|
 |type_of_transport|	String|	Le type de transport (si applicable).|
 |are_kilometers_known|	Booléen	Indique si les kilomètres pour le trajet sont connus.|

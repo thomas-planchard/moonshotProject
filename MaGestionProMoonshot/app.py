@@ -5,7 +5,6 @@ from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
 from utils.receipt_data import ReceiptData, Category
 from features.match_train_station import match_train_station
-from features.match_peage import match_peage
 from features.match_airport import match_airport
 from features.match_fuel_volume import match_fuel_volume
  
@@ -28,7 +27,6 @@ category_function_mapping = {
     "avions": match_airport,
     "trains": match_train_station,
     "essence": match_fuel_volume,
-    "peages": match_peage,
 }
 
 

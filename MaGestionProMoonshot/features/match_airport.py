@@ -7,6 +7,20 @@ from utils.files_reader import extract_text_from_pdf
 from utils.remove_similar_matches import remove_similar_matches
 from utils.receipt_data import ReceiptData
 
+# Import the cache function if available, otherwise create a local version
+try:
+    from app import get_airports_data
+except ImportError:
+    # Local cache for when running outside the main app context
+    from functools import lru_cache
+    
+    @lru_cache(maxsize=1)
+    def get_airports_data():
+        """Load and cache airport data"""
+        current_dir = Path(__file__).parent.parent
+        csv_path = current_dir / "Data" / "airport.csv"
+        return pd.read_csv(csv_path)
+
 
 def match_airport(pdf_path, countries=["FR"]):
     """
@@ -14,21 +28,14 @@ def match_airport(pdf_path, countries=["FR"]):
     Also finds dates/times and selects airports nearest to them.
 
     Args:
-        pdf_path (str): The path to the PDF file.
+        pdf_path (str or file-like): The path to the PDF file or a file-like object.
         countries (list of str): List of country codes to filter airport matches. Default is ["FR"].
 
     Returns:
         ReceiptData: An object containing the formatted receipt data.
     """
-
-    # Get the directory of the current script
-    current_dir = Path(__file__).parent.parent
-
-    # Construct the dynamic path to the CSV file
-    csv_path = current_dir / "Data" / "airport.csv"
-
-    # Load CSV with airport data
-    airport_df = pd.read_csv(csv_path)
+    # Load CSV with airport data using the cached function
+    airport_df = get_airports_data()
 
     # Extract text from PDF
     pdf_text = extract_text_from_pdf(pdf_path)

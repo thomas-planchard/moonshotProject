@@ -7,6 +7,19 @@ from utils.files_reader import extract_text_from_pdf
 from utils.remove_similar_matches import remove_similar_matches
 from utils.receipt_data import ReceiptData
 
+# Import the cache function if available, otherwise create a local version
+try:
+    from app import get_train_stations_data
+except ImportError:
+    # Local cache for when running outside the main app context
+    from functools import lru_cache
+    
+    @lru_cache(maxsize=1)
+    def get_train_stations_data():
+        """Load and cache train stations data"""
+        current_dir = Path(__file__).parent.parent
+        csv_path = current_dir / "Data" / "train_stations.csv"
+        return pd.read_csv(csv_path)
 
 
 def match_train_station(pdf_path, countries=["FR"]):
@@ -15,21 +28,14 @@ def match_train_station(pdf_path, countries=["FR"]):
     Also finds dates/times and selects stations nearest to them.
 
     Args:
-        pdf_path (str): The path to the PDF file.
+        pdf_path (str or file-like): The path to the PDF file or a file-like object.
         countries (list of str): List of country codes to filter station matches. Default is ["FR"].
 
     Returns:
         ReceiptData: An object containing the formatted receipt data.
     """
-
-    # Get the directory of the current script
-    current_dir = Path(__file__).parent.parent
-
-    # Construct the dynamic path to the CSV file
-    csv_path = current_dir / "Data" / "train_stations.csv"
-
-    # Load CSV with station data
-    station_df = pd.read_csv(csv_path)
+    # Load CSV with station data using the cached function
+    station_df = get_train_stations_data()
 
     # Extract text from PDF
     pdf_text = extract_text_from_pdf(pdf_path)
@@ -44,8 +50,8 @@ def match_train_station(pdf_path, countries=["FR"]):
     station_matches = find_matching_entities_with_positions(pdf_text, station_df, "country", "name_norm", countries)
     station_matches = remove_similar_matches(station_matches)
 
-    if not date_matches and not time_matches:
-       raise ValueError("No stations found in the text. Ensure the text includes valid station names.")
+    if not station_matches:
+        raise ValueError("No stations found in the text. Ensure the text includes valid station names.")
 
     # Determine the reference position (prefer time over date)
     if time_matches:
@@ -57,7 +63,6 @@ def match_train_station(pdf_path, countries=["FR"]):
         
     # Find the two stations nearest to the reference position
     nearest_stations = find_nearest_stations(station_matches, reference_position) if reference_position else station_matches[:2]
-
 
     # Extract departure and arrival stations
     departure_station = nearest_stations[0][0] if nearest_stations else None

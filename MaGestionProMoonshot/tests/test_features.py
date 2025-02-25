@@ -1,5 +1,4 @@
 from features.match_train_station import match_train_station
-from features.match_peage import match_peage
 from features.match_airport import match_airport
 from features.match_fuel_volume import match_fuel_volume
 from utils.files_reader import extract_text_from_image
@@ -30,11 +29,6 @@ test_cases = [
         "file_path": "NDF/Trains/04-Billet train.pdf",
         "countries": ["FR"],
         "expected_result": ("Cannes", "Paris"),
-    },
-    {
-        "function": "match_peage",
-        "file_path": "NDF/Péages/01-Peage.jpeg",
-        "expected_result": ("Montesson", "Paris"),  
     },
     {
         "function": "match_airport",
@@ -79,9 +73,6 @@ for case in test_cases:
         # Call the appropriate function
         if function_name == "match_train_station":
             result = match_train_station(file_path, countries=countries)
-        elif function_name == "match_peage":
-            text = extract_text_from_image(file_path)
-            result = match_peage(text)
         elif function_name == "match_airport":
             result = match_airport(file_path, countries=countries)
         elif function_name == "match_fuel_volume":

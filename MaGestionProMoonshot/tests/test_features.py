@@ -1,96 +1,46 @@
+import pytest
 from features.match_train_station import match_train_station
 from features.match_airport import match_airport
 from features.match_fuel_volume import match_fuel_volume
-from utils.files_reader import extract_text_from_image
 from pathlib import Path
+from utils.receipt_data import ReceiptData
 
-# Test cases for different functions
-test_cases = [
-    {
-        "function": "match_train_station",
-        "file_path": "NDF/Trains/01-Billet train.pdf",
-        "countries": ["FR"],
-        "expected_result": ("Paris", "Aix-en-Provence"),
-    },
-    {
-        "function": "match_train_station",
-        "file_path": "NDF/Trains/02-Billet train.pdf",
-        "countries": ["FR"],
-        "expected_result": ("Paris", "Aix-en-Provence"),
-    },
-    {
-        "function": "match_train_station",
-        "file_path": "NDF/Trains/03-Billet train.pdf",
-        "countries": ["FR"],
-        "expected_result": ("Paris", "Cannes"),
-    },
-    {
-        "function": "match_train_station",
-        "file_path": "NDF/Trains/04-Billet train.pdf",
-        "countries": ["FR"],
-        "expected_result": ("Cannes", "Paris"),
-    },
-    {
-        "function": "match_airport",
-        "file_path": "NDF/Avions/1. Billet AVION.pdf",
-        "countries": ["FR", "IT"],
-        "expected_result": ("Paris", "Rome"),
-    },
-    {
-        "function": "match_airport",
-        "file_path": "NDF/Avions/2. Billet AVION.pdf",
-        "countries": ["FR"],
-        "expected_result": ("Paris", "Marseille"),
-    },
-    {
-        "function": "match_airport",
-        "file_path": "NDF/Avions/3. Billet AVION.pdf",
-        "countries": ["FR"],
-        "expected_result": ("Paris", "Marseille"),
-    },
-    {
-        "function": "match_fuel_volume",
-        "file_path": "NDF/Essence/01-Essence.jpeg",
-        "expected_result": 38.67, 
-    },
+# Define test cases for train station matching
+train_station_cases = [
+    ("NDF/Trains/01-Billet train.pdf", ["FR"], ("Paris", "Aix-en-Provence")),
+    ("NDF/Trains/02-Billet train.pdf", ["FR"], ("Paris", "Aix-en-Provence")),
+    ("NDF/Trains/03-Billet train.pdf", ["FR"], ("Paris", "Cannes")),
+    ("NDF/Trains/04-Billet train.pdf", ["FR"], ("Cannes", "Paris")),
 ]
 
-# Initialize counters for tests
-total_tests = 0
-successful_tests = 0
+# Define test cases for airport matching
+airport_cases = [
+    ("NDF/Avions/1. Billet AVION.pdf", ["FR", "IT"], ("Paris", "Rome")),
+    ("NDF/Avions/2. Billet AVION.pdf", ["FR"], ("Paris", "Marseille")),
+    ("NDF/Avions/3. Billet AVION.pdf", ["FR"], ("Paris", "Marseille")),
+]
 
-# Run tests
-for case in test_cases:
-    function_name = case["function"]
-    file_path = case["file_path"]
-    expected_result = case["expected_result"]
-    countries = case.get("countries")  
+# Define test cases for fuel volume matching; expected fuel value in float.
+fuel_volume_cases = [
+    ("NDF/Essence/01-Essence.jpeg", 38.67),
+]
 
-    print(f"\nTesting {function_name} with file: {file_path}")
-    total_tests += 1
+@pytest.mark.parametrize("file_path, countries, expected", train_station_cases)
+def test_match_train_station(file_path, countries, expected):
+    result: ReceiptData = match_train_station(file_path, countries=countries)
+    # Assert that the departure and arrival values match the expected tuple
+    assert (result.departure, result.arrival) == expected
 
-    try:
-        # Call the appropriate function
-        if function_name == "match_train_station":
-            result = match_train_station(file_path, countries=countries)
-        elif function_name == "match_airport":
-            result = match_airport(file_path, countries=countries)
-        elif function_name == "match_fuel_volume":
-            text = extract_text_from_image(file_path)
-            result = match_fuel_volume(text)
-        else:
-            print("Unknown function. Skipping test.")
-            continue
+@pytest.mark.parametrize("file_path, countries, expected", airport_cases)
+def test_match_airport(file_path, countries, expected):
+    result: ReceiptData = match_airport(file_path, countries=countries)
+    # Assert that the departure and arrival values match the expected tuple
+    assert (result.departure, result.arrival) == expected
 
-        # Assert the result matches the expectation
-        assert result == expected_result, f"Test failed! Expected: {expected_result}, Got: {result}"
-        print(f"Test passed! Result: {result}")
-        successful_tests += 1
-
-    except Exception as e:
-        print(f"Test failed for {file_path}. Error: {e}")
-
-# Calculate success percentage
-success_rate = (successful_tests / total_tests) * 100 if total_tests > 0 else 0
-print(f"\nTest Summary: {successful_tests}/{total_tests} tests passed.")
-print(f"Success Rate: {success_rate:.2f}%")
+@pytest.mark.parametrize("file_path, expected", fuel_volume_cases)
+def test_match_fuel_volume(file_path, expected):
+    # Open the file in binary mode and pass the file object along with the proper extension.
+    with open(file_path, "rb") as f:
+        result: ReceiptData = match_fuel_volume(f, "jpeg")
+        # Use pytest.approx for floating point comparisons
+        assert result.number_of_kilometers == pytest.approx(expected, rel=1e-2)

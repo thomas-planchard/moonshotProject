@@ -1,0 +1,4 @@
+slowapi
+fastapi
+pandas
+pdfplumber

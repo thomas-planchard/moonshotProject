@@ -1,4 +1,3 @@
-<a name="readme-top"></a>
 
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
@@ -6,82 +5,134 @@
 [![Issues][issues-shield]][issues-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
 
-<!-- PROJECT LOGO -->
-<br />
 <div align="center">
-    <img src="EcoGo/assets/icon.png" alt="Logo" width="100" height="100">
-
-  <h1 align="center">Moonshot Project EcoGo: Your Personal Carbon Footprint Tracker</h1>
-
+   <img src="EcoGo/assets/icon.png" alt="Logo" width="100" height="100">
+  <h1 align="center">EcoGo API</h1>
   <p align="center">
-    <a href="https://github.com/thomas-planchard/moonshotProject/tree/main/Docs"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
-    <a href="">View Demo</a>
-    ·
-    <a href="https://github.com/thomas-planchard/moonshotProject/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/thomas-planchard/moonshotProject/issues">Request Feature</a>
+    A lightweight API to extract receipt data (from train, plane, and fuel tickets) and format it for carbon emissions calculation.
   </p>
 </div>
 
+## About the Project
 
-## About the project 
+This project is derived from EcoGo mobile app that tracked carbon emissions from daily activities. EcoGo API is designed to process receipts or tickets (in PDF, JPG, or PNG formats) to extract structured data—such as departure and arrival locations, dates, and fuel amounts—needed for calculating CO₂ emissions. The goal is to streamline data integration for carbon clap.
 
-Welcome to EcoGo, your carbon footprint tracker! EcoGo is a mobile application designed to help individuals track their carbon emissions, make eco-friendly transportation choices, and reduce their environmental impact.
+## Key Features
 
-The purpose of EcoGo is to raise awareness about carbon emissions generated from transportation activities and empower users to make more sustainable travel choices. By tracking their carbon footprint in real-time, users can visualize the environmental impact of their transportation decisions and receive personalized recommendations to reduce emissions.
+- **Multi-category Support:** Extracts data for trains, planes, and fuel receipts.
+- **Flexible Input Formats:** Supports PDF, JPG, and PNG files.
+- **Structured JSON Responses:** Returns formatted data compatible with the Carbon Clap calculator.
+- **Error Handling:** Uses standard HTTP status codes and error messages.
 
-### Built With
+## Built With
 
-* [![React-Native][React.js]][React-url]
-* [![TypeScript][TypeScript.js]][TypeScript-url]
-* [![Expo][Expo.js]][Expo-url]
+* [![FastAPI][FastAPI-shield]][FastAPI-shield]
+* [![Python][Python-shield]][Python-shield]
+* [![Tesseract][Tesseract-shield]][Tesseract-shield]
+* [![Mistral][mistral-shield]][mistral-shield]
 
 
-## Features
+## API Documentation
 
-EcoGo offers the following key features:
+### Base URL
 
-1. **Carbon Footprint Tracking:** Users can track their carbon emissions from various transportation modes, including walking, cycling, public transport, carpooling, and driving.
-   
-2. **Real-time Emission Calculation:** The app calculates carbon emissions in real time based on GPS data, distance traveled, and transportation mode.
+`https://example-api.com/api/v1`
 
-3. **GPS Navigation and Transportation Mode Selection:** The user can utilize GPS within the app to select a destination, choose their preferred mode of transportation, and receive guided directions to reach their destination.
+### Endpoints
 
-4. **Graphical Representation:** Users can visualize their carbon footprint over time through interactive graphs, providing insights into their environmental impact.
+#### POST `/extract`
 
-5. **Gamification:** EcoGo gamifies the carbon footprint tracking experience by rewarding users with virtual coins for reducing their emissions. Coins can be used to unlock rewards in the in-app store.
+Extracts structured data from a receipt or ticket.
 
-6. **In-App Store:** The app features an in-app store where users can redeem coins for discounts and offers on eco-friendly products, carpooling services, and public transportation.
+### Request Parameters
 
-7. **Multi-language Support:** The app will be available in both English and French to cater to a diverse user base.
+| Parameter | Type    | Required  | Description                                                            |
+|-----------|---------|-----------|------------------------------------------------------------------------|
+| file      | File    | Yes       | Receipt file to process (PDF, JPG, or PNG).                            |
+| category  | String  | Yes       | Receipt category (e.g., `trains`, `planes`, `fuel`).                   |
+| countries | List    | Optional  | List of country codes to filter results (e.g., `["FR","IT"]`).              |
 
-## Getting Started
+### Example Requests and Responses
 
-To get started with EcoGo, simply download the app from the App Store (iOS). The app is free to use and does not require any additional hardware.
-// WILL BE UPDATED WHEN THE APP IS AVAILABLE
+#### Request Example
 
-## Contributing
+```bash
+curl -X POST https://example-api.com/api/v1/extract \
+  -F "file=@/path/to/receipt.pdf" \
+  -F "category=trains" \
+  -F "countries[]=FR"
 
-We welcome contributions from developers, designers, and environmental enthusiasts who share our mission of promoting sustainable transportation. If you're interested in contributing to EcoGo, please check out our [contributing guidelines](CONTRIBUTING.md) for more information.
+```
+
+**Successful Response (Trains)**
+```bash
+{
+  "category": "trains",
+  "name_of_trip": "Paris to Lyon",
+  "type_of_transport": null,
+  "are_kilometers_known": false,
+  "departure": "Paris",
+  "arrival": "Lyon",
+  "number_of_trips": 1
+}
+```
+
+**Successful Response (Fuel)**
+
+```bash
+{
+  "category": "fuel",
+  "name_of_trip": "fuel",
+  "type_of_transport": null,
+  "are_kilometers_known": false,
+  "number_of_kilometers": 32.0,
+  "departure": null,
+  "arrival": null,
+  "number_of_trips": 1
+}
+```
+
+**Error Response**
+
+```bash
+{
+  "detail": "Error processing the file: No valid departure or arrival information found."
+}
+```
+
+**Getting Started**
+
+To run the API locally:
+
+1.	Clone the repository:
+
+```bash
+git clone https://github.com/thomas-planchard/moonshotProject.git
+cd carbon-clap-api
+```
+
+2.	Install dependencies:
+
+```pip install -r requirements.txt```
+
+
+3.	Run the API server:
+
+```uvicorn main:app --reload```
+
 
 ## License
 
 EcoGo is a proprietary software developed by Thomas Planchard. All rights reserved. Unauthorized use, distribution, or reproduction is strictly prohibited.
 
-## Feedback
-
-I value your feedback! If you have any questions, suggestions, or bug reports, please feel free to [open an issue](https://github.com/yourusername/ecogo/issues) on GitHub.
-
-## Contact Us
+## Contact
 
 For general inquiries or partnership opportunities, you can reach me at thomas.planchard@algosup.com.
 
 
 
+
 <!-- MARKDOWN LINKS & IMAGES -->
-<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 [contributors-shield]: https://img.shields.io/github/contributors/thomas-planchard/moonshotProject.svg?style=for-the-badge
 [contributors-url]: https://github.com/thomas-planchard/moonshotProject/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/thomas-planchard/moonshotProject.svg?style=for-the-badge
@@ -92,9 +143,7 @@ For general inquiries or partnership opportunities, you can reach me at thomas.p
 [issues-url]: https://github.com/thomas-planchard/moonshotProject/issues
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: www.linkedin.com/in/thomas-planchard-461782221
-[React.js]: https://img.shields.io/badge/React-Native?style=for-the-badge&logo=react&logoColor=61DAFB&color=%23000000
-[React-url]: https://reactjs.org/
-[TypeScript.js]: https://img.shields.io/badge/typescript-20232A?style=for-the-badge&logo=typescript&logoColor=61DAFB&color=%23000000
-[TypeScript-url]: https://www.typescriptlang.org/
-[Expo.js]: https://img.shields.io/badge/Expo-63738?style=for-the-badge&logo=expo&color=black
-[Expo-url]: https://expo.dev/
+[FastAPI-shield]: https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi
+[Python-shield]: https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white
+[Tesseract-shield]: https://img.shields.io/badge/Tesseract-292929?style=for-the-badge&logo=tesseract&logoColor=white
+[mistral-shield]: https://img.shields.io/badge/Mistral-FF5733?style=for-the-badge&logo=mistral&logoColor=white

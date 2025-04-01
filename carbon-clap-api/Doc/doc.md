@@ -20,8 +20,6 @@ L’API prend actuellement en charge les catégories suivantes :
 
 •	avions : Extraction des aéroports de départ et d’arrivée.
 
-•	peage : Extraction des points d’entrée et de sortie des péages.
-
 •	essence : Extraction des montants d’essence.
 
 ## Points de Terminaison
@@ -39,7 +37,7 @@ Traite un fichier de reçu ou de billet et extrait des informations structurées
 |Paramètre|	Type|	Obligatoire|	Description|
 |---|---|---|---|
 |file	|Fichier|	Oui,	Le fichier de reçu ou de billet à traiter.| Formats pris en charge : PDF, JPG, PNG.
-|category|	String|	Oui,	La catégorie du reçu (trains, avions, peage).|
+|category|	String|	Oui,	La catégorie du reçu (trains, avions).|
 |countries|	Liste|	Optionnel|	Liste de codes pays pour filtrer les gares/aéroports (par exemple, ["FR"]).
 
 ## Exemple de Requête

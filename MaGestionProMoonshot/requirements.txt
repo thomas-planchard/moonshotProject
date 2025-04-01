@@ -1,3 +1,0 @@
-slowapi
-fastapi
-pandas

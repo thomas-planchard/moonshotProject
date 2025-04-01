@@ -107,7 +107,7 @@ To run the API locally:
 1.	Clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/carbon-clap-api.git
+git clone https://github.com/thomas-planchard/moonshotProject.git
 cd carbon-clap-api
 ```
 

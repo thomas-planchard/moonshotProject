@@ -3,6 +3,6 @@
 **/.DS_Store
 
 
-/MaGestionProMoonshot/NDF
-/MaGestionProMoonshot/features/__pycache__
-/MaGestionProMoonshot/utils/__pycache__
+/carbon-clap-api/NDF
+/carbon-clap-api/features/__pycache__
+/carbon-clap-api/utils/__pycache__

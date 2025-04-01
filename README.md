@@ -118,7 +118,7 @@ cd carbon-clap-api
 
 3.	Run the API server:
 
-```uvicorn main:app --reload```
+```python3 app.py ```
 
 
 ## License

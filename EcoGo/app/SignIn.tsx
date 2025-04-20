@@ -33,7 +33,7 @@ export default function SignIn() {
 
   return (
     <CustomKeyboardView>
-      <StatusBar style="dark" />
+      <StatusBar />
       <View style={{ paddingTop: hp(8), paddingHorizontal: wp(5), backgroundColor: 'white', height: hp(100) }} className='flex-1 gap-12'>
         <View className='items-center'>
           <Image source={require('../assets/images/login.png')} resizeMode='contain' style={{ height: hp(30), alignSelf: 'center' }} />

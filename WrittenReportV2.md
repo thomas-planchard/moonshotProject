@@ -56,3 +56,27 @@ Meeting 1: Initial Contact with Founder
 	•	Follow-up:
 	•	Plan to schedule a meeting with Franck Jeannin to ensure the project aligns with the requirements for the final degree.
 	•	Prepare necessary documentation to present the project’s feasibility and alignment with academic expectations.
+
+
+
+
+Meeting 3: Teams meeting with M Blank and Armand   Feb 4, 2025 14:00 - 14:45
+  Attendees: Me, Marguerite Blank, Armand
+  Agenda:
+  - Showcase the API and its functionalities
+  - Discuss limit cases and potential improvements
+  - Review the current status of the project
+  - Discuss the next steps and timeline (including AI implementation, more input to improve the correctness of the API)
+  - Including type of gas for gas invoices
+  - Plan a future meeting to discuss the project's progress and next steps at the end of february 
+
+
+
+ phone call with M Blank April 2 2025
+  Attendees Me, Marguerite Blank
+  Agenda
+  - Discuss the project and its progress
+  - Review the current status of the API
+  - Discuss problem of confidentiality
+  - Discuss about a future meeting to showcase again the API 
+  - 

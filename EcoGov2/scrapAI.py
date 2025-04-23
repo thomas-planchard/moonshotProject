@@ -150,10 +150,7 @@ def query_ollama_train_ticket(model_name, pdf_text):
     Extract the following information from this train ticket:
     1. Departure station (city or station name)
     2. Arrival station (city or station name)
-    3. Train number
-    4. Departure datetime (ISO 8601 format)
-    5. Arrival datetime (ISO 8601 format)
-    Format your response as JSON with keys: 'departure_station','arrival_station','train_number','departure_time','arrival_time'
+    Format your response as JSON with keys: 'departure_station','arrival_station'
     Here's the document text:
     {pdf_text}
     """
@@ -172,9 +169,6 @@ def query_ollama_train_ticket(model_name, pdf_text):
         return {
             'departure_station': extract_info(ai_text, 'departure station'),
             'arrival_station': extract_info(ai_text, 'arrival station'),
-            'train_number': extract_info(ai_text, 'train number'),
-            'departure_time': extract_info(ai_text, 'departure datetime'),
-            'arrival_time': extract_info(ai_text, 'arrival datetime')
         }
 
 def query_ollama_plane_ticket(model_name, pdf_text):
@@ -269,13 +263,16 @@ def get_travel_info_from_pdf(file_path, model_name="mistral", doc_type="travel")
     # Query based on document type
     low = doc_type.lower()
     if low in ["fuel", "essence"]:
-        return query_ollama_fuel_receipt(model_name, document_text)
+        result = query_ollama_fuel_receipt(model_name, document_text)
     elif low in ["trains", "train"]:
-        return query_ollama_train_ticket(model_name, document_text)
+        result = query_ollama_train_ticket(model_name, document_text)
     elif low in ["avions", "plane", "flight"]:
-        return query_ollama_plane_ticket(model_name, document_text)
+        result = query_ollama_plane_ticket(model_name, document_text)
     else:
-        return query_ollama_ai(model_name, document_text)
+        result = query_ollama_ai(model_name, document_text)
+    # Attach document type as category
+    result["category"] = low
+    return result
 
 # Example usage
 if __name__ == "__main__":

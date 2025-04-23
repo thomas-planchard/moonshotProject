@@ -166,13 +166,38 @@ async def extract_data(
                 tmp.write(file_content)
                 tmp_path = tmp.name
             try:
-                result = get_travel_info_from_pdf(tmp_path, model_name="mistral", doc_type=category.value)
+                raw = get_travel_info_from_pdf(tmp_path, model_name="mistral", doc_type=category.value)
             finally:
                 try:
                     os.remove(tmp_path)
                 except OSError:
                     pass
-            return result
+            # Convert raw AI output into ReceiptData model
+            data = {"category": category}
+            # Map fields based on category
+            if category == Category.train:
+                data.update({
+                    "departure": raw.get("departure_station"),
+                    "arrival": raw.get("arrival_station"),
+                    "type_of_transport": raw.get("train_number")
+                })
+            elif category == Category.avion:
+                data.update({
+                    "departure": raw.get("departure_airport"),
+                    "arrival": raw.get("arrival_airport"),
+                    "type_of_transport": raw.get("flight_number")
+                })
+            elif category == Category.essence:
+                data.update({
+                    "number_of_liters": float(raw.get("liters")) if raw.get("liters") else None,
+                    "type_of_transport": raw.get("fuel_type")
+                })
+            else:
+                data.update({
+                    "departure": raw.get("departure_location"),
+                    "arrival": raw.get("arrival_location")
+                })
+            return ReceiptData(**data)
         
         # Call the correct function based on the category
         processing_function = category_function_mapping.get(category.value)

@@ -35,12 +35,19 @@
                 <label class="checkbox-label">
                     <input type="checkbox" name="countries" value="ES"> Spain (ES)
                 </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" name="countries" value="HU"> Hongary (HU)
+            </label>
             </div>
         </div>
 
         <div class="form-group">
             <label for="file">Upload Receipt:</label>
             <input type="file" id="file" name="file" accept=".pdf,.jpg,.jpeg,.png" required>
+        </div>
+        <div class="form-group">
+            <label for="use_ai">Use AI Processing:</label>
+            <input type="checkbox" id="use_ai" name="use_ai">
         </div>
 
         <button type="submit">Process Receipt</button>
@@ -55,6 +62,7 @@
             const formData = new FormData();
             const file = document.getElementById('file').files[0];
             const category = document.getElementById('category').value;
+            const useAI = document.getElementById('use_ai').checked;
 
             // Get selected countries
             const selectedCountries = Array.from(
@@ -62,9 +70,9 @@
             ).map(checkbox => checkbox.value);
             
             
-            
             formData.append('file', file);
             formData.append('category', category);
+            formData.append('use_ai', useAI.toString());
 
             // Only append countries if category is trains or avions
             if (['trains', 'avions'].includes(category)) {

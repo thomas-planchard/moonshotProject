@@ -71,16 +71,11 @@ def match_train_station(pdf_path, countries=["FR"]):
     if not departure_station or not arrival_station:
         raise ValueError("Unable to determine both departure and arrival stations.")
 
-     # Construct the name of the trip
-    name_of_trip = f"{departure_station} to {arrival_station}"
 
     return ReceiptData(
         category='trains',
-        name_of_trip=name_of_trip,
-        are_kilometers_known=False,
         departure=departure_station,
         arrival=arrival_station,
-        number_of_trips=1
     )
 
 

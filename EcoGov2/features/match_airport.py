@@ -71,15 +71,10 @@ def match_airport(pdf_path, countries=["FR"]):
     if not departure_airport or not arrival_airport:
         raise ValueError("Unable to determine both departure and arrival airports.")
 
-    # Construct the name of the trip
-    name_of_trip = f"{departure_airport} to {arrival_airport}"
 
     # Return results as a ReceiptData object
     return ReceiptData(
         category='avions',
-        name_of_trip=name_of_trip,
-        are_kilometers_known=False,
         departure=departure_airport,
         arrival=arrival_airport,
-        number_of_trips=1
     )

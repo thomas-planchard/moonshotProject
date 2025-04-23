@@ -141,6 +141,72 @@ def query_ollama_fuel_receipt(model_name, pdf_text):
         print(f"Error querying Ollama AI: {e}")
         return {"error": str(e)}
 
+def query_ollama_train_ticket(model_name, pdf_text):
+    """
+    Query the locally installed Ollama AI model to extract train ticket information.
+    """
+    api_url = "http://localhost:11434/api/generate"
+    prompt = f"""
+    Extract the following information from this train ticket:
+    1. Departure station (city or station name)
+    2. Arrival station (city or station name)
+    3. Train number
+    4. Departure datetime (ISO 8601 format)
+    5. Arrival datetime (ISO 8601 format)
+    Format your response as JSON with keys: 'departure_station','arrival_station','train_number','departure_time','arrival_time'
+    Here's the document text:
+    {pdf_text}
+    """
+    payload = {"model": model_name, "prompt": prompt, "stream": False}
+    response = requests.post(api_url, json=payload)
+    response.raise_for_status()
+    result = response.json()
+    ai_text = result.get('response', '')
+    try:
+        json_start = ai_text.find('{')
+        json_end = ai_text.rfind('}') + 1
+        if json_start != -1 and json_end != -1:
+            return json.loads(ai_text[json_start:json_end])
+        return json.loads(ai_text)
+    except json.JSONDecodeError:
+        return {
+            'departure_station': extract_info(ai_text, 'departure station'),
+            'arrival_station': extract_info(ai_text, 'arrival station'),
+            'train_number': extract_info(ai_text, 'train number'),
+            'departure_time': extract_info(ai_text, 'departure datetime'),
+            'arrival_time': extract_info(ai_text, 'arrival datetime')
+        }
+
+def query_ollama_plane_ticket(model_name, pdf_text):
+    """
+    Query the locally installed Ollama AI model to extract flight ticket information.
+    """
+    api_url = "http://localhost:11434/api/generate"
+    prompt = f"""
+    Extract the following information from this flight ticket:
+    1. Departure airport (code or city)
+    2. Arrival airport (code or city)
+    Format your response as JSON with keys: 'departure_airport','arrival_airport'
+    Here's the document text:
+    {pdf_text}
+    """
+    payload = {"model": model_name, "prompt": prompt, "stream": False}
+    response = requests.post(api_url, json=payload)
+    response.raise_for_status()
+    result = response.json()
+    ai_text = result.get('response', '')
+    try:
+        json_start = ai_text.find('{')
+        json_end = ai_text.rfind('}') + 1
+        if json_start != -1 and json_end != -1:
+            return json.loads(ai_text[json_start:json_end])
+        return json.loads(ai_text)
+    except json.JSONDecodeError:
+        return {
+            'departure_airport': extract_info(ai_text, 'departure airport'),
+            'arrival_airport': extract_info(ai_text, 'arrival airport'),
+        }
+
 def extract_info(text, info_type):
     """Helper function to extract specific information from AI text response"""
     lines = text.split('\n')
@@ -187,8 +253,8 @@ def get_travel_info_from_pdf(file_path, model_name="mistral", doc_type="travel")
     Args:
         file_path (str): Path to the document file
         model_name (str): Name of the Ollama model to use
-        doc_type (str): Type of document ('travel' or 'fuel')
-        
+        doc_type (str): Type of document ('travel', 'fuel', 'train', or 'plane')
+                
     Returns:
         dict: Extracted information based on document type
     """
@@ -200,11 +266,15 @@ def get_travel_info_from_pdf(file_path, model_name="mistral", doc_type="travel")
     except Exception as e:
         return {"error": f"Error processing document: {str(e)}"}
     
-    # Query Ollama AI to extract information based on document type
-    if doc_type.lower() == "fuel":
+    # Query based on document type
+    low = doc_type.lower()
+    if low in ["fuel", "essence"]:
         return query_ollama_fuel_receipt(model_name, document_text)
+    elif low in ["trains", "train"]:
+        return query_ollama_train_ticket(model_name, document_text)
+    elif low in ["avions", "plane", "flight"]:
+        return query_ollama_plane_ticket(model_name, document_text)
     else:
-        # Default to travel document processing
         return query_ollama_ai(model_name, document_text)
 
 # Example usage

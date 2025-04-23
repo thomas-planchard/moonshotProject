@@ -1,0 +1,188 @@
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useApi } from '../hooks/useApi';
+import InvoiceDropZone from '../components/invoices/InvoiceDropZone';
+import InvoiceTable from '../components/invoices/InvoiceTable';
+import CarbonDistributionChart from '../components/dashboard/CarbonDistributionChart';
+import { ChevronLeft, Clock, Calendar, ArrowDownCircle, Briefcase, TrendingUp } from 'lucide-react';
+import { Trip, ChartData } from '../types';
+
+const TripDetailPage: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { getTrip, loading, error } = useApi();
+  const [trip, setTrip] = useState<Trip | null>(null);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  
+  useEffect(() => {
+    const fetchTrip = async () => {
+      if (id === 'new') {
+        navigate('/trips/new');
+        return;
+      }
+      
+      if (!id) return;
+      
+      const tripData = await getTrip(id);
+      setTrip(tripData);
+    };
+    
+    fetchTrip();
+  }, [id, getTrip, navigate, refreshTrigger]);
+  
+  // Format date for display
+  const formatDate = (dateString: string) => {
+    const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+  
+  // Calculate trip duration in days
+  const calculateDuration = (startDate: string, endDate: string) => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const differenceInTime = end.getTime() - start.getTime();
+    const differenceInDays = Math.ceil(differenceInTime / (1000 * 3600 * 24));
+    return differenceInDays + 1; // Include the start day
+  };
+  
+  // Prepare data for carbon distribution chart
+  const getChartData = (): ChartData[] => {
+    if (!trip) return [];
+    
+    const typeMap: Record<string, number> = { fuel: 0, plane: 0, train: 0 };
+    
+    // Sum up carbon footprint by type
+    trip.invoices.forEach(invoice => {
+      typeMap[invoice.type] += invoice.carbonFootprint;
+    });
+    
+    // Format data for the chart
+    return [
+      { name: 'Fuel', value: typeMap.fuel, fill: '#F59E0B' },
+      { name: 'Plane', value: typeMap.plane, fill: '#4A6FA5' },
+      { name: 'Train', value: typeMap.train, fill: '#2D6A4F' },
+    ].filter(item => item.value > 0); // Only include types with emissions
+  };
+  
+  // Handle successful invoice upload
+  const handleUploadSuccess = () => {
+    setRefreshTrigger(prev => prev + 1);
+  };
+  
+  if (loading) {
+    return (
+      <div className="container mx-auto p-6 animate-pulse">
+        <div className="h-8 w-48 bg-gray-200 rounded mb-6"></div>
+        <div className="h-36 bg-gray-200 rounded-lg mb-8"></div>
+        <div className="h-64 bg-gray-200 rounded-lg"></div>
+      </div>
+    );
+  }
+  
+  if (error || !trip) {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="bg-error-50 text-error-700 p-4 rounded-md">
+          {error || "Trip not found"}
+        </div>
+        <div className="mt-4">
+          <Link 
+            to="/trips" 
+            className="inline-flex items-center text-primary-600 hover:text-primary-700"
+          >
+            <ChevronLeft className="h-5 w-5 mr-1" />
+            Back to Trips
+          </Link>
+        </div>
+      </div>
+    );
+  }
+  
+  return (
+    <div className="container mx-auto p-6">
+      <div className="mb-6">
+        <Link 
+          to="/trips" 
+          className="inline-flex items-center text-primary-600 hover:text-primary-700"
+        >
+          <ChevronLeft className="h-5 w-5 mr-1" />
+          Back to Trips
+        </Link>
+      </div>
+      
+      <div className="bg-white rounded-lg shadow-card overflow-hidden mb-8">
+        <div className="p-6 border-b border-gray-200">
+          <h1 className="text-2xl font-bold text-gray-900">{trip.name}</h1>
+          <p className="mt-2 text-gray-600">{trip.description}</p>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-gray-200">
+          <div className="p-6 flex items-center">
+            <Calendar className="h-6 w-6 text-secondary-500 mr-3" />
+            <div>
+              <p className="text-sm text-gray-500">Trip Dates</p>
+              <p className="font-medium">
+                {formatDate(trip.startDate)} - {formatDate(trip.endDate)}
+              </p>
+            </div>
+          </div>
+          
+          <div className="p-6 flex items-center">
+            <Clock className="h-6 w-6 text-secondary-500 mr-3" />
+            <div>
+              <p className="text-sm text-gray-500">Duration</p>
+              <p className="font-medium">
+                {calculateDuration(trip.startDate, trip.endDate)} days
+              </p>
+            </div>
+          </div>
+          
+          <div className="p-6 flex items-center">
+            <ArrowDownCircle className="h-6 w-6 text-secondary-500 mr-3" />
+            <div>
+              <p className="text-sm text-gray-500">Invoices Uploaded</p>
+              <p className="font-medium">{trip.invoices.length}</p>
+            </div>
+          </div>
+          
+          <div className="p-6 flex items-center">
+            <TrendingUp className="h-6 w-6 text-secondary-500 mr-3" />
+            <div>
+              <p className="text-sm text-gray-500">Total Carbon Footprint</p>
+              <p className="font-medium">{trip.totalCarbonFootprint.toLocaleString()} kg CO₂</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+        <div className="lg:col-span-2 bg-white rounded-lg shadow-card p-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">Upload Invoices</h2>
+          <InvoiceDropZone tripId={trip.id} onUploadSuccess={handleUploadSuccess} />
+        </div>
+        
+        <div className="bg-white rounded-lg shadow-card p-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">Emission Breakdown</h2>
+          
+          {getChartData().length > 0 ? (
+            <CarbonDistributionChart data={getChartData()} />
+          ) : (
+            <div className="flex flex-col items-center justify-center h-64 bg-gray-50 rounded-lg">
+              <Briefcase className="h-10 w-10 text-gray-400 mb-2" />
+              <p className="text-gray-500 text-center">
+                No emissions data yet.<br />Upload invoices to see your carbon footprint.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+      
+      <div className="bg-white rounded-lg shadow-card p-6">
+        <h2 className="text-xl font-semibold text-gray-900 mb-6">Trip Invoices</h2>
+        <InvoiceTable invoices={trip.invoices} />
+      </div>
+    </div>
+  );
+};
+
+export default TripDetailPage;

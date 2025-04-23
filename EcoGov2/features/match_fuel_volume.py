@@ -36,12 +36,7 @@ def match_fuel_volume(file, file_extension):
             # Replace comma with dot and convert to float
             return ReceiptData(
                 category='essence',
-                name_of_trip='fuel',
-                are_kilometers_known=True,
-                number_of_kilometers=float(value.replace(",", ".")),
-                departure=None,
-                arrival=None,
-                number_of_trips=1
+                number_of_liters=float(value.replace(",", ".")),
             )
         except ValueError:
             return None

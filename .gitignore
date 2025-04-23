@@ -3,6 +3,7 @@
 **/.DS_Store
 
 
-/carbon-clap-api/NDF
-/carbon-clap-api/features/__pycache__
-/carbon-clap-api/utils/__pycache__
+/EcoGov2/NDF
+/EcoGov2/features/__pycache__
+/EcoGov2/utils/__pycache__
+/EcoGoV2WebUi/node_modules

@@ -26,6 +26,9 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from fastapi.middleware.cors import CORSMiddleware
+import os
+import tempfile
+from scrapAI import get_travel_info_from_pdf
 
 
 app = FastAPI(
@@ -79,7 +82,8 @@ async def extract_data(
     request: Request,
     file: UploadFile,
     category: Category = Form(...),
-    countries: Optional[List[str]] = Form(None)
+    countries: Optional[List[str]] = Form(None),
+    use_ai: bool = Form(False)
 ):
     """
     Extract data from uploaded receipts or tickets.
@@ -88,6 +92,7 @@ async def extract_data(
     - file: The uploaded file (PDF, JPG, JPEG, or PNG)
     - category: The type of receipt (trains, avions, essence, peages)
     - countries: Optional list of country codes to filter results (default: ["FR"])
+    - use_ai: Optional flag to use AI-based processing
     
     Returns:
     - ReceiptData: Structured data extracted from the receipt
@@ -153,6 +158,21 @@ async def extract_data(
         # Read file content once
         file_content = await file.read()
         file_object = io.BytesIO(file_content)
+        # If AI mode requested, use scrapAI for extraction
+        if use_ai:
+            # Persist to temp file for AI processing
+            suffix = f".{file_extension}"
+            with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+                tmp.write(file_content)
+                tmp_path = tmp.name
+            try:
+                result = get_travel_info_from_pdf(tmp_path, model_name="mistral", doc_type=category.value)
+            finally:
+                try:
+                    os.remove(tmp_path)
+                except OSError:
+                    pass
+            return result
         
         # Call the correct function based on the category
         processing_function = category_function_mapping.get(category.value)

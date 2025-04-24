@@ -5,73 +5,6 @@ import os
 import io
 from utils.files_reader import extract_text_from_pdf, extract_text_from_image
 
-def query_ollama_ai(model_name, pdf_text):
-    """
-    Query the locally installed Ollama AI model to extract travel information.
-    
-    Args:
-        model_name (str): Name of the Ollama model to use
-        pdf_text (str): Text content extracted from the PDF
-        
-    Returns:
-        dict: Extracted travel information (departure and arrival details)
-    """
-    # Ollama API endpoint (default is localhost:11434)
-    api_url = "http://localhost:11434/api/generate"
-    
-    # Craft a prompt that asks the AI to extract specific travel information
-    prompt = f"""
-    Extract the following information from this travel document:
-    1. Departure location (only the city)
-    2. Arrival location (only the city )
-    
-    Format your response as JSON with keys: 'departure_location','arrival_location', 
-    
-    Here's the document text:
-    {pdf_text}
-    """
-    
-    # Prepare the request payload
-    payload = {
-        "model": model_name,
-        "prompt": prompt,
-        "stream": False
-    }
-    
-    try:
-        # Make the request to Ollama
-        response = requests.post(api_url, json=payload)
-        response.raise_for_status()  # Raise exception for HTTP errors
-        
-        # Parse the response
-        result = response.json()
-        
-        # Try to extract JSON from the AI's response
-        if 'response' in result:
-            ai_text = result['response']
-            try:
-                # Find JSON in the response
-                json_start = ai_text.find('{')
-                json_end = ai_text.rfind('}') + 1
-                if json_start != -1 and json_end != -1:
-                    json_str = ai_text[json_start:json_end]
-                    return json.loads(json_str)
-                else:
-                    # If no JSON formatting, try to parse the whole response
-                    return json.loads(ai_text)
-            except json.JSONDecodeError:
-                # If direct parsing fails, we'll extract key information manually
-                travel_info = {
-                    'departure_location': extract_info(ai_text, 'departure location'),
-                    'arrival_location': extract_info(ai_text, 'arrival location'),
-                }
-                return travel_info
-        
-        return {"error": "Unable to extract travel information"}
-    
-    except Exception as e:
-        print(f"Error querying Ollama AI: {e}")
-        return {"error": str(e)}
 
 def query_ollama_fuel_receipt(model_name, pdf_text):
     """
@@ -141,49 +74,36 @@ def query_ollama_fuel_receipt(model_name, pdf_text):
         print(f"Error querying Ollama AI: {e}")
         return {"error": str(e)}
 
-def query_ollama_train_ticket(model_name, pdf_text):
-    """
-    Query the locally installed Ollama AI model to extract train ticket information.
-    """
-    api_url = "http://localhost:11434/api/generate"
-    prompt = f"""
-    Extract the following information from this train ticket:
-    1. Departure station (city or station name)
-    2. Arrival station (city or station name)
-    Format your response as JSON with keys: 'departure_station','arrival_station'
-    Here's the document text:
-    {pdf_text}
-    """
-    payload = {"model": model_name, "prompt": prompt, "stream": False}
-    response = requests.post(api_url, json=payload)
-    response.raise_for_status()
-    result = response.json()
-    ai_text = result.get('response', '')
-    try:
-        json_start = ai_text.find('{')
-        json_end = ai_text.rfind('}') + 1
-        if json_start != -1 and json_end != -1:
-            return json.loads(ai_text[json_start:json_end])
-        return json.loads(ai_text)
-    except json.JSONDecodeError:
-        return {
-            'departure_station': extract_info(ai_text, 'departure station'),
-            'arrival_station': extract_info(ai_text, 'arrival station'),
-        }
 
-def query_ollama_plane_ticket(model_name, pdf_text):
+def query_ollama_trip_ticket(model_name, pdf_text):
     """
-    Query the locally installed Ollama AI model to extract flight ticket information.
+    Query the locally installed Ollama AI model to extract trip (flight or train) information.
     """
     api_url = "http://localhost:11434/api/generate"
-    prompt = f"""
-    Extract the following information from this flight ticket:
-    1. Departure airport (code or city)
-    2. Arrival airport (code or city)
-    Format your response as JSON with keys: 'departure_airport','arrival_airport'
-    Here's the document text:
-    {pdf_text}
-    """
+    prompt = """
+        You are an information-extraction assistant.  
+        Your task is to read a flight or train invoice and pull out the departure and arrival locations.  
+        Output must be a JSON object with exactly two fields:  
+        • "departure": the city and code (if available) of where the trip starts  
+        • "arrival": the city and code (if available) of where the trip ends  
+
+        Here are examples:
+
+        Invoice:
+        ---
+        “Ticket Confirmation  
+        Passenger: Jane Doe  
+        Trip: Flight AA123  
+        From: Los Angeles (LAX)  
+        To: New York (JFK)  
+        Date: 2025-05-10”  
+        Answer:
+        ```json
+        {"departure":"Los Angeles (LAX)","arrival":"New York (JFK)"}
+        ---
+        Here is the document text:
+        """ + pdf_text
+
     payload = {"model": model_name, "prompt": prompt, "stream": False}
     response = requests.post(api_url, json=payload)
     response.raise_for_status()
@@ -197,8 +117,8 @@ def query_ollama_plane_ticket(model_name, pdf_text):
         return json.loads(ai_text)
     except json.JSONDecodeError:
         return {
-            'departure_airport': extract_info(ai_text, 'departure airport'),
-            'arrival_airport': extract_info(ai_text, 'arrival airport'),
+            'departure': extract_info(ai_text, 'departure'),
+            'arrival': extract_info(ai_text, 'arrival'),
         }
 
 def extract_info(text, info_type):
@@ -239,6 +159,9 @@ def get_text_from_document(file_path):
     else:
         raise ValueError(f"Unsupported file format: {extension}")
 
+
+
+
 def get_travel_info_from_pdf(file_path, model_name="mistral", doc_type="travel"):
     """
     Main function to extract information from a document using Ollama AI.
@@ -264,28 +187,8 @@ def get_travel_info_from_pdf(file_path, model_name="mistral", doc_type="travel")
     low = doc_type.lower()
     if low in ["fuel", "essence"]:
         result = query_ollama_fuel_receipt(model_name, document_text)
-    elif low in ["trains", "train"]:
-        result = query_ollama_train_ticket(model_name, document_text)
-    elif low in ["avions", "plane", "flight"]:
-        result = query_ollama_plane_ticket(model_name, document_text)
-    else:
-        result = query_ollama_ai(model_name, document_text)
+    elif low in ["trains", "train", "avions", "plane", "flight"]:
+        result = query_ollama_trip_ticket(model_name, document_text)
     # Attach document type as category
     result["category"] = low
     return result
-
-# Example usage
-if __name__ == "__main__":
-    # Examples with different file types
-    travel_pdf = "NDF/Avions/3. Billet AVION.pdf"
-    fuel_receipt_img = "NDF/Essence/01-Essence.jpeg"
-    
-    # Process a PDF travel document
-    # travel_result = get_travel_info_from_pdf(travel_pdf, doc_type="travel")
-    # print("Travel Information (from PDF):")
-    # print(json.dumps(travel_result, indent=2))
-    
-    # Process an image fuel receipt
-    fuel_result = get_travel_info_from_pdf(fuel_receipt_img, doc_type="fuel")
-    print("\nFuel Information (from Image):")
-    print(json.dumps(fuel_result, indent=2))

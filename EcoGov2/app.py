@@ -166,7 +166,7 @@ async def extract_data(
                 tmp.write(file_content)
                 tmp_path = tmp.name
             try:
-                raw = get_travel_info_from_pdf(tmp_path, model_name="mistral", doc_type=category.value)
+                raw = get_travel_info_from_pdf(tmp_path, model_name="mistral:7b", doc_type=category.value)
             finally:
                 try:
                     os.remove(tmp_path)
@@ -179,13 +179,11 @@ async def extract_data(
                 data.update({
                     "departure": raw.get("departure_station"),
                     "arrival": raw.get("arrival_station"),
-                    "type_of_transport": raw.get("train_number")
                 })
             elif category == Category.avion:
                 data.update({
                     "departure": raw.get("departure_airport"),
                     "arrival": raw.get("arrival_airport"),
-                    "type_of_transport": raw.get("flight_number")
                 })
             elif category == Category.essence:
                 data.update({

@@ -28,7 +28,7 @@ from slowapi.errors import RateLimitExceeded
 from fastapi.middleware.cors import CORSMiddleware
 import os
 import tempfile
-from scrapAI import get_travel_info_from_pdf
+from features.scrapAI import get_travel_info_from_pdf
 
 
 app = FastAPI(

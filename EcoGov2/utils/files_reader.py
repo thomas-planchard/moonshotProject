@@ -1,4 +1,4 @@
-import pdfplumber
+from pypdf import PdfReader
 from PIL import Image
 from pytesseract import image_to_string
 import io
@@ -6,17 +6,17 @@ import io
 
 def extract_text_from_pdf(pdf_file):
     """
-    Extract text from a PDF file using pdfplumber.
+    Extract text from a PDF file using pypdf.
     
     Args:
-        pdf_file (str): Path to the PDF file.
+        pdf_file (str or file-like object): Path to the PDF file or file-like object.
     
     Returns:
         str: Extracted text from the PDF.
     """
     try:
-        with pdfplumber.open(pdf_file) as pdf:
-            text = "".join([page.extract_text() or "" for page in pdf.pages])
+        reader = PdfReader(pdf_file)
+        text = "".join([page.extract_text() or "" for page in reader.pages])
         return text.strip()
     except Exception as e:
         raise Exception(f"Error extracting text from PDF: {str(e)}")

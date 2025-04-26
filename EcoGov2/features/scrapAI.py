@@ -1,6 +1,6 @@
 import requests
 import json
-import pdfplumber
+from pypdf import PdfReader
 import os
 import io
 from utils.files_reader import extract_text_from_pdf, extract_text_from_image
@@ -81,11 +81,11 @@ def query_ollama_trip_ticket(model_name, pdf_text):
     """
     api_url = "http://localhost:11434/api/generate"
     prompt = """
-        You are an information-extraction assistant.  
-        Your task is to read a flight or train invoice and pull out the departure and arrival locations.  
-        Output must be a JSON object with exactly two fields:  
-        • "departure": the city and code (if available) of where the trip starts  
-        • "arrival": the city and code (if available) of where the trip ends  
+        You are a strict extractor  
+        Return a JSON object with exactly two fields:\n"
+        '  "departure": <the departure location, or null>,\n'
+        '  "arrival": <the arrival location, or null>\n'
+        "If you can’t find one of them, set it to null. No extra keys."
 
         Here are examples:
 
@@ -99,7 +99,7 @@ def query_ollama_trip_ticket(model_name, pdf_text):
         Date: 2025-05-10”  
         Answer:
         ```json
-        {"departure":"Los Angeles (LAX)","arrival":"New York (JFK)"}
+        {"departure":"Los Angeles","arrival":"New York"}
         ---
         Here is the document text:
         """ + pdf_text

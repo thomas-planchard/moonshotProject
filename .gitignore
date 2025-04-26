@@ -9,3 +9,4 @@
 /EcoGoV2WebUi/node_modules
 /EcoGov2/__pycache__
 *.pyc
+/EcoGov2/TestLLAMA/node_modules

@@ -1,15 +1,33 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Leaf, BarChart, Briefcase, Settings, Menu, X } from 'lucide-react';
+import { Leaf, BarChart, Briefcase, Menu, X, User } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../../firebase";
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const location = useLocation();
+  const { user } = useAuth();
+  const [profileName, setProfileName] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (!user) {
+      setProfileName(null);
+      return;
+    }
+    const fetchName = async () => {
+      const ref = doc(db, "users", user.uid);
+      const snap = await getDoc(ref);
+      setProfileName(snap.exists() ? snap.data().name : null);
+    };
+    fetchName();
+  }, [user]);
 
   const navItems = [
     { name: 'Dashboard', path: '/', icon: <BarChart className="w-5 h-5" /> },
     { name: 'Trips', path: '/trips', icon: <Briefcase className="w-5 h-5" /> },
-    { name: 'Settings', path: '/settings', icon: <Settings className="w-5 h-5" /> },
+    { name: 'Account', path: '/account', icon: <User className="w-5 h-5" /> },
   ];
 
   const toggleMenu = () => {
@@ -42,6 +60,9 @@ const Header: React.FC = () => {
               <span>{item.name}</span>
             </Link>
           ))}
+          {profileName && (
+            <span className="ml-6 font-medium text-primary-700">{profileName}</span>
+          )}
         </nav>
 
         {/* Mobile Menu Button */}
@@ -74,6 +95,9 @@ const Header: React.FC = () => {
               <span>{item.name}</span>
             </Link>
           ))}
+          {profileName && (
+            <div className="px-4 py-2 text-primary-700 font-medium">{profileName}</div>
+          )}
         </nav>
       )}
     </header>

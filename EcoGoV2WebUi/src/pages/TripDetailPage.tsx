@@ -4,16 +4,30 @@ import { useApi } from '../hooks/useApi';
 import InvoiceDropZone from '../components/invoices/InvoiceDropZone';
 import InvoiceTable from '../components/invoices/InvoiceTable';
 import CarbonDistributionChart from '../components/dashboard/CarbonDistributionChart';
-import { ChevronLeft, Clock, Calendar, ArrowDownCircle, Briefcase, TrendingUp } from 'lucide-react';
+import { ChevronLeft, Clock, Calendar, ArrowDownCircle, Briefcase, TrendingUp, Pencil } from 'lucide-react';
 import { Trip, ChartData } from '../types';
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { db } from "../firebase";
+import { useAuth } from "../context/AuthContext";
 
 const TripDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { getTrip, loading, error } = useApi();
+  const { user } = useAuth();
   const [trip, setTrip] = useState<Trip | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-  
+
+  // Editing state
+  const [editing, setEditing] = useState(false);
+  const [editFields, setEditFields] = useState({
+    name: "",
+    description: "",
+    startDate: "",
+    endDate: ""
+  });
+  const [saving, setSaving] = useState(false);
+
   useEffect(() => {
     const fetchTrip = async () => {
       if (id === 'new') {
@@ -29,13 +43,24 @@ const TripDetailPage: React.FC = () => {
     
     fetchTrip();
   }, [id, getTrip, navigate, refreshTrigger]);
-  
+
+  useEffect(() => {
+    if (trip) {
+      setEditFields({
+        name: trip.name,
+        description: trip.description,
+        startDate: trip.startDate,
+        endDate: trip.endDate
+      });
+    }
+  }, [trip]);
+
   // Format date for display
   const formatDate = (dateString: string) => {
     const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
-  
+
   // Calculate trip duration in days
   const calculateDuration = (startDate: string, endDate: string) => {
     const start = new Date(startDate);
@@ -44,7 +69,7 @@ const TripDetailPage: React.FC = () => {
     const differenceInDays = Math.ceil(differenceInTime / (1000 * 3600 * 24));
     return differenceInDays + 1; // Include the start day
   };
-  
+
   // Prepare data for carbon distribution chart
   const getChartData = (): ChartData[] => {
     if (!trip) return [];
@@ -63,12 +88,52 @@ const TripDetailPage: React.FC = () => {
       { name: 'Train', value: typeMap.train, fill: '#2D6A4F' },
     ].filter(item => item.value > 0); // Only include types with emissions
   };
-  
+
+  // Save edited trip info to Firestore
+  const handleSaveEdit = async () => {
+    if (!user || !trip) return;
+    setSaving(true);
+    try {
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
+      if (userSnap.exists()) {
+        const userData = userSnap.data();
+        const businessTrips = userData.businessTrips || { trips: [] };
+        const trips = businessTrips.trips || [];
+        const idx = trips.findIndex((t: any) => t.id === trip.id);
+        if (idx !== -1) {
+          trips[idx] = {
+            ...trips[idx],
+            name: editFields.name,
+            description: editFields.description,
+            startDate: editFields.startDate,
+            endDate: editFields.endDate
+          };
+          await updateDoc(userRef, { "businessTrips.trips": trips });
+        }
+      }
+      setTrip((prev) =>
+        prev
+          ? {
+              ...prev,
+              name: editFields.name,
+              description: editFields.description,
+              startDate: editFields.startDate,
+              endDate: editFields.endDate
+            }
+          : prev
+      );
+      setEditing(false);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   // Handle successful invoice upload
   const handleUploadSuccess = () => {
     setRefreshTrigger(prev => prev + 1);
   };
-  
+
   if (loading) {
     return (
       <div className="container mx-auto p-6 animate-pulse">
@@ -78,7 +143,7 @@ const TripDetailPage: React.FC = () => {
       </div>
     );
   }
-  
+
   if (error || !trip) {
     return (
       <div className="container mx-auto p-6">
@@ -97,7 +162,7 @@ const TripDetailPage: React.FC = () => {
       </div>
     );
   }
-  
+
   return (
     <div className="container mx-auto p-6">
       <div className="mb-6">
@@ -111,9 +176,78 @@ const TripDetailPage: React.FC = () => {
       </div>
       
       <div className="bg-white rounded-lg shadow-card overflow-hidden mb-8">
-        <div className="p-6 border-b border-gray-200">
-          <h1 className="text-2xl font-bold text-gray-900">{trip.name}</h1>
-          <p className="mt-2 text-gray-600">{trip.description}</p>
+        <div className="p-6 border-b border-gray-200 flex items-start justify-between">
+          <div>
+            {editing ? (
+              <>
+                <input
+                  className="text-2xl font-bold text-gray-900 mb-2 border-b border-primary-300 focus:outline-none focus:border-primary-500"
+                  value={editFields.name}
+                  onChange={e => setEditFields(f => ({ ...f, name: e.target.value }))}
+                  disabled={saving}
+                />
+                <textarea
+                  className="mt-2 text-gray-600 w-full border rounded p-2 focus:outline-none focus:border-primary-500"
+                  value={editFields.description}
+                  onChange={e => setEditFields(f => ({ ...f, description: e.target.value }))}
+                  rows={2}
+                  disabled={saving}
+                />
+                <div className="flex gap-4 mt-2">
+                  <div>
+                    <label className="block text-xs text-gray-500">Start Date</label>
+                    <input
+                      type="date"
+                      className="border rounded px-2 py-1"
+                      value={editFields.startDate}
+                      onChange={e => setEditFields(f => ({ ...f, startDate: e.target.value }))}
+                      disabled={saving}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-500">End Date</label>
+                    <input
+                      type="date"
+                      className="border rounded px-2 py-1"
+                      value={editFields.endDate}
+                      onChange={e => setEditFields(f => ({ ...f, endDate: e.target.value }))}
+                      disabled={saving}
+                    />
+                  </div>
+                </div>
+                <div className="mt-3 flex gap-2">
+                  <button
+                    className="px-3 py-1 bg-primary-500 text-white rounded hover:bg-primary-600"
+                    onClick={handleSaveEdit}
+                    disabled={saving}
+                  >
+                    {saving ? "Saving..." : "Save"}
+                  </button>
+                  <button
+                    className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                    onClick={() => setEditing(false)}
+                    disabled={saving}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <h1 className="text-2xl font-bold text-gray-900 flex items-center">
+                  {trip.name}
+                  <button
+                    className="ml-2 p-1 text-gray-400 hover:text-primary-500"
+                    onClick={() => setEditing(true)}
+                    aria-label="Edit trip"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </button>
+                </h1>
+                <p className="mt-2 text-gray-600">{trip.description}</p>
+              </>
+            )}
+          </div>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-gray-200">

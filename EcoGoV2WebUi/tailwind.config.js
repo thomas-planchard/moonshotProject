@@ -4,17 +4,25 @@ export default {
   theme: {
     extend: {
       colors: {
+        greenMedium: "#4dab65",
+        greenWhite: "#e8f5f0",
+        darkGreen: "#052e2b",
+        green: "#37910b",
+        greenForest: "#156547",
+        lightgreen: "#6fdf57",
+        blueGreen: "#156547",
+        greyGreen: "#88bc87",
         primary: {
-          50: '#ECFDF5',
-          100: '#D1FAE5',
-          200: '#A7F3D0',
-          300: '#6EE7B7',
-          400: '#34D399',
-          500: '#2D6A4F', // Main primary color
-          600: '#065F46',
-          700: '#064E3B',
-          800: '#022C22',
-          900: '#001B14',
+          50: '#e8f5f0',      // greenWhite
+          100: '#e8f5f0',     // greenWhite
+          200: '#88bc87',     // greyGreen
+          300: '#6fdf57',     // lightgreen
+          400: '#4dab65',     // greenMedium
+          500: '#37910b',     // green
+          600: '#156547',     // greenForest
+          700: '#052e2b',     // darkGreen
+          800: '#156547',     // blueGreen
+          900: '#052e2b',     // darkGreen
         },
         secondary: {
           50: '#F0F4F8',

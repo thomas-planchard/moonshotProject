@@ -1,119 +1,111 @@
 import { useState, useCallback } from 'react';
 import { Trip, Invoice } from '../types';
+import { useAuth } from '../context/AuthContext';
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { db } from "../firebase";
 
-// This is a mock API service - replace with actual API calls
 export function useApi() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Mock data for demonstration
-  const mockTrips: Trip[] = [
-    {
-      id: '1',
-      name: 'Business Trip to New York',
-      description: 'Annual conference visit',
-      startDate: '2025-05-01',
-      endDate: '2025-05-08',
-      totalCarbonFootprint: 4582,
-      invoices: [
-        {
-          id: '101',
-          tripId: '1',
-          type: 'plane',
-          date: '2025-04-30',
-          amount: 850,
-          carbonFootprint: 3200,
-          fileName: 'flight-ticket.pdf',
-          status: 'processed'
-        },
-        {
-          id: '102',
-          tripId: '1',
-          type: 'fuel',
-          date: '2025-05-02',
-          amount: 120,
-          carbonFootprint: 880,
-          fileName: 'taxi-receipt.pdf',
-          status: 'processed'
-        },
-        {
-          id: '103',
-          tripId: '1',
-          type: 'train',
-          date: '2025-05-05',
-          amount: 65,
-          carbonFootprint: 502,
-          fileName: 'train-ticket.pdf',
-          status: 'processed'
-        }
-      ],
-      createdAt: '2025-04-15T10:30:00Z'
-    },
-    {
-      id: '2',
-      name: 'Client Meeting in Paris',
-      description: 'New client pitch',
-      startDate: '2025-06-10',
-      endDate: '2025-06-15',
-      totalCarbonFootprint: 3105,
-      invoices: [
-        {
-          id: '201',
-          tripId: '2',
-          type: 'plane',
-          date: '2025-06-09',
-          amount: 720,
-          carbonFootprint: 2800,
-          fileName: 'flight-paris.pdf',
-          status: 'processed'
-        },
-        {
-          id: '202',
-          tripId: '2',
-          type: 'train',
-          date: '2025-06-12',
-          amount: 35,
-          carbonFootprint: 305,
-          fileName: 'metro-pass.pdf',
-          status: 'processed'
-        }
-      ],
-      createdAt: '2025-05-20T14:15:00Z'
-    }
-  ];
+  const { user } = useAuth();
 
   const getTrips = useCallback(async (): Promise<Trip[]> => {
     setLoading(true);
     setError(null);
-    
+
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 800));
-      return mockTrips;
+      if (user) {
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          const businessTrips = userData.businessTrips || { trips: [] };
+          // Map Firestore trips to Trip[]
+          const trips: Trip[] = (businessTrips.trips || []).map((t: any) => ({
+            id: t.id,
+            name: t.name,
+            description: t.description,
+            startDate: t.startDate,
+            endDate: t.endDate,
+            totalCarbonFootprint: t.carbonFootprint || 0,
+            invoices: Array.isArray(t.invoices?.invoices)
+              ? t.invoices.invoices.map((inv: any) => ({
+                  id: inv.id || "",
+                  tripId: t.id,
+                  type: inv.type,
+                  date: inv.date,
+                  amount: inv.amount || 0,
+                  carbonFootprint: inv.carbonFootprint || 0,
+                  fileName: inv.fileName || "",
+                  status: inv.status || "processed",
+                  description: inv.description || "",
+                }))
+              : [],
+            createdAt: t.createdAt || "",
+          }));
+          return trips;
+        }
+        return [];
+      } else {
+        // Not logged in, return empty
+        return [];
+      }
     } catch (err) {
       setError('Failed to fetch trips');
       return [];
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [user]);
 
   const getTrip = useCallback(async (id: string): Promise<Trip | null> => {
     setLoading(true);
     setError(null);
-    
+
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      const trip = mockTrips.find(t => t.id === id);
-      return trip || null;
+      if (user) {
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          const businessTrips = userData.businessTrips || { trips: [] };
+          const t = (businessTrips.trips || []).find((trip: any) => trip.id === id);
+          if (!t) return null;
+          const trip: Trip = {
+            id: t.id,
+            name: t.name,
+            description: t.description,
+            startDate: t.startDate,
+            endDate: t.endDate,
+            totalCarbonFootprint: t.carbonFootprint || 0,
+            invoices: Array.isArray(t.invoices?.invoices)
+              ? t.invoices.invoices.map((inv: any) => ({
+                  id: inv.id || "",
+                  tripId: t.id,
+                  type: inv.type,
+                  date: inv.date,
+                  amount: inv.amount || 0,
+                  carbonFootprint: inv.carbonFootprint || 0,
+                  fileName: inv.fileName || "",
+                  status: inv.status || "processed",
+                  description: inv.description || "",
+                }))
+              : [],
+            createdAt: t.createdAt || "",
+          };
+          return trip;
+        }
+        return null;
+      } else {
+        return null;
+      }
     } catch (err) {
       setError('Failed to fetch trip details');
       return null;
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [user]);
 
   const createTrip = useCallback(async (tripData: Partial<Trip>): Promise<Trip | null> => {
     setLoading(true);
@@ -123,7 +115,8 @@ export function useApi() {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Generate a new trip with mock data
+      // Use the current date/time for createdAt
+      const now = new Date().toISOString();
       const newTrip: Trip = {
         id: Math.random().toString(36).substring(2, 9),
         name: tripData.name || 'New Trip',
@@ -132,8 +125,35 @@ export function useApi() {
         endDate: tripData.endDate || new Date().toISOString().split('T')[0],
         totalCarbonFootprint: 0,
         invoices: [],
-        createdAt: new Date().toISOString()
+        createdAt: now
       };
+
+      // Add trip to Firestore under the current user's businessTrips.trips array
+      if (user) {
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          // Ensure businessTrips and trips array exist
+          const userData = userSnap.data();
+          const businessTrips = userData.businessTrips || { totalCarbon: 0, trips: [] };
+          const updatedTrips = [
+            ...(businessTrips.trips || []),
+            {
+              id: newTrip.id,
+              name: newTrip.name,
+              description: newTrip.description,
+              startDate: newTrip.startDate,
+              endDate: newTrip.endDate,
+              createdAt: now,
+              carbonFootprint: 0,
+              invoices: [],
+            }
+          ];
+          await updateDoc(userRef, {
+            "businessTrips.trips": updatedTrips
+          });
+        }
+      }
       
       return newTrip;
     } catch (err) {
@@ -142,7 +162,7 @@ export function useApi() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [user]);
 
   const uploadInvoice = useCallback(async (
     tripId: string, 

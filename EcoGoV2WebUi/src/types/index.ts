@@ -11,14 +11,12 @@ export interface Trip {
 
 export interface Invoice {
   id: string;
-  tripId: string;
   type: 'fuel' | 'plane' | 'train';
-  date: string;
-  amount: number;
-  carbonFootprint: number;
+  co2: number[];
+  arrival: string[];
+  departure: string[];
+  transport_type: string[];
   fileName: string;
-  status: 'processing' | 'processed' | 'error';
-  metadata?: Record<string, any>;
 }
 
 export interface ChartData {

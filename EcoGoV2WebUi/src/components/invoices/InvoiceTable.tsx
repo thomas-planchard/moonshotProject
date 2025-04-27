@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FileText, Calendar, DollarSign, TrendingUp } from 'lucide-react';
+import { FileText, Calendar, DollarSign, TrendingUp, MapPin } from 'lucide-react';
 import { Invoice } from '../../types';
 
 interface InvoiceTableProps {
@@ -124,17 +124,13 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices }) => {
                   File
                 </th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Date
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Amount
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Carbon Footprint
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
+                {(filter === 'all' || filter === 'plane' || filter === 'train') && (
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Route
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -158,33 +154,28 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices }) => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <Calendar className="h-4 w-4 text-gray-500 mr-2" />
-                      <span className="text-sm text-gray-900">
-                        {formatDate(invoice.date)}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <DollarSign className="h-4 w-4 text-gray-500 mr-2" />
-                      <span className="text-sm text-gray-900">
-                        {formatCurrency(invoice.amount)}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
                       <TrendingUp className="h-4 w-4 text-gray-500 mr-2" />
                       <span className="text-sm text-gray-900">
-                        {invoice.carbonFootprint.toLocaleString()} kg CO₂
+                        {Array.isArray(invoice.co2) && invoice.co2[0] 
+                          ? invoice.co2[0].toLocaleString() 
+                          : '0'} kg CO₂
                       </span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 text-xs rounded-full ${getStatusStyle(invoice.status)}`}>
-                      {invoice.status}
-                    </span>
-                  </td>
+                  {(filter === 'all' || filter === 'plane' || filter === 'train') && (
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {(invoice.type === 'plane' || invoice.type === 'train') && (
+                        <div className="flex items-center">
+                          <MapPin className="h-4 w-4 text-gray-500 mr-2" />
+                          <span className="text-sm text-gray-900">
+                            {Array.isArray(invoice.departure) && invoice.departure[0]
+                              ? invoice.departure[0] + ' → ' + (Array.isArray(invoice.arrival) && invoice.arrival[0] ? invoice.arrival[0] : 'N/A')
+                              : 'N/A'}
+                          </span>
+                        </div>
+                      )}
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>

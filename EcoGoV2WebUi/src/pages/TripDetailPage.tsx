@@ -5,10 +5,20 @@ import InvoiceDropZone from '../components/invoices/InvoiceDropZone';
 import InvoiceTable from '../components/invoices/InvoiceTable';
 import CarbonDistributionChart from '../components/dashboard/CarbonDistributionChart';
 import { ChevronLeft, Clock, Calendar, ArrowDownCircle, Briefcase, TrendingUp, Pencil } from 'lucide-react';
-import { Trip, ChartData } from '../types';
+import { Trip, ChartData, InvoiceType, InvoiceFuel, InvoiceTravel } from '../types';
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { useAuth } from "../context/AuthContext";
+
+// Helper function to check if invoice is a fuel invoice
+const isFuelInvoice = (invoice: InvoiceType): invoice is InvoiceFuel => {
+  return invoice.type === 'fuel';
+};
+
+// Helper function to check if invoice is a travel invoice
+const isTravelInvoice = (invoice: InvoiceType): invoice is InvoiceTravel => {
+  return invoice.type === 'plane' || invoice.type === 'train';
+};
 
 const TripDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -74,19 +84,106 @@ const TripDetailPage: React.FC = () => {
   const getChartData = (): ChartData[] => {
     if (!trip) return [];
     
-    const typeMap: Record<string, number> = { fuel: 0, plane: 0, train: 0 };
+    // Initialize counters for each type and subtype
+    const emissions = {
+      fuel: {
+        total: 0,
+        types: {} as Record<string, number>
+      },
+      plane: {
+        total: 0
+      },
+      train: {
+        total: 0
+      }
+    };
     
     // Sum up carbon footprint by type
     trip.invoices.forEach(invoice => {
-      typeMap[invoice.type] += invoice.carbonFootprint;
+      if (isFuelInvoice(invoice)) {
+        // Handle fuel invoices
+        const co2Value = invoice.co2;
+        emissions.fuel.total += co2Value;
+        
+        // Track emissions by fuel type for more detailed breakdown
+        const fuelType = invoice.typeOfFuel || 'Unknown';
+        if (!emissions.fuel.types[fuelType]) {
+          emissions.fuel.types[fuelType] = 0;
+        }
+        emissions.fuel.types[fuelType] += co2Value;
+      }
+      else if (isTravelInvoice(invoice)) {
+        // Handle travel invoices
+        const totalCo2 = Array.isArray(invoice.co2) 
+          ? invoice.co2.reduce((sum, val) => sum + (val || 0), 0)
+          : 0;
+          
+        if (invoice.type === 'plane') {
+          emissions.plane.total += totalCo2;
+        } else if (invoice.type === 'train') {
+          emissions.train.total += totalCo2;
+        }
+      }
     });
     
-    // Format data for the chart
-    return [
-      { name: 'Fuel', value: typeMap.fuel, fill: '#F59E0B' },
-      { name: 'Plane', value: typeMap.plane, fill: '#4A6FA5' },
-      { name: 'Train', value: typeMap.train, fill: '#2D6A4F' },
-    ].filter(item => item.value > 0); // Only include types with emissions
+    // Format data for the chart - main categories
+    const chartData: ChartData[] = [];
+    
+    if (emissions.fuel.total > 0) {
+      chartData.push({ 
+        name: 'Fuel', 
+        value: emissions.fuel.total, 
+        fill: '#F59E0B' // Amber color for fuel
+      });
+    }
+    
+    if (emissions.plane.total > 0) {
+      chartData.push({ 
+        name: 'Plane', 
+        value: emissions.plane.total, 
+        fill: '#4A6FA5' // Blue color for plane
+      });
+    }
+    
+    if (emissions.train.total > 0) {
+      chartData.push({ 
+        name: 'Train', 
+        value: emissions.train.total, 
+        fill: '#2D6A4F' // Green color for train
+      });
+    }
+    
+    return chartData;
+  };
+
+  // Get detailed breakdown of fuel types for additional analysis
+  const getFuelTypeBreakdown = (): ChartData[] => {
+    if (!trip) return [];
+    
+    const fuelTypeMap: Record<string, number> = {};
+    
+    trip.invoices.forEach(invoice => {
+      if (isFuelInvoice(invoice)) {
+        const fuelType = invoice.typeOfFuel || 'Unknown';
+        if (!fuelTypeMap[fuelType]) {
+          fuelTypeMap[fuelType] = 0;
+        }
+        fuelTypeMap[fuelType] += invoice.co2;
+      }
+    });
+    
+    // Convert to chart data format
+    return Object.entries(fuelTypeMap).map(([fuelType, value], index) => {
+      // Create different shades of amber for different fuel types
+      const hue = 35; // Amber base hue
+      const lightness = 45 + (index * 5) % 25; // Vary lightness
+      
+      return {
+        name: fuelType,
+        value,
+        fill: `hsl(${hue}, 90%, ${lightness}%)`
+      };
+    });
   };
 
   // Save edited trip info to Firestore
@@ -162,6 +259,10 @@ const TripDetailPage: React.FC = () => {
       </div>
     );
   }
+
+  const chartData = getChartData();
+  const hasFuelInvoices = trip.invoices.some(invoice => invoice.type === 'fuel');
+  const fuelTypeBreakdown = hasFuelInvoices ? getFuelTypeBreakdown() : [];
 
   return (
     <div className="container mx-auto p-6">
@@ -298,8 +399,31 @@ const TripDetailPage: React.FC = () => {
         <div className="bg-white rounded-lg shadow-card p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-6">Emission Breakdown</h2>
           
-          {getChartData().length > 0 ? (
-            <CarbonDistributionChart data={getChartData()} />
+          {chartData.length > 0 ? (
+            <>
+              <CarbonDistributionChart data={chartData} />
+              
+              {/* Show detailed fuel breakdown if we have fuel invoices */}
+              {hasFuelInvoices && fuelTypeBreakdown.length > 1 && (
+                <div className="mt-4">
+                  <h3 className="text-sm font-medium text-gray-700 mb-2">Fuel Type Breakdown</h3>
+                  <div className="space-y-2">
+                    {fuelTypeBreakdown.map((item, idx) => (
+                      <div key={idx} className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <span 
+                            className="inline-block w-3 h-3 mr-2 rounded-full"
+                            style={{ backgroundColor: item.fill }}
+                          ></span>
+                          <span className="text-sm">{item.name}</span>
+                        </div>
+                        <span className="text-sm font-medium">{item.value.toLocaleString()} kg CO₂</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
           ) : (
             <div className="flex flex-col items-center justify-center h-64 bg-gray-50 rounded-lg">
               <Briefcase className="h-10 w-10 text-gray-400 mb-2" />
@@ -313,7 +437,7 @@ const TripDetailPage: React.FC = () => {
       
       <div className="bg-white rounded-lg shadow-card p-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-6">Trip Invoices</h2>
-        <InvoiceTable invoices={trip.invoices} />
+        <InvoiceTable invoices={trip.invoices} tripId={trip.id} onInvoiceDeleted={handleUploadSuccess} />
       </div>
     </div>
   );

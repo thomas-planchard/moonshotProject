@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Trip, Invoice } from '../types';
+import { Trip, InvoiceType, InvoiceFuel, InvoiceTravel } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
@@ -31,21 +31,34 @@ export function useApi() {
         endDate: t.endDate,
         totalCarbonFootprint: t.carbonFootprint || 0,
         invoices: Array.isArray(t.invoices?.invoices)
-          ? t.invoices.invoices.map((inv: any) => ({
-              id: inv.id || "",
-              tripId: t.id,
-              type: inv.type,
-              date: inv.date,
-              amount: inv.amount || 0,
-              carbonFootprint: inv.carbonFootprint || 0,
-              name: inv.name || "",
-              status: inv.status || "processed",
-              description: inv.description || "",
-              departure: inv.departure || [],
-              arrival: inv.arrival || [],
-              transport_type: inv.transport_type || [],
-              co2: inv.co2 || []
-            }))
+          ? t.invoices.invoices.map((inv: any) => {
+              if (inv.type === 'fuel') {
+                return {
+                  id: inv.id || "",
+                  type: inv.type,
+                  fileName: inv.fileName || "",
+                  co2: inv.co2 || 0,
+                  volume: inv.volume || 0,
+                  typeOfFuel: inv.typeOfFuel || "",
+                } as InvoiceFuel;
+              }
+              return {
+                id: inv.id || "",
+                tripId: t.id,
+                type: inv.type,
+                fileName: inv.fileName || "",
+                date: inv.date,
+                amount: inv.amount || 0,
+                carbonFootprint: inv.carbonFootprint || 0,
+                name: inv.name || "",
+                status: inv.status || "processed",
+                description: inv.description || "",
+                departure: inv.departure || [],
+                arrival: inv.arrival || [],
+                transport_type: inv.transport_type || [],
+                co2: inv.co2 || []
+              } as InvoiceTravel;
+            })
           : [],
         createdAt: t.createdAt || "",
       }));
@@ -82,21 +95,34 @@ export function useApi() {
         endDate: t.endDate,
         totalCarbonFootprint: t.carbonFootprint || 0,
         invoices: Array.isArray(t.invoices?.invoices)
-          ? t.invoices.invoices.map((inv: any) => ({
-              id: inv.id || "",
-              tripId: t.id,
-              type: inv.type,
-              date: inv.date,
-              amount: inv.amount || 0,
-              carbonFootprint: inv.carbonFootprint || 0,
-              name: inv.name || "",
-              status: inv.status || "processed",
-              description: inv.description || "",
-              departure: inv.departure || [],
-              arrival: inv.arrival || [],
-              transport_type: inv.transport_type || [],
-              co2: inv.co2 || []
-            }))
+          ? t.invoices.invoices.map((inv: any) => {
+              if (inv.type === 'fuel') {
+                return {
+                  id: inv.id || "",
+                  type: inv.type,
+                  fileName: inv.fileName || "",
+                  co2: inv.co2 || 0,
+                  volume: inv.volume || 0,
+                  typeOfFuel: inv.typeOfFuel || "",
+                } as InvoiceFuel;
+              }
+              return {
+                id: inv.id || "",
+                tripId: t.id,
+                type: inv.type,
+                fileName: inv.fileName || "",
+                date: inv.date,
+                amount: inv.amount || 0,
+                carbonFootprint: inv.carbonFootprint || 0,
+                name: inv.name || "",
+                status: inv.status || "processed",
+                description: inv.description || "",
+                departure: inv.departure || [],
+                arrival: inv.arrival || [],
+                transport_type: inv.transport_type || [],
+                co2: inv.co2 || []
+              } as InvoiceTravel;
+            })
           : [],
         createdAt: t.createdAt || "",
       };
@@ -115,7 +141,6 @@ export function useApi() {
     setError(null);
 
     try {
-      // Simulate API call
       await new Promise(res => setTimeout(res, 1000));
       const now = new Date().toISOString();
 
@@ -165,7 +190,7 @@ export function useApi() {
     tripId: string,
     file: File,
     type: 'fuel' | 'plane' | 'train'
-  ): Promise<Invoice | null> => {
+  ): Promise<InvoiceType | null> => {
     setLoading(true);
     setError(null);
 
@@ -216,50 +241,60 @@ export function useApi() {
       );
       const data = resultResp.data.data || {};
 
-      // Build arrays
-      const departureArray = Array.isArray(data.departure)
-        ? data.departure
-        : typeof data.departure === 'string'
-          ? [data.departure]
-          : [];
+      let newInvoice: InvoiceType;
+      let totalCO2: number;
 
-      const arrivalArray = Array.isArray(data.arrival)
-        ? data.arrival
-        : typeof data.arrival === 'string'
-          ? [data.arrival]
-          : [];
+      if (type === 'fuel') {
+        const co2Value = data.fuel_co2 || 0;
+        totalCO2 = typeof co2Value === 'number' ? co2Value : 0;
 
-      const transportArray = Array.isArray(data.transport_type)
-        ? data.transport_type
-        : typeof data.transport_type === 'string'
-          ? [data.transport_type]
-          : [];
+        newInvoice = {
+          id: Math.random().toString(36).substring(2, 9),
+          type: 'fuel',
+          fileName: file.name,
+          co2: totalCO2,
+          volume: data.volume || 0,
+          typeOfFuel: data.type_of_fuel || "",
+        } as InvoiceFuel;
+      } else {
+        const departureArray = Array.isArray(data.departure)
+          ? data.departure
+          : typeof data.departure === 'string'
+            ? [data.departure]
+            : [];
 
-      const co2Field =
-        type === 'plane' ? 'flight_co2' :
-        type === 'train' ? 'train_co2' :
-        'fuel_co2';
+        const arrivalArray = Array.isArray(data.arrival)
+          ? data.arrival
+          : typeof data.arrival === 'string'
+            ? [data.arrival]
+            : [];
 
-      const co2Array = Array.isArray(data[co2Field])
-        ? data[co2Field]
-        : typeof data[co2Field] === 'number'
-          ? [data[co2Field]]
-          : [];
+        const transportArray = Array.isArray(data.transport_type)
+          ? data.transport_type
+          : typeof data.transport_type === 'string'
+            ? [data.transport_type]
+            : [];
 
-      const totalCO2 = co2Array.reduce((sum, v) => sum + (v || 0), 0);
+        const co2Field = type === 'plane' ? 'flight_co2' : 'train_co2';
+        const co2Array = Array.isArray(data[co2Field])
+          ? data[co2Field]
+          : typeof data[co2Field] === 'number'
+            ? [data[co2Field]]
+            : [];
 
-      // Single write of fully populated invoice
-      const newInvoice: Invoice = {
-        id: Math.random().toString(36).substring(2, 9),
-        type,
-        fileName: file.name,
-        departure: departureArray,
-        arrival: arrivalArray,
-        transport_type: transportArray,
-        co2: co2Array,
-      };
+        totalCO2 = co2Array.reduce((sum, v) => sum + (v || 0), 0);
 
-      // Write to Firestore
+        newInvoice = {
+          id: Math.random().toString(36).substring(2, 9),
+          type,
+          fileName: file.name,
+          departure: departureArray,
+          arrival: arrivalArray,
+          transport_type: transportArray,
+          co2: co2Array,
+        } as InvoiceTravel;
+      }
+
       if (user) {
         const userRef = doc(db, "users", user.uid);
         const userSnap = await getDoc(userRef);
@@ -291,7 +326,6 @@ export function useApi() {
   }, [user]);
 
   const analyzeInvoice = useCallback(async (
-    file: File,
     type: 'fuel' | 'plane' | 'train'
   ): Promise<{ carbonFootprint: number } | null> => {
     setLoading(true);
@@ -313,6 +347,49 @@ export function useApi() {
     }
   }, []);
 
+  const deleteInvoice = useCallback(
+    async (tripId: string, invoiceId: string): Promise<boolean> => {
+      setLoading(true);
+      setError(null);
+      try {
+        if (!user) throw new Error("Not authenticated");
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        if (!userSnap.exists()) throw new Error("User not found");
+        const userData = userSnap.data();
+        const trips = userData.businessTrips?.trips || [];
+        let ti = trips.findIndex((t: any) => t.id === tripId);
+        if (ti === -1) {
+          ti = trips.findIndex((t: any) =>
+            Array.isArray(t.invoices?.invoices) &&
+            t.invoices.invoices.some((inv: any) => inv.id === invoiceId)
+          );
+        }
+        if (ti === -1) {
+          throw new Error(`Trip not found for tripId=${tripId} or invoiceId=${invoiceId}`);
+        }
+        console.log("Deleting invoice", invoiceId, "from trip", trips[ti].id);
+        const invList = trips[ti].invoices?.invoices || [];
+        const updatedInvs = invList.filter((inv: any) => inv.id !== invoiceId);
+        const newTotalCF = updatedInvs.reduce(
+          (sum: number, inv: any) => sum + (inv.carbonFootprint || 0),
+          0
+        );
+        trips[ti].invoices = { invoices: updatedInvs };
+        trips[ti].carbonFootprint = newTotalCF;
+        await updateDoc(userRef, { "businessTrips.trips": trips });
+        return true;
+      } catch (err) {
+        console.error("Delete invoice error:", err);
+        setError(err instanceof Error ? err.message : String(err));
+        return false;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [user]
+  );
+
   return {
     loading,
     error,
@@ -321,5 +398,6 @@ export function useApi() {
     createTrip,
     uploadInvoice,
     analyzeInvoice,
+    deleteInvoice,
   };
 }

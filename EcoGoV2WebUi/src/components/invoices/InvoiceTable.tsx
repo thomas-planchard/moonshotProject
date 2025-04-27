@@ -1,43 +1,50 @@
 import React, { useState } from 'react';
-import { FileText, Calendar, DollarSign, TrendingUp, MapPin } from 'lucide-react';
-import { Invoice } from '../../types';
+import { FileText, TrendingUp, MapPin, Trash2, ChevronDown, ChevronUp, Droplets } from 'lucide-react';
+import { InvoiceType, InvoiceFuel, InvoiceTravel } from '../../types';
+import { useApi } from '../../hooks/useApi';
+import ConfirmationModal from '../modal/ConfirmationModal';
 
 interface InvoiceTableProps {
-  invoices: Invoice[];
+  invoices: InvoiceType[];
+  tripId: string;
+  onInvoiceDeleted?: () => void;
 }
 
-const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices }) => {
+const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, tripId, onInvoiceDeleted }) => {
   const [filter, setFilter] = useState<'all' | 'fuel' | 'plane' | 'train'>('all');
+  const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
+  const { deleteInvoice, loading } = useApi();
+  const [invoiceToDelete, setInvoiceToDelete] = useState<string | null>(null);
   
-  // Format currency
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', { 
-      style: 'currency', 
-      currency: 'USD',
-      minimumFractionDigits: 2
-    }).format(amount);
+  // Toggle expanded state for a row
+  const toggleRowExpand = (invoiceId: string) => {
+    setExpandedRows(prev => ({
+      ...prev,
+      [invoiceId]: !prev[invoiceId]
+    }));
   };
   
-  // Format date
-  const formatDate = (dateString: string) => {
-    const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
+  // Open delete confirmation modal
+  const openDeleteConfirmation = (invoiceId: string) => {
+    setInvoiceToDelete(invoiceId);
   };
   
-  // Get status style
-  const getStatusStyle = (status: string) => {
-    switch (status) {
-      case 'processed':
-        return 'bg-success-100 text-success-800';
-      case 'processing':
-        return 'bg-warning-100 text-warning-800';
-      case 'error':
-        return 'bg-error-100 text-error-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
+  // Close delete confirmation modal
+  const closeDeleteConfirmation = () => {
+    setInvoiceToDelete(null);
+  };
+  
+  // Handle invoice deletion
+  const confirmDeleteInvoice = async () => {
+    if (invoiceToDelete) {
+      const success = await deleteInvoice(tripId, invoiceToDelete);
+      if (success && onInvoiceDeleted) {
+        onInvoiceDeleted();
+      }
+      closeDeleteConfirmation();
     }
   };
-  
+
   // Get type icon
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -57,8 +64,115 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices }) => {
     ? invoices 
     : invoices.filter(invoice => invoice.type === filter);
   
+  // Check if invoice is a fuel invoice
+  const isFuelInvoice = (invoice: InvoiceType): invoice is InvoiceFuel => {
+    return invoice.type === 'fuel';
+  };
+
+  // Check if invoice is a travel invoice
+  const isTravelInvoice = (invoice: InvoiceType): invoice is InvoiceTravel => {
+    return invoice.type === 'plane' || invoice.type === 'train';
+  };
+
+  // Render routes for a travel invoice
+  const renderRoutes = (invoice: InvoiceTravel) => {
+    if (!Array.isArray(invoice.departure) || !Array.isArray(invoice.arrival)) {
+      return <span className="text-sm text-gray-400">No route information</span>;
+    }
+    
+    const isExpanded = expandedRows[invoice.id];
+    const hasMultipleRoutes = invoice.departure.length > 1;
+    
+    return (
+      <div>
+        <div className="flex items-center">
+          <MapPin className="h-4 w-4 text-gray-500 mr-2" />
+          <span className="text-sm text-gray-900">
+            {invoice.departure[0] || 'N/A'} → {invoice.arrival[0] || 'N/A'}
+          </span>
+          
+          {hasMultipleRoutes && (
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleRowExpand(invoice.id);
+              }}
+              className="ml-2 text-gray-500 hover:text-gray-700"
+            >
+              {isExpanded ? (
+                <ChevronUp className="h-4 w-4" />
+              ) : (
+                <ChevronDown className="h-4 w-4" />
+              )}
+            </button>
+          )}
+        </div>
+        
+        {isExpanded && hasMultipleRoutes && (
+          <div className="mt-2 pl-6 border-l-2 border-gray-200">
+            {invoice.departure.slice(1).map((dep, idx) => {
+              const arrIdx = idx + 1;
+              return (
+                <div key={idx} className="text-sm text-gray-700 py-1">
+                  {dep || 'N/A'} → {invoice.arrival[arrIdx] || 'N/A'}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Render fuel details
+  const renderFuelDetails = (invoice: InvoiceFuel) => {
+    return (
+      <div className="flex items-center">
+        <Droplets className="h-4 w-4 text-gray-500 mr-2" />
+        <span className="text-sm text-gray-900">
+          {invoice.volume} L • {invoice.typeOfFuel || 'Unknown fuel type'}
+        </span>
+      </div>
+    );
+  };
+
+  // Render carbon footprint
+  const renderCarbonFootprint = (invoice: InvoiceType) => {
+    if (isFuelInvoice(invoice)) {
+      return (
+        <div className="flex items-center">
+          <TrendingUp className="h-4 w-4 text-gray-500 mr-2" />
+          <span className="text-sm text-gray-900">
+            {invoice.co2.toLocaleString()} kg CO₂
+          </span>
+        </div>
+      );
+    } else {
+      return (
+        <div className="flex items-center">
+          <TrendingUp className="h-4 w-4 text-gray-500 mr-2" />
+          <span className="text-sm text-gray-900">
+            {Array.isArray(invoice.co2) && invoice.co2[0] 
+              ? invoice.co2[0].toLocaleString() 
+              : '0'} kg CO₂
+          </span>
+        </div>
+      );
+    }
+  };
+
   return (
     <div className="space-y-4">
+      <ConfirmationModal
+        isOpen={invoiceToDelete !== null}
+        title="Delete Invoice"
+        message="Are you sure you want to delete this invoice? This action cannot be undone."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        onConfirm={confirmDeleteInvoice}
+        onCancel={closeDeleteConfirmation}
+      />
+      
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
         <h3 className="text-lg font-medium text-gray-900 mb-2 sm:mb-0">
           Invoices ({filteredInvoices.length})
@@ -126,11 +240,12 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices }) => {
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Carbon Footprint
                 </th>
-                {(filter === 'all' || filter === 'plane' || filter === 'train') && (
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Route
-                  </th>
-                )}
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Details
+                </th>
+                <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -153,29 +268,22 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices }) => {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <TrendingUp className="h-4 w-4 text-gray-500 mr-2" />
-                      <span className="text-sm text-gray-900">
-                        {Array.isArray(invoice.co2) && invoice.co2[0] 
-                          ? invoice.co2[0].toLocaleString() 
-                          : '0'} kg CO₂
-                      </span>
-                    </div>
+                    {renderCarbonFootprint(invoice)}
                   </td>
-                  {(filter === 'all' || filter === 'plane' || filter === 'train') && (
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {(invoice.type === 'plane' || invoice.type === 'train') && (
-                        <div className="flex items-center">
-                          <MapPin className="h-4 w-4 text-gray-500 mr-2" />
-                          <span className="text-sm text-gray-900">
-                            {Array.isArray(invoice.departure) && invoice.departure[0]
-                              ? invoice.departure[0] + ' → ' + (Array.isArray(invoice.arrival) && invoice.arrival[0] ? invoice.arrival[0] : 'N/A')
-                              : 'N/A'}
-                          </span>
-                        </div>
-                      )}
-                    </td>
-                  )}
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {isFuelInvoice(invoice) ? renderFuelDetails(invoice) : 
+                     isTravelInvoice(invoice) ? renderRoutes(invoice) : null}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right">
+                    <button
+                      onClick={() => openDeleteConfirmation(invoice.id)}
+                      disabled={loading}
+                      className="text-red-600 hover:text-red-900 focus:outline-none"
+                      title="Delete invoice"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>

@@ -5,7 +5,16 @@ import CarbonEmissionChart from '../components/dashboard/CarbonEmissionChart';
 import CarbonDistributionChart from '../components/dashboard/CarbonDistributionChart';
 import QuickAnalysis from '../components/dashboard/QuickAnalysis';
 import { TrendingUp, AlertTriangle, Calendar, Briefcase } from 'lucide-react';
-import { ChartData, Trip } from '../types';
+import { ChartData, Trip, InvoiceType, InvoiceFuel, InvoiceTravel } from '../types';
+
+// Helper functions to check invoice types
+const isFuelInvoice = (invoice: InvoiceType): invoice is InvoiceFuel => {
+  return invoice.type === 'fuel';
+};
+
+const isTravelInvoice = (invoice: InvoiceType): invoice is InvoiceTravel => {
+  return invoice.type === 'plane' || invoice.type === 'train';
+};
 
 const Dashboard: React.FC = () => {
   const { getTrips, loading, error } = useApi();
@@ -33,7 +42,15 @@ const Dashboard: React.FC = () => {
     // Sum up carbon footprint by type
     trips.forEach(trip => {
       trip.invoices.forEach(invoice => {
-        typeMap[invoice.type] += invoice.carbonFootprint;
+        if (isFuelInvoice(invoice)) {
+          // For fuel invoices, co2 is a single number
+          typeMap.fuel += invoice.co2;
+        } else if (isTravelInvoice(invoice)) {
+          // For travel invoices (plane/train), sum the co2 array
+          if (Array.isArray(invoice.co2)) {
+            typeMap[invoice.type] += invoice.co2.reduce((sum, val) => sum + (val || 0), 0);
+          }
+        }
       });
     });
     
@@ -47,15 +64,49 @@ const Dashboard: React.FC = () => {
   
   // Get monthly data for the bar chart
   const getMonthlyData = () => {
-    // Generate some sample data (in a real app, this would come from the API)
-    return [
-      { name: 'Jan', fuel: 1200, plane: 3500, train: 800 },
-      { name: 'Feb', fuel: 950, plane: 4200, train: 750 },
-      { name: 'Mar', fuel: 1100, plane: 3800, train: 820 },
-      { name: 'Apr', fuel: 1300, plane: 3200, train: 780 },
-      { name: 'May', fuel: 1400, plane: 3700, train: 810 },
-      { name: 'Jun', fuel: 1250, plane: 4500, train: 890 },
-    ];
+    // Create a map to store emissions by month
+    const monthlyData: Record<string, { fuel: number; plane: number; train: number }> = {};
+    
+    // Define all months to ensure we have entries even for months with no data
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    months.forEach(month => {
+      monthlyData[month] = { fuel: 0, plane: 0, train: 0 };
+    });
+
+    // Process all trips and their invoices
+    trips.forEach(trip => {
+      // Get trip creation month as fallback
+      let tripMonth = 'Jan';
+      if (trip.createdAt) {
+        const tripDate = new Date(trip.createdAt);
+        tripMonth = months[tripDate.getMonth()];
+      }
+      
+      trip.invoices.forEach(invoice => {
+        // Determine which month to use (could enhance this with actual invoice date if available)
+        const month = tripMonth;
+        
+        // Calculate CO2 based on invoice type
+        if (isFuelInvoice(invoice)) {
+          monthlyData[month].fuel += invoice.co2;
+        } else if (isTravelInvoice(invoice)) {
+          if (Array.isArray(invoice.co2)) {
+            const totalCo2 = invoice.co2.reduce((sum, val) => sum + (val || 0), 0);
+            if (invoice.type === 'plane') {
+              monthlyData[month].plane += totalCo2;
+            } else if (invoice.type === 'train') {
+              monthlyData[month].train += totalCo2;
+            }
+          }
+        }
+      });
+    });
+
+    // Convert the map to an array sorted by month
+    return months.map(month => ({
+      name: month,
+      ...monthlyData[month]
+    }));
   };
   
   if (loading) {

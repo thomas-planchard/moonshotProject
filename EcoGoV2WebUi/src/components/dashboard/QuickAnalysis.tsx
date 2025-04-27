@@ -65,7 +65,7 @@ const QuickAnalysis: React.FC = () => {
     
     try {
       const results = await Promise.all(
-        files.map(fileInfo => analyzeInvoice(fileInfo.file, fileInfo.type))
+        files.map(fileInfo => analyzeInvoice(fileInfo.type))
       );
       
       setAnalysisResults(results.filter(Boolean).map((result, index) => ({

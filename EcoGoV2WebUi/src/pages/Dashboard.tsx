@@ -1,5 +1,6 @@
 import React from 'react';
 import { useApi } from '../hooks/useApi';
+import { useAuth } from '../context/AuthContext';
 import StatCard from '../components/dashboard/StatCard';
 import CarbonEmissionChart from '../components/dashboard/CarbonEmissionChart';
 import CarbonDistributionChart from '../components/dashboard/CarbonDistributionChart';
@@ -18,6 +19,7 @@ const isTravelInvoice = (invoice: InvoiceType): invoice is InvoiceTravel => {
 
 const Dashboard: React.FC = () => {
   const { getTrips, loading, error } = useApi();
+  const { user } = useAuth();
   const [trips, setTrips] = React.useState<Trip[]>([]);
   
   React.useEffect(() => {
@@ -29,32 +31,63 @@ const Dashboard: React.FC = () => {
     fetchData();
   }, [getTrips]);
   
-  // Calculate total carbon footprint from all trips
-  const totalCarbonFootprint = trips.reduce(
-    (total, trip) => total + trip.totalCarbonFootprint, 
-    0
-  );
+  // Filter invoices to only include those uploaded by the current user
+  const filterUserInvoices = (invoice: InvoiceType) => {
+    return invoice.uploadedBy?.id === user?.uid;
+  };
   
-  // Get distribution data by type
+  // Calculate total carbon footprint from user's own invoices across all trips
+  const totalCarbonFootprint = trips.reduce((total, trip) => {
+    const userInvoices = trip.invoices.filter(filterUserInvoices);
+    
+    return total + userInvoices.reduce((tripTotal, invoice) => {
+      if (isFuelInvoice(invoice)) {
+        return tripTotal + invoice.co2;
+      } else if (isTravelInvoice(invoice) && Array.isArray(invoice.co2)) {
+        return tripTotal + invoice.co2.reduce((sum, val) => sum + (val || 0), 0);
+      }
+      return tripTotal;
+    }, 0);
+  }, 0);
+  
+  // Get distribution data by type - only for user's own invoices
   const getDistributionData = (): ChartData[] => {
     const typeMap: Record<string, number> = { fuel: 0, plane: 0, train: 0 };
     
     // Sum up carbon footprint by type
     trips.forEach(trip => {
-      trip.invoices.forEach(invoice => {
-        if (isFuelInvoice(invoice)) {
-          // For fuel invoices, co2 is a single number
-          typeMap.fuel += invoice.co2;
-        } else if (isTravelInvoice(invoice)) {
-          // For travel invoices (plane/train), sum the co2 array
-          if (Array.isArray(invoice.co2)) {
-            typeMap[invoice.type] += invoice.co2.reduce((sum, val) => sum + (val || 0), 0);
+      trip.invoices
+        .filter(filterUserInvoices)
+        .forEach(invoice => {
+          if (isFuelInvoice(invoice)) {
+            typeMap.fuel += invoice.co2;
+          } else if (isTravelInvoice(invoice)) {
+            if (Array.isArray(invoice.co2)) {
+              // For travel invoices, check each segment's actual transport type
+              if (Array.isArray(invoice.transport_type) && invoice.transport_type.length > 0) {
+                // Process each segment separately
+                invoice.transport_type.forEach((transportType, index) => {
+                  const segmentCO2 = invoice.co2[index] || 0;
+                  
+                  // Categorize based on actual transport type
+                  const type = (transportType || '').toLowerCase();
+                  if (type.includes('train') || type === 'train' || type.includes('rail')) {
+                    typeMap.train += segmentCO2;
+                  } else {
+                    // Default to plane for air travel and any other mode
+                    typeMap.plane += segmentCO2;
+                  }
+                });
+              } else {
+                // Fallback to invoice type if no transport_type details are available
+                const totalCO2 = invoice.co2.reduce((sum, val) => sum + (val || 0), 0);
+                typeMap[invoice.type] += totalCO2;
+              }
+            }
           }
-        }
-      });
+        });
     });
     
-    // Format data for the chart
     return [
       { name: 'Fuel', value: typeMap.fuel, fill: '#F59E0B' },
       { name: 'Plane', value: typeMap.plane, fill: '#4A6FA5' },
@@ -62,52 +95,69 @@ const Dashboard: React.FC = () => {
     ];
   };
   
-  // Get monthly data for the bar chart
+  // Get monthly data for the bar chart - only for user's own invoices
   const getMonthlyData = () => {
-    // Create a map to store emissions by month
     const monthlyData: Record<string, { fuel: number; plane: number; train: number }> = {};
-    
-    // Define all months to ensure we have entries even for months with no data
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     months.forEach(month => {
       monthlyData[month] = { fuel: 0, plane: 0, train: 0 };
     });
 
-    // Process all trips and their invoices
     trips.forEach(trip => {
-      // Get trip creation month as fallback
       let tripMonth = 'Jan';
       if (trip.createdAt) {
         const tripDate = new Date(trip.createdAt);
         tripMonth = months[tripDate.getMonth()];
       }
       
-      trip.invoices.forEach(invoice => {
-        // Determine which month to use (could enhance this with actual invoice date if available)
-        const month = tripMonth;
-        
-        // Calculate CO2 based on invoice type
-        if (isFuelInvoice(invoice)) {
-          monthlyData[month].fuel += invoice.co2;
-        } else if (isTravelInvoice(invoice)) {
-          if (Array.isArray(invoice.co2)) {
-            const totalCo2 = invoice.co2.reduce((sum, val) => sum + (val || 0), 0);
-            if (invoice.type === 'plane') {
-              monthlyData[month].plane += totalCo2;
-            } else if (invoice.type === 'train') {
-              monthlyData[month].train += totalCo2;
+      trip.invoices
+        .filter(filterUserInvoices)
+        .forEach(invoice => {
+          const month = tripMonth;
+          
+          if (isFuelInvoice(invoice)) {
+            monthlyData[month].fuel += invoice.co2;
+          } else if (isTravelInvoice(invoice)) {
+            if (Array.isArray(invoice.co2)) {
+              // For travel invoices, check each segment's actual transport type
+              if (Array.isArray(invoice.transport_type) && invoice.transport_type.length > 0) {
+                // Process each segment separately
+                invoice.transport_type.forEach((transportType, index) => {
+                  const segmentCO2 = invoice.co2[index] || 0;
+                  
+                  // Categorize based on actual transport type
+                  const type = (transportType || '').toLowerCase();
+                  if (type.includes('train') || type === 'train' || type.includes('rail')) {
+                    monthlyData[month].train += segmentCO2;
+                  } else {
+                    // Default to plane for air travel and any other mode
+                    monthlyData[month].plane += segmentCO2;
+                  }
+                });
+              } else {
+                // Fallback to invoice type if no transport_type details are available
+                const totalCO2 = invoice.co2.reduce((sum, val) => sum + (val || 0), 0);
+                if (invoice.type === 'plane') {
+                  monthlyData[month].plane += totalCO2;
+                } else if (invoice.type === 'train') {
+                  monthlyData[month].train += totalCO2;
+                }
+              }
             }
           }
-        }
-      });
+        });
     });
 
-    // Convert the map to an array sorted by month
     return months.map(month => ({
       name: month,
       ...monthlyData[month]
     }));
   };
+  
+  // Calculate total number of user's own invoices
+  const userInvoiceCount = trips.reduce((total, trip) => {
+    return total + trip.invoices.filter(filterUserInvoices).length;
+  }, 0);
   
   if (loading) {
     return (
@@ -144,11 +194,11 @@ const Dashboard: React.FC = () => {
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <StatCard
-          title="Total Carbon Footprint"
+          title="Your Carbon Footprint"
           value={`${totalCarbonFootprint.toLocaleString()} kg CO₂`}
           icon={<TrendingUp className="h-6 w-6" />}
           trend={{ value: 12, isPositive: true }}
-          description="Overall emissions across all trips"
+          description="Emissions from your uploaded invoices"
         />
         
         <StatCard
@@ -157,21 +207,21 @@ const Dashboard: React.FC = () => {
             ? Math.round(totalCarbonFootprint / trips.length).toLocaleString() 
             : 0} kg CO₂`}
           icon={<Briefcase className="h-6 w-6" />}
-          description="Average emissions per business trip"
+          description="Your average emissions per trip"
         />
         
         <StatCard
-          title="Total Trips"
-          value={trips.length.toString()}
+          title="Your Invoices"
+          value={userInvoiceCount.toString()}
           icon={<Calendar className="h-6 w-6" />}
-          description="Number of business trips recorded"
+          description="Number of invoices you've uploaded"
         />
         
         <StatCard
           title="Highest Impact Source"
           value="Air Travel"
           icon={<AlertTriangle className="h-6 w-6" />}
-          description="Most significant contributor to emissions"
+          description="Your highest emission source"
         />
       </div>
 
@@ -180,13 +230,19 @@ const Dashboard: React.FC = () => {
       </div>
       
       <div className="bg-white rounded-lg shadow-card p-6 mb-8">
-        <h2 className="text-lg font-medium text-gray-900 mb-4">Monthly Carbon Emissions</h2>
+        <h2 className="text-lg font-medium text-gray-900 mb-4">Your Monthly Carbon Emissions</h2>
+        <div className="text-sm text-gray-500 mb-4">
+          This chart shows carbon emissions from invoices you've personally uploaded.
+        </div>
         <CarbonEmissionChart data={getMonthlyData()} />
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div className="bg-white rounded-lg shadow-card p-6">
-          <h2 className="text-lg font-medium text-gray-900 mb-4">Emission Distribution by Type</h2>
+          <h2 className="text-lg font-medium text-gray-900 mb-4">Your Emission Distribution</h2>
+          <div className="text-sm text-gray-500 mb-4">
+            Based only on invoices you've uploaded.
+          </div>
           <CarbonDistributionChart data={getDistributionData()} />
         </div>
         
@@ -199,20 +255,32 @@ const Dashboard: React.FC = () => {
             </div>
           ) : (
             <div className="space-y-4">
-              {trips.slice(0, 5).map(trip => (
-                <div key={trip.id} className="p-4 border border-gray-100 rounded-md hover:bg-gray-50">
-                  <h3 className="font-medium text-gray-900">{trip.name}</h3>
-                  <p className="text-sm text-gray-500">
-                    {new Date(trip.startDate).toLocaleDateString()} - {new Date(trip.endDate).toLocaleDateString()}
-                  </p>
-                  <div className="mt-2 flex justify-between items-center">
-                    <span className="text-sm">{trip.invoices.length} invoices</span>
-                    <span className="text-sm font-medium text-gray-900">
-                      {trip.totalCarbonFootprint.toLocaleString()} kg CO₂
-                    </span>
+              {trips.slice(0, 5).map(trip => {
+                const userInvoices = trip.invoices.filter(filterUserInvoices);
+                const userCarbonFootprint = userInvoices.reduce((sum, invoice) => {
+                  if (isFuelInvoice(invoice)) {
+                    return sum + invoice.co2;
+                  } else if (isTravelInvoice(invoice) && Array.isArray(invoice.co2)) {
+                    return sum + invoice.co2.reduce((co2Sum, val) => co2Sum + (val || 0), 0);
+                  }
+                  return sum;
+                }, 0);
+                
+                return (
+                  <div key={trip.id} className="p-4 border border-gray-100 rounded-md hover:bg-gray-50">
+                    <h3 className="font-medium text-gray-900">{trip.name}</h3>
+                    <p className="text-sm text-gray-500">
+                      {new Date(trip.startDate).toLocaleDateString()} - {new Date(trip.endDate).toLocaleDateString()}
+                    </p>
+                    <div className="mt-2 flex justify-between items-center">
+                      <span className="text-sm">{userInvoices.length} of your invoices</span>
+                      <span className="text-sm font-medium text-gray-900">
+                        {userCarbonFootprint.toLocaleString()} kg CO₂
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

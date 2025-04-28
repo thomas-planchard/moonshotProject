@@ -4,9 +4,9 @@ import { useApi } from '../hooks/useApi';
 import InvoiceDropZone from '../components/invoices/InvoiceDropZone';
 import InvoiceTable from '../components/invoices/InvoiceTable';
 import CarbonDistributionChart from '../components/dashboard/CarbonDistributionChart';
-import { ChevronLeft, Clock, Calendar, ArrowDownCircle, Briefcase, TrendingUp, Pencil } from 'lucide-react';
-import { Trip, ChartData, InvoiceType, InvoiceFuel, InvoiceTravel } from '../types';
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { ChevronLeft, Clock, Calendar, ArrowDownCircle, Briefcase, TrendingUp, Pencil, Users, X, Search, Plus, UserPlus } from 'lucide-react';
+import { Trip, ChartData, InvoiceType, InvoiceFuel, InvoiceTravel, Contributor } from '../types';
+import { doc, getDoc, updateDoc, collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../firebase";
 import { useAuth } from "../context/AuthContext";
 
@@ -34,9 +34,16 @@ const TripDetailPage: React.FC = () => {
     name: "",
     description: "",
     startDate: "",
-    endDate: ""
+    endDate: "",
+    contributors: [] as Contributor[]
   });
   const [saving, setSaving] = useState(false);
+
+  // Contributor search state
+  const [searchEmail, setSearchEmail] = useState('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchError, setSearchError] = useState('');
 
   useEffect(() => {
     const fetchTrip = async () => {
@@ -60,7 +67,8 @@ const TripDetailPage: React.FC = () => {
         name: trip.name,
         description: trip.description,
         startDate: trip.startDate,
-        endDate: trip.endDate
+        endDate: trip.endDate,
+        contributors: trip.contributors || []
       });
     }
   }, [trip]);
@@ -219,9 +227,62 @@ const TripDetailPage: React.FC = () => {
             name: editFields.name,
             description: editFields.description,
             startDate: editFields.startDate,
-            endDate: editFields.endDate
+            endDate: editFields.endDate,
+            contributors: editFields.contributors
           };
           await updateDoc(userRef, { "businessTrips.trips": trips });
+          
+          // Update contributor references - handle both new and removed contributors
+          const oldContributorIds = trip.contributors.map(c => c.id);
+          const newContributorIds = editFields.contributors.map(c => c.id);
+          
+          // Handle added contributors
+          const addedContributors = editFields.contributors.filter(
+            c => !oldContributorIds.includes(c.id)
+          );
+          
+          for (const contributor of addedContributors) {
+            const contribRef = doc(db, "users", contributor.id);
+            const contribSnap = await getDoc(contribRef);
+            
+            if (contribSnap.exists()) {
+              const contribData = contribSnap.data();
+              const contribTrips = contribData.sharedTrips || [];
+              
+              // Add reference to the trip
+              await updateDoc(contribRef, { 
+                sharedTrips: [...contribTrips, {
+                  id: trip.id,
+                  ownerId: user.uid,
+                  ownerName: userData.name || "Unknown",
+                  name: editFields.name,
+                  dateShared: new Date().toISOString()
+                }] 
+              });
+            }
+          }
+          
+          // Handle removed contributors
+          const removedContributorIds = oldContributorIds.filter(
+            id => !newContributorIds.includes(id)
+          );
+          
+          for (const contributorId of removedContributorIds) {
+            const contribRef = doc(db, "users", contributorId);
+            const contribSnap = await getDoc(contribRef);
+            
+            if (contribSnap.exists()) {
+              const contribData = contribSnap.data();
+              const contribTrips = contribData.sharedTrips || [];
+              
+              // Remove reference to this trip
+              const updatedSharedTrips = contribTrips.filter(
+                (st: any) => st.id !== trip.id
+              );
+              
+              await updateDoc(contribRef, { sharedTrips: updatedSharedTrips });
+            }
+          }
         }
       }
       setTrip((prev) =>
@@ -231,7 +292,8 @@ const TripDetailPage: React.FC = () => {
               name: editFields.name,
               description: editFields.description,
               startDate: editFields.startDate,
-              endDate: editFields.endDate
+              endDate: editFields.endDate,
+              contributors: editFields.contributors
             }
           : prev
       );
@@ -239,6 +301,68 @@ const TripDetailPage: React.FC = () => {
     } finally {
       setSaving(false);
     }
+  };
+
+  // Handle searching for users
+  const handleSearchUsers = async () => {
+    if (!searchEmail.trim() || !searchEmail.includes('@')) {
+      setSearchError('Please enter a valid email');
+      return;
+    }
+
+    setIsSearching(true);
+    setSearchError('');
+
+    try {
+      const usersRef = collection(db, "users");
+      const q = query(usersRef, where("email", "==", searchEmail.trim().toLowerCase()));
+      const snapshot = await getDocs(q);
+      
+      if (snapshot.empty) {
+        setSearchError('No user found with that email');
+        setSearchResults([]);
+      } else {
+        const results = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        // Filter out users already selected and current user
+        const filteredResults = results.filter(
+          u => u.id !== user?.uid && !editFields.contributors.some(c => c.id === u.id)
+        );
+        setSearchResults(filteredResults);
+      }
+    } catch (err) {
+      console.error('Error searching users:', err);
+      setSearchError('Failed to search for users');
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  // Add contributor to selected list
+  const addContributor = (contributor: any) => {
+    setEditFields(prev => ({ 
+      ...prev, 
+      contributors: [
+        ...prev.contributors, 
+        { 
+          id: contributor.id, 
+          name: contributor.name, 
+          email: contributor.email 
+        }
+      ]
+    }));
+    setSearchResults([]);
+    setSearchEmail('');
+  };
+
+  // Remove contributor from selected list
+  const removeContributor = (id: string) => {
+    setEditFields(prev => ({ 
+      ...prev, 
+      contributors: prev.contributors.filter(c => c.id !== id)
+    }));
   };
 
   // Handle successful invoice upload
@@ -293,7 +417,7 @@ const TripDetailPage: React.FC = () => {
       
       <div className="bg-white rounded-lg shadow-card overflow-hidden mb-8">
         <div className="p-6 border-b border-gray-200 flex items-start justify-between">
-          <div>
+          <div className="w-full">
             {editing ? (
               <>
                 <input
@@ -309,7 +433,7 @@ const TripDetailPage: React.FC = () => {
                   rows={2}
                   disabled={saving}
                 />
-                <div className="flex gap-4 mt-2">
+                <div className="flex flex-wrap gap-4 mt-2">
                   <div>
                     <label className="block text-xs text-gray-500">Start Date</label>
                     <input
@@ -331,6 +455,95 @@ const TripDetailPage: React.FC = () => {
                     />
                   </div>
                 </div>
+                
+                {/* Contributors section */}
+                <div className="mt-4">
+                  <label className="block text-xs text-gray-500 mb-2">Trip Contributors</label>
+                  
+                  {/* Selected contributors display */}
+                  {editFields.contributors.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {editFields.contributors.map(contributor => (
+                        <div 
+                          key={contributor.id}
+                          className="flex items-center bg-primary-50 text-primary-700 py-1 px-3 rounded-full text-sm"
+                        >
+                          <span className="mr-1">{contributor.name}</span>
+                          <button
+                            type="button"
+                            onClick={() => removeContributor(contributor.id)}
+                            className="text-primary-500 hover:text-primary-700"
+                            disabled={saving}
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {/* Contributor search */}
+                  <div className="mb-3">
+                    <div className="flex gap-2">
+                      <div className="relative flex-1">
+                        <input
+                          type="email"
+                          value={searchEmail}
+                          onChange={(e) => setSearchEmail(e.target.value)}
+                          placeholder="Search user by email"
+                          className="w-full px-4 py-2 pr-10 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          disabled={saving}
+                        />
+                        <div className="absolute right-3 top-2.5 text-gray-400">
+                          <Search className="h-5 w-5" />
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleSearchUsers}
+                        disabled={isSearching || saving}
+                        className="px-4 py-2 bg-secondary-500 text-white rounded-md hover:bg-secondary-600 disabled:bg-gray-300"
+                      >
+                        {isSearching ? "Searching..." : "Search"}
+                      </button>
+                    </div>
+                    {searchError && (
+                      <p className="mt-1 text-sm text-error-600">{searchError}</p>
+                    )}
+                  </div>
+                  
+                  {/* Search results */}
+                  {searchResults.length > 0 && (
+                    <div className="border rounded-md divide-y mb-3">
+                      {searchResults.map(result => (
+                        <div 
+                          key={result.id} 
+                          className="p-2 flex justify-between items-center hover:bg-gray-50"
+                        >
+                          <div className="flex items-center">
+                            <div className="bg-secondary-100 text-secondary-700 rounded-full w-8 h-8 flex items-center justify-center mr-3">
+                              <Users className="h-4 w-4" />
+                            </div>
+                            <div>
+                              <div className="font-medium">{result.name}</div>
+                              <div className="text-sm text-gray-500">{result.email}</div>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => addContributor(result)}
+                            className="text-primary-600 hover:text-primary-800 flex items-center"
+                            disabled={saving}
+                          >
+                            <Plus className="h-4 w-4 mr-1" />
+                            Add
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                
                 <div className="mt-3 flex gap-2">
                   <button
                     className="px-3 py-1 bg-primary-500 text-white rounded hover:bg-primary-600"
@@ -361,6 +574,24 @@ const TripDetailPage: React.FC = () => {
                   </button>
                 </h1>
                 <p className="mt-2 text-gray-600">{trip.description}</p>
+                
+                {/* Show contributors in view mode */}
+                {trip.contributors && trip.contributors.length > 0 && (
+                  <div className="mt-3 flex items-center">
+                    <UserPlus className="h-4 w-4 text-gray-500 mr-2" />
+                    <span className="text-sm text-gray-600 mr-2">
+                      Shared with:
+                    </span>
+                    <div className="flex space-x-1">
+                      {trip.contributors.map((contributor, index) => (
+                        <span key={contributor.id} className="text-sm text-primary-700 bg-primary-50 px-2 py-1 rounded-full">
+                          {contributor.name}
+                          {index < trip.contributors.length - 1 ? '' : ''}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </>
             )}
           </div>

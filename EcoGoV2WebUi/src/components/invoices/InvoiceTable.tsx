@@ -45,20 +45,49 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, tripId, onInvoice
     }
   };
 
-  // Get type icon
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'fuel':
-        return <span className="text-amber-500">⛽</span>;
-      case 'plane':
-        return <span className="text-blue-500">✈️</span>;
-      case 'train':
-        return <span className="text-green-500">🚆</span>;
-      default:
-        return <FileText className="h-4 w-4 text-gray-500" />;
+  // Get type icon and label
+  const getTypeIcon = (invoice: InvoiceType) => {
+    if (isFuelInvoice(invoice)) {
+      return <span className="text-amber-500">⛽</span>;
+    } else if (isTravelInvoice(invoice)) {
+      // Use transport_type if available, otherwise fallback to invoice.type
+      const transportType = Array.isArray(invoice.transport_type) && invoice.transport_type[0] 
+        ? invoice.transport_type[0] 
+        : invoice.type;
+        
+      switch (transportType.toLowerCase()) {
+        case 'plane':
+        case 'air':
+        case 'flight':
+        case 'airplane':
+          return <span className="text-blue-500">✈️</span>;
+        case 'train':
+        case 'rail':
+          return <span className="text-green-500">🚆</span>;
+        default:
+          return <span className="text-blue-500">✈️</span>;
+      }
+    } else {
+      return <FileText className="h-4 w-4 text-gray-500" />;
     }
   };
   
+  // Get display type name
+  const getDisplayType = (invoice: InvoiceType) => {
+    if (isFuelInvoice(invoice)) {
+      return 'Fuel';
+    } else if (isTravelInvoice(invoice)) {
+      // Use transport_type if available, otherwise fallback to invoice.type
+      const transportType = Array.isArray(invoice.transport_type) && invoice.transport_type[0] 
+        ? invoice.transport_type[0] 
+        : invoice.type;
+      return transportType.charAt(0).toUpperCase() + transportType.slice(1).toLowerCase();
+    } else {
+      // Handle any other invoice types
+      return (invoice as {type: string}).type || 'Unknown';
+    }
+  };
+
   // Filter invoices
   const filteredInvoices = filter === 'all' 
     ? invoices 
@@ -74,6 +103,18 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, tripId, onInvoice
     return invoice.type === 'plane' || invoice.type === 'train';
   };
 
+  // Helper to get transport type emoji
+  const getTransportEmoji = (transportType: string) => {
+    const type = transportType.toLowerCase();
+    if (type === 'plane' || type === 'air' || type === 'flight' || type === 'airplane') {
+      return <span className="text-blue-500">✈️</span>;
+    } else if (type === 'train' || type === 'rail') {
+      return <span className="text-green-500">🚆</span>;
+    } else {
+      return <span className="text-blue-500">✈️</span>;
+    }
+  };
+
   // Render routes for a travel invoice
   const renderRoutes = (invoice: InvoiceTravel) => {
     if (!Array.isArray(invoice.departure) || !Array.isArray(invoice.arrival)) {
@@ -82,6 +123,11 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, tripId, onInvoice
     
     const isExpanded = expandedRows[invoice.id];
     const hasMultipleRoutes = invoice.departure.length > 1;
+    
+    // Calculate total CO2 for all segments
+    const totalCO2 = Array.isArray(invoice.co2) 
+      ? invoice.co2.reduce((sum, val) => sum + (val || 0), 0)
+      : 0;
     
     return (
       <div>
@@ -110,14 +156,30 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, tripId, onInvoice
         
         {isExpanded && hasMultipleRoutes && (
           <div className="mt-2 pl-6 border-l-2 border-gray-200">
-            {invoice.departure.slice(1).map((dep, idx) => {
-              const arrIdx = idx + 1;
+            {invoice.departure.map((dep, idx) => {
+              const transportType = Array.isArray(invoice.transport_type) && invoice.transport_type[idx] 
+                ? invoice.transport_type[idx] 
+                : 'Unknown';
+              const co2Value = Array.isArray(invoice.co2) && invoice.co2[idx] 
+                ? invoice.co2[idx].toLocaleString() 
+                : '0';
+              
               return (
                 <div key={idx} className="text-sm text-gray-700 py-1">
-                  {dep || 'N/A'} → {invoice.arrival[arrIdx] || 'N/A'}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      {getTransportEmoji(transportType)}
+                      <span className="ml-2">{dep || 'N/A'} → {invoice.arrival[idx] || 'N/A'}</span>
+                    </div>
+                    <span className="text-gray-600">{co2Value} kg CO₂</span>
+                  </div>
                 </div>
               );
             })}
+            <div className="mt-2 pt-2 border-t border-gray-200 flex justify-between text-sm font-medium">
+              <span>Total</span>
+              <span>{totalCO2.toLocaleString()} kg CO₂</span>
+            </div>
           </div>
         )}
       </div>
@@ -148,13 +210,16 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, tripId, onInvoice
         </div>
       );
     } else {
+      // For travel invoices, just show total CO2
+      const totalCO2 = Array.isArray(invoice.co2) 
+        ? invoice.co2.reduce((sum, val) => sum + (val || 0), 0) 
+        : 0;
+        
       return (
         <div className="flex items-center">
           <TrendingUp className="h-4 w-4 text-gray-500 mr-2" />
           <span className="text-sm text-gray-900">
-            {Array.isArray(invoice.co2) && invoice.co2[0] 
-              ? invoice.co2[0].toLocaleString() 
-              : '0'} kg CO₂
+            {totalCO2.toLocaleString()} kg CO₂
           </span>
         </div>
       );
@@ -253,9 +318,9 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, tripId, onInvoice
                 <tr key={invoice.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      {getTypeIcon(invoice.type)}
+                      {getTypeIcon(invoice)}
                       <span className="ml-2 text-sm capitalize text-gray-900">
-                        {invoice.type}
+                        {getDisplayType(invoice)}
                       </span>
                     </div>
                   </td>

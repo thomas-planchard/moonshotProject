@@ -19,7 +19,7 @@ const InvoiceDropZone: React.FC<InvoiceDropZoneProps> = ({ tripId, onUploadSucce
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const newFiles = acceptedFiles.map(file => ({
       file,
-      type: 'fuel' as 'fuel' | 'plane' | 'train', // Default type
+      type: 'plane' as 'fuel' | 'plane' | 'train', // Default to non-fuel type
       preview: URL.createObjectURL(file)
     }));
     
@@ -50,10 +50,14 @@ const InvoiceDropZone: React.FC<InvoiceDropZoneProps> = ({ tripId, onUploadSucce
     });
   };
 
-  const updateFileType = (index: number, type: 'fuel' | 'plane' | 'train') => {
+  // Toggle file between fuel and non-fuel (plane)
+  const toggleFuelType = (index: number, isFuel: boolean) => {
     setFiles(prev => {
       const newFiles = [...prev];
-      newFiles[index] = { ...newFiles[index], type };
+      newFiles[index] = { 
+        ...newFiles[index], 
+        type: isFuel ? 'fuel' : 'plane' // Use 'plane' as the default non-fuel type
+      };
       return newFiles;
     });
   };
@@ -140,15 +144,15 @@ const InvoiceDropZone: React.FC<InvoiceDropZoneProps> = ({ tripId, onUploadSucce
                 </div>
                 
                 <div className="flex items-center mt-2 sm:mt-0">
-                  <select
-                    value={fileInfo.type}
-                    onChange={(e) => updateFileType(index, e.target.value as 'fuel' | 'plane' | 'train')}
-                    className="mr-2 text-sm border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-1 focus:ring-primary-500"
-                  >
-                    <option value="fuel">Fuel</option>
-                    <option value="plane">Plane</option>
-                    <option value="train">Train</option>
-                  </select>
+                  <label className="inline-flex items-center mr-4 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="form-checkbox h-4 w-4 text-primary-600"
+                      checked={fileInfo.type === 'fuel'}
+                      onChange={(e) => toggleFuelType(index, e.target.checked)}
+                    />
+                    <span className="ml-2 text-sm text-gray-700">Fuel invoice</span>
+                  </label>
                   
                   <button 
                     type="button"

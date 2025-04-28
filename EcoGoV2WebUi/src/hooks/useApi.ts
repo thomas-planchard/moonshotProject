@@ -371,16 +371,58 @@ export function useApi() {
         console.log("Deleting invoice", invoiceId, "from trip", trips[ti].id);
         const invList = trips[ti].invoices?.invoices || [];
         const updatedInvs = invList.filter((inv: any) => inv.id !== invoiceId);
-        const newTotalCF = updatedInvs.reduce(
-          (sum: number, inv: any) => sum + (inv.carbonFootprint || 0),
-          0
-        );
+        
+        // Correctly calculate the new total carbon footprint
+        const newTotalCF = updatedInvs.reduce((sum: number, inv: any) => {
+          let invoiceCO2 = 0;
+          
+          // Check invoice type and extract CO2 value accordingly
+          if (inv.type === 'fuel') {
+            // For fuel invoices, CO2 is a single number
+            invoiceCO2 = inv.co2 || 0;
+          } else if (inv.type === 'plane' || inv.type === 'train') {
+            // For travel invoices, CO2 is an array we need to sum
+            if (Array.isArray(inv.co2)) {
+              invoiceCO2 = inv.co2.reduce((co2Sum: number, val: number) => co2Sum + (val || 0), 0);
+            }
+          }
+          
+          return sum + invoiceCO2;
+        }, 0);
+        
         trips[ti].invoices = { invoices: updatedInvs };
         trips[ti].carbonFootprint = newTotalCF;
         await updateDoc(userRef, { "businessTrips.trips": trips });
         return true;
       } catch (err) {
         console.error("Delete invoice error:", err);
+        setError(err instanceof Error ? err.message : String(err));
+        return false;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [user]
+  );
+
+  const deleteTrip = useCallback(
+    async (tripId: string): Promise<boolean> => {
+      setLoading(true);
+      setError(null);
+      try {
+        if (!user) throw new Error("Not authenticated");
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        if (!userSnap.exists()) throw new Error("User not found");
+        
+        const userData = userSnap.data();
+        const trips = userData.businessTrips?.trips || [];
+        const updatedTrips = trips.filter((trip: any) => trip.id !== tripId);
+        
+        await updateDoc(userRef, { "businessTrips.trips": updatedTrips });
+        return true;
+      } catch (err) {
+        console.error("Delete trip error:", err);
         setError(err instanceof Error ? err.message : String(err));
         return false;
       } finally {
@@ -399,5 +441,6 @@ export function useApi() {
     uploadInvoice,
     analyzeInvoice,
     deleteInvoice,
+    deleteTrip,
   };
 }

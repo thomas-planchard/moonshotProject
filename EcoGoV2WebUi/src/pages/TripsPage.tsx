@@ -1,100 +1,159 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useApi } from '../hooks/useApi';
-import TripCard from '../components/trips/TripCard';
-import { PlusCircle, Search } from 'lucide-react';
 import { Trip } from '../types';
+import { Plus, Calendar, Briefcase, TrendingUp, ArrowRight, Trash2, AlertTriangle } from 'lucide-react';
+import ConfirmationModal from '../components/modal/ConfirmationModal';
+
 
 const TripsPage: React.FC = () => {
-  const { getTrips, loading, error } = useApi();
+  const { getTrips, deleteTrip, loading, error } = useApi();
   const [trips, setTrips] = useState<Trip[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  
+  const [tripToDelete, setTripToDelete] = useState<string | null>(null);
+  const [refresh, setRefresh] = useState(0);
+  const navigate = useNavigate();
+
   useEffect(() => {
     const fetchTrips = async () => {
       const data = await getTrips();
       setTrips(data);
     };
-    
+
     fetchTrips();
-  }, [getTrips]);
-  
-  // Filter trips based on search query
-  const filteredTrips = trips.filter(trip => 
-    trip.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    trip.description.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-  
-  return (
-    <div className="container mx-auto p-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-4 md:mb-0">Business Trips</h1>
-        
-        <div className="flex flex-col sm:flex-row w-full md:w-auto space-y-4 sm:space-y-0 sm:space-x-4">
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-gray-400" />
-            </div>
-            <input
-              type="text"
-              placeholder="Search trips..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-            />
-          </div>
-          
-          <Link
-            to="/trips/new"
-            className="flex items-center justify-center px-4 py-2 bg-primary-500 text-white rounded-md shadow-sm hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-          >
-            <PlusCircle className="h-5 w-5 mr-2" />
-            New Trip
-          </Link>
+  }, [getTrips, refresh]);
+
+  const openDeleteConfirmation = (tripId: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setTripToDelete(tripId);
+  };
+
+  const closeDeleteConfirmation = () => {
+    setTripToDelete(null);
+  };
+
+  const confirmDeleteTrip = async () => {
+    if (tripToDelete) {
+      const success = await deleteTrip(tripToDelete);
+      if (success) {
+        setRefresh(prev => prev + 1);
+      }
+      closeDeleteConfirmation();
+    }
+  };
+
+  const handleCreateTrip = () => {
+    navigate('/trips/new');
+  };
+
+  if (loading && trips.length === 0) {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">Business Trips</h1>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="animate-pulse bg-white rounded-lg shadow-card h-48"></div>
+          ))}
         </div>
       </div>
-      
+    );
+  }
+
+  return (
+    <div className="container mx-auto p-6">
+      <ConfirmationModal
+        isOpen={tripToDelete !== null}
+        title="Delete Trip"
+        message="Are you sure you want to delete this trip? This will permanently remove all associated invoices and carbon data. This action cannot be undone."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        onConfirm={confirmDeleteTrip}
+        onCancel={closeDeleteConfirmation}
+      />
+
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Business Trips</h1>
+        <button
+          onClick={handleCreateTrip}
+          className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md flex items-center"
+        >
+          <Plus className="h-5 w-5 mr-2" />
+          New Trip
+        </button>
+      </div>
+
       {error && (
-        <div className="mb-6 p-4 bg-error-50 text-error-700 rounded-md">
+        <div className="bg-error-50 text-error-700 p-4 rounded-md mb-6">
+          <AlertTriangle className="h-5 w-5 inline-block mr-2" />
           {error}
         </div>
       )}
-      
-      {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="animate-pulse bg-gray-200 h-64 rounded-lg"></div>
-          ))}
-        </div>
-      ) : filteredTrips.length === 0 ? (
-        <div className="text-center py-12 bg-gray-50 rounded-lg">
-          {searchQuery ? (
-            <>
-              <p className="text-lg text-gray-600 mb-2">No trips found matching "{searchQuery}"</p>
-              <button
-                onClick={() => setSearchQuery('')}
-                className="text-primary-500 hover:text-primary-600 font-medium"
-              >
-                Clear search
-              </button>
-            </>
-          ) : (
-            <>
-              <p className="text-lg text-gray-600 mb-4">No trips found</p>
-              <Link
-                to="/trips/new"
-                className="inline-flex items-center px-4 py-2 bg-primary-500 text-white rounded-md shadow-sm hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-              >
-                <PlusCircle className="h-5 w-5 mr-2" />
-                Create your first trip
-              </Link>
-            </>
-          )}
+
+      {trips.length === 0 ? (
+        <div className="bg-white rounded-lg shadow-card p-8 text-center">
+          <Briefcase className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+          <h2 className="text-xl font-medium text-gray-900 mb-2">No business trips yet</h2>
+          <p className="text-gray-600 mb-4">Track your business travel carbon footprint by creating your first trip.</p>
+          <button
+            onClick={handleCreateTrip}
+            className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md"
+          >
+            Create your first trip
+          </button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredTrips.map(trip => (
-            <TripCard key={trip.id} trip={trip} />
+          {trips.map(trip => (
+            <Link
+              to={`/trips/${trip.id}`}
+              key={trip.id}
+              className="bg-white rounded-lg shadow-card overflow-hidden hover:shadow-lg transition-shadow duration-200"
+            >
+              <div className="p-6">
+                <div className="flex justify-between items-start mb-2">
+                  <h2 className="text-lg font-medium text-gray-900 line-clamp-1">{trip.name}</h2>
+                  <button 
+                    onClick={(e) => openDeleteConfirmation(trip.id, e)}
+                    className="text-gray-400 hover:text-red-500 p-1 rounded-full hover:bg-gray-100"
+                    aria-label="Delete trip"
+                    title="Delete trip"
+                  >
+                    <Trash2 className="h-5 w-5" />
+                  </button>
+                </div>
+                
+                <p className="text-gray-600 text-sm line-clamp-2 mb-4">{trip.description}</p>
+                
+                <div className="space-y-3 mb-4">
+                  <div className="flex items-center text-sm">
+                    <Calendar className="h-4 w-4 text-gray-500 mr-2" />
+                    <span>
+                      {new Date(trip.startDate).toLocaleDateString()} - 
+                      {new Date(trip.endDate).toLocaleDateString()}
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center text-sm">
+                    <TrendingUp className="h-4 w-4 text-gray-500 mr-2" />
+                    <span>{trip.totalCarbonFootprint.toLocaleString()} kg CO₂</span>
+                  </div>
+                  
+                  <div className="flex items-center text-sm">
+                    <Briefcase className="h-4 w-4 text-gray-500 mr-2" />
+                    <span>{trip.invoices.length} invoices</span>
+                  </div>
+                </div>
+                
+                <div className="flex justify-end">
+                  <span className="text-primary-600 flex items-center text-sm font-medium">
+                    View details
+                    <ArrowRight className="h-4 w-4 ml-1" />
+                  </span>
+                </div>
+              </div>
+            </Link>
           ))}
         </div>
       )}

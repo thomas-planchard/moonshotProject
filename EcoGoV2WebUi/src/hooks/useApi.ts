@@ -23,48 +23,35 @@ export function useApi() {
       const userData = userSnap.data();
       const businessTrips = userData.businessTrips || { trips: [] };
 
-      const trips: Trip[] = (businessTrips.trips || []).map((t: any) => ({
-        id: t.id,
-        name: t.name,
-        description: t.description,
-        startDate: t.startDate,
-        endDate: t.endDate,
-        totalCarbonFootprint: t.carbonFootprint || 0,
-        invoices: Array.isArray(t.invoices?.invoices)
-          ? t.invoices.invoices.map((inv: any) => {
-              if (inv.type === 'fuel') {
-                return {
-                  id: inv.id || "",
-                  type: inv.type,
-                  fileName: inv.fileName || "",
-                  co2: inv.co2 || 0,
-                  volume: inv.volume || 0,
-                  typeOfFuel: inv.typeOfFuel || "",
-                } as InvoiceFuel;
-              }
-              return {
-                id: inv.id || "",
-                tripId: t.id,
-                type: inv.type,
-                fileName: inv.fileName || "",
-                date: inv.date,
-                amount: inv.amount || 0,
-                carbonFootprint: inv.carbonFootprint || 0,
-                name: inv.name || "",
-                status: inv.status || "processed",
-                description: inv.description || "",
-                departure: inv.departure || [],
-                arrival: inv.arrival || [],
-                transport_type: inv.transport_type || [],
-                co2: inv.co2 || []
-              } as InvoiceTravel;
-            })
-          : [],
-        createdAt: t.createdAt || "",
-      }));
+      // Get shared trips if available
+      const sharedTripsData = userData.sharedTrips || [];
+      const sharedTripIds = sharedTripsData.map((st: any) => st.id);
+      
+      // Find all users who have shared trips with current user
+      const sharedTrips: Trip[] = [];
+      if (sharedTripIds.length > 0) {
+        for (const sharedInfo of sharedTripsData) {
+          if (!sharedInfo.ownerId) continue;
+          
+          const ownerRef = doc(db, "users", sharedInfo.ownerId);
+          const ownerSnap = await getDoc(ownerRef);
+          if (!ownerSnap.exists()) continue;
+          
+          const ownerData = ownerSnap.data();
+          const ownerTrips = ownerData.businessTrips?.trips || [];
+          const sharedTrip = ownerTrips.find((t: any) => t.id === sharedInfo.id);
+          
+          if (sharedTrip) {
+            sharedTrips.push(mapTripData(sharedTrip));
+          }
+        }
+      }
 
-      return trips;
+      const myTrips: Trip[] = (businessTrips.trips || []).map(mapTripData);
+      return [...myTrips, ...sharedTrips];
+
     } catch (err) {
+      console.error('Error fetching trips:', err);
       setError('Failed to fetch trips');
       return [];
     } finally {
@@ -72,63 +59,101 @@ export function useApi() {
     }
   }, [user]);
 
+  // Helper function to map trip data to Trip type
+  const mapTripData = (t: any): Trip => ({
+    id: t.id,
+    name: t.name,
+    description: t.description,
+    startDate: t.startDate,
+    endDate: t.endDate,
+    totalCarbonFootprint: t.carbonFootprint || 0,
+    invoices: Array.isArray(t.invoices?.invoices)
+      ? t.invoices.invoices.map((inv: any) => {
+          if (inv.type === 'fuel') {
+            return {
+              id: inv.id || "",
+              type: inv.type,
+              fileName: inv.fileName || "",
+              co2: inv.co2 || 0,
+              volume: inv.volume || 0,
+              typeOfFuel: inv.typeOfFuel || "",
+              uploadedBy: inv.uploadedBy || {
+                id: t.ownerId || 'unknown',
+                name: 'Unknown User'
+              }
+            } as InvoiceFuel;
+          }
+          return {
+            id: inv.id || "",
+            tripId: t.id,
+            type: inv.type,
+            fileName: inv.fileName || "",
+            date: inv.date,
+            amount: inv.amount || 0,
+            carbonFootprint: inv.carbonFootprint || 0,
+            name: inv.name || "",
+            status: inv.status || "processed",
+            description: inv.description || "",
+            departure: inv.departure || [],
+            arrival: inv.arrival || [],
+            transport_type: inv.transport_type || [],
+            co2: inv.co2 || [],
+            uploadedBy: inv.uploadedBy || {
+              id: t.ownerId || 'unknown',
+              name: 'Unknown User'
+            }
+          } as InvoiceTravel;
+        })
+      : [],
+    createdAt: t.createdAt || "",
+    ownerId: t.ownerId || "",
+    contributors: t.contributors || []
+  });
+
   const getTrip = useCallback(async (id: string): Promise<Trip | null> => {
     setLoading(true);
     setError(null);
 
     try {
-      if (!user) return null;
+      // Explicit check for authentication - redirect if not logged in
+      if (!user) {
+        console.warn("User not authenticated, cannot fetch trip");
+        window.location.href = '/auth'; // Force navigation to auth page
+        return null;
+      }
+      
+      // First check in user's own trips
       const userRef = doc(db, "users", user.uid);
       const userSnap = await getDoc(userRef);
       if (!userSnap.exists()) return null;
 
       const userData = userSnap.data();
       const businessTrips = userData.businessTrips || { trips: [] };
-      const t = (businessTrips.trips || []).find((trip: any) => trip.id === id);
+      let t = (businessTrips.trips || []).find((trip: any) => trip.id === id);
+      
+      // If not found in own trips, check shared trips
+      if (!t) {
+        const sharedTripsData = userData.sharedTrips || [];
+        const sharedInfo = sharedTripsData.find((st: any) => st.id === id);
+        
+        if (sharedInfo && sharedInfo.ownerId) {
+          const ownerRef = doc(db, "users", sharedInfo.ownerId);
+          const ownerSnap = await getDoc(ownerRef);
+          
+          if (ownerSnap.exists()) {
+            const ownerData = ownerSnap.data();
+            const ownerTrips = ownerData.businessTrips?.trips || [];
+            t = ownerTrips.find((trip: any) => trip.id === id);
+          }
+        }
+      }
+      
       if (!t) return null;
 
-      const trip: Trip = {
-        id: t.id,
-        name: t.name,
-        description: t.description,
-        startDate: t.startDate,
-        endDate: t.endDate,
-        totalCarbonFootprint: t.carbonFootprint || 0,
-        invoices: Array.isArray(t.invoices?.invoices)
-          ? t.invoices.invoices.map((inv: any) => {
-              if (inv.type === 'fuel') {
-                return {
-                  id: inv.id || "",
-                  type: inv.type,
-                  fileName: inv.fileName || "",
-                  co2: inv.co2 || 0,
-                  volume: inv.volume || 0,
-                  typeOfFuel: inv.typeOfFuel || "",
-                } as InvoiceFuel;
-              }
-              return {
-                id: inv.id || "",
-                tripId: t.id,
-                type: inv.type,
-                fileName: inv.fileName || "",
-                date: inv.date,
-                amount: inv.amount || 0,
-                carbonFootprint: inv.carbonFootprint || 0,
-                name: inv.name || "",
-                status: inv.status || "processed",
-                description: inv.description || "",
-                departure: inv.departure || [],
-                arrival: inv.arrival || [],
-                transport_type: inv.transport_type || [],
-                co2: inv.co2 || []
-              } as InvoiceTravel;
-            })
-          : [],
-        createdAt: t.createdAt || "",
-      };
-
-      return trip;
+      return mapTripData(t);
+      
     } catch (err) {
+      console.error('Error fetching trip details:', err);
       setError('Failed to fetch trip details');
       return null;
     } finally {
@@ -152,7 +177,9 @@ export function useApi() {
         endDate: tripData.endDate || now.split('T')[0],
         totalCarbonFootprint: 0,
         invoices: [],
-        createdAt: now
+        createdAt: now,
+        ownerId: user?.uid || '',
+        contributors: tripData.contributors || []
       };
 
       if (user) {
@@ -171,14 +198,41 @@ export function useApi() {
               endDate: newTrip.endDate,
               createdAt: now,
               carbonFootprint: 0,
+              ownerId: user.uid,
+              contributors: tripData.contributors || []
             }
           ];
           await updateDoc(userRef, { "businessTrips.trips": updatedTrips });
+          
+          // Add trip reference to each contributor's account
+          if (Array.isArray(tripData.contributors) && tripData.contributors.length > 0) {
+            for (const contributor of tripData.contributors) {
+              const contribRef = doc(db, "users", contributor.id);
+              const contribSnap = await getDoc(contribRef);
+              
+              if (contribSnap.exists()) {
+                const contribData = contribSnap.data();
+                const contribTrips = contribData.sharedTrips || [];
+                
+                // Add reference to the trip
+                await updateDoc(contribRef, { 
+                  sharedTrips: [...contribTrips, {
+                    id: newTrip.id,
+                    ownerId: user.uid,
+                    ownerName: userData.name || "Unknown",
+                    name: newTrip.name,
+                    dateShared: now
+                  }] 
+                });
+              }
+            }
+          }
         }
       }
 
       return newTrip;
     } catch (err) {
+      console.error('Failed to create trip:', err);
       setError('Failed to create trip');
       return null;
     } finally {
@@ -241,6 +295,20 @@ export function useApi() {
       );
       const data = resultResp.data.data || {};
 
+      let userName = user?.displayName || '';
+      if (!userName && user) {
+        const userDocRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists() && userDoc.data().name) {
+          userName = userDoc.data().name;
+        }
+      }
+
+      const uploaderInfo = {
+        id: user?.uid || 'unknown',
+        name: userName || 'Unknown User'
+      };
+
       let newInvoice: InvoiceType;
       let totalCO2: number;
 
@@ -255,6 +323,7 @@ export function useApi() {
           co2: totalCO2,
           volume: data.volume || 0,
           typeOfFuel: data.type_of_fuel || "",
+          uploadedBy: uploaderInfo
         } as InvoiceFuel;
       } else {
         const departureArray = Array.isArray(data.departure)
@@ -275,26 +344,20 @@ export function useApi() {
             ? [data.transport_type]
             : [];
 
-        // Determine correct CO2 field based on detected transport type
         let co2Array: number[] = [];
-        
-        // Look at the actual transport types in the response
         const detectedTypes = transportArray.map((t: any) => (t || '').toLowerCase());
         
         for (let i = 0; i < Math.max(1, detectedTypes.length); i++) {
           const transportType = detectedTypes[i] || type.toLowerCase();
           
           let co2Value = 0;
-          // For trains, use train_co2
           if (transportType.includes('train')) {
             if (Array.isArray(data.train_co2) && data.train_co2[i] !== undefined) {
               co2Value = data.train_co2[i];
             } else if (typeof data.train_co2 === 'number') {
               co2Value = data.train_co2;
             }
-          } 
-          // For planes/flights, use flight_co2
-          else {
+          } else {
             if (Array.isArray(data.flight_co2) && data.flight_co2[i] !== undefined) {
               co2Value = data.flight_co2[i];
             } else if (typeof data.flight_co2 === 'number') {
@@ -305,7 +368,6 @@ export function useApi() {
           co2Array.push(co2Value);
         }
         
-        // Ensure we have at least one CO2 value
         if (co2Array.length === 0) {
           co2Array.push(0);
         }
@@ -320,25 +382,70 @@ export function useApi() {
           arrival: arrivalArray,
           transport_type: transportArray,
           co2: co2Array,
+          uploadedBy: uploaderInfo
         } as InvoiceTravel;
       }
 
       if (user) {
         const userRef = doc(db, "users", user.uid);
         const userSnap = await getDoc(userRef);
+        
         if (userSnap.exists()) {
           const userData = userSnap.data();
-          const trips = (userData.businessTrips?.trips || []);
-          const tripIndex = trips.findIndex((t: any) => t.id === tripId);
-          if (tripIndex !== -1) {
-            const tripInvoices = trips[tripIndex].invoices || { invoices: [] };
-            const updatedInvoices = [
-              ...tripInvoices.invoices,
-              newInvoice
-            ];
-            trips[tripIndex].invoices = { invoices: updatedInvoices };
-            trips[tripIndex].carbonFootprint = (trips[tripIndex].carbonFootprint||0) + totalCO2;
-            await updateDoc(userRef, { "businessTrips.trips": trips });
+          const myTrips = userData.businessTrips?.trips || [];
+          const myTripIndex = myTrips.findIndex((t: any) => t.id === tripId);
+          
+          if (myTripIndex !== -1) {
+            const tripInvoices = myTrips[myTripIndex].invoices || { invoices: [] };
+            const updatedInvoices = [...tripInvoices.invoices, newInvoice];
+            myTrips[myTripIndex].invoices = { invoices: updatedInvoices };
+            myTrips[myTripIndex].carbonFootprint = (myTrips[myTripIndex].carbonFootprint||0) + totalCO2;
+            
+            if (type !== 'fuel') {
+              const transportTypes = myTrips[myTripIndex].transportTypes || {};
+              const travelInvoice = newInvoice as InvoiceTravel;
+              travelInvoice.transport_type.forEach((t: string | null | undefined) => {
+                const transportType = t?.toLowerCase() || type.toLowerCase();
+                transportTypes[transportType] = (transportTypes[transportType] || 0) + 1;
+              });
+              myTrips[myTripIndex].transportTypes = transportTypes;
+            }
+            
+            await updateDoc(userRef, { "businessTrips.trips": myTrips });
+          } else {
+            const sharedTripsData = userData.sharedTrips || [];
+            const sharedTripInfo = sharedTripsData.find((st: any) => st.id === tripId);
+            
+            if (sharedTripInfo && sharedTripInfo.ownerId) {
+              const ownerRef = doc(db, "users", sharedTripInfo.ownerId);
+              const ownerSnap = await getDoc(ownerRef);
+              
+              if (ownerSnap.exists()) {
+                const ownerData = ownerSnap.data();
+                const ownerTrips = ownerData.businessTrips?.trips || [];
+                const ownerTripIndex = ownerTrips.findIndex((t: any) => t.id === tripId);
+                
+                if (ownerTripIndex !== -1) {
+                  const tripInvoices = ownerTrips[ownerTripIndex].invoices || { invoices: [] };
+                  const updatedInvoices = [...tripInvoices.invoices, newInvoice];
+                  ownerTrips[ownerTripIndex].invoices = { invoices: updatedInvoices };
+                  ownerTrips[ownerTripIndex].carbonFootprint = (ownerTrips[ownerTripIndex].carbonFootprint||0) + totalCO2;
+                  
+                  if (type !== 'fuel') {
+                    const transportTypes = ownerTrips[ownerTripIndex].transportTypes || {};
+                    // Fix reference to transportArray from the travel invoice we created earlier
+                    const travelInvoice = newInvoice as InvoiceTravel;
+                    travelInvoice.transport_type.forEach((t: string | null | undefined) => {
+                      const transportType = t?.toLowerCase() || type.toLowerCase();
+                      transportTypes[transportType] = (transportTypes[transportType] || 0) + 1;
+                    });
+                    ownerTrips[ownerTripIndex].transportTypes = transportTypes;
+                  }
+                  
+                  await updateDoc(ownerRef, { "businessTrips.trips": ownerTrips });
+                }
+              }
+            }
           }
         }
       }
@@ -400,16 +507,12 @@ export function useApi() {
         const invList = trips[ti].invoices?.invoices || [];
         const updatedInvs = invList.filter((inv: any) => inv.id !== invoiceId);
         
-        // Correctly calculate the new total carbon footprint
         const newTotalCF = updatedInvs.reduce((sum: number, inv: any) => {
           let invoiceCO2 = 0;
           
-          // Check invoice type and extract CO2 value accordingly
           if (inv.type === 'fuel') {
-            // For fuel invoices, CO2 is a single number
             invoiceCO2 = inv.co2 || 0;
           } else if (inv.type === 'plane' || inv.type === 'train') {
-            // For travel invoices, CO2 is an array we need to sum
             if (Array.isArray(inv.co2)) {
               invoiceCO2 = inv.co2.reduce((co2Sum: number, val: number) => co2Sum + (val || 0), 0);
             }

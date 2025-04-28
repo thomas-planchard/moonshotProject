@@ -56,6 +56,17 @@ const UploadProgressModal: React.FC<UploadProgressModalProps> = ({
     return <Train className="h-4 w-4 text-green-500" />;
   };
 
+  // Get user initials
+  const getUserInitials = (name: string) => {
+    if (!name) return '?';
+    return name
+      .split(' ')
+      .map(part => part[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
+  };
+
   // Current step index
   const currentStepIndex = currentStep === 'error' ? -1 : getStepIndex(currentStep);
 
@@ -177,6 +188,11 @@ const UploadProgressModal: React.FC<UploadProgressModalProps> = ({
                     <div key={idx} className="border-b border-gray-100 pb-3">
                       <div className="flex justify-between items-center mb-2">
                         <div className="flex items-center">
+                          {invoice.uploadedBy && (
+                            <div className="bg-primary-100 text-primary-700 rounded-full w-5 h-5 flex items-center justify-center text-xs font-medium mr-2">
+                              {getUserInitials(invoice.uploadedBy.name)}
+                            </div>
+                          )}
                           {getInvoiceTypeIcon(invoice)}
                           <span className="text-sm font-medium ml-2">{invoice.fileName}</span>
                         </div>

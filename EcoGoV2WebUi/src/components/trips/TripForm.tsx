@@ -1,10 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApi } from '../../hooks/useApi';
+import { X, Plus, User, Search } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { db } from '../../firebase';
 
 const TripForm: React.FC = () => {
   const navigate = useNavigate();
   const { createTrip, loading, error } = useApi();
+  const { user } = useAuth();
   
   const [formData, setFormData] = useState({
     name: '',
@@ -18,6 +23,13 @@ const TripForm: React.FC = () => {
     startDate: '',
     endDate: '',
   });
+
+  // State for contributor selection
+  const [searchEmail, setSearchEmail] = useState('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [selectedContributors, setSelectedContributors] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchError, setSearchError] = useState('');
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -27,6 +39,62 @@ const TripForm: React.FC = () => {
     if (formErrors[name as keyof typeof formErrors]) {
       setFormErrors(prev => ({ ...prev, [name]: '' }));
     }
+  };
+
+  // Handle searching for users
+  const handleSearchUsers = async () => {
+    if (!searchEmail.trim() || !searchEmail.includes('@')) {
+      setSearchError('Please enter a valid email');
+      return;
+    }
+
+    setIsSearching(true);
+    setSearchError('');
+
+    try {
+      const usersRef = collection(db, "users");
+      const q = query(usersRef, where("email", "==", searchEmail.trim().toLowerCase()));
+      const snapshot = await getDocs(q);
+
+      if (snapshot.empty) {
+        setSearchError('No user found with that email');
+        setSearchResults([]);
+      } else {
+        const results = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        // Filter out users already selected and current user
+        const filteredResults = results.filter(
+          u => u.id !== user?.uid && !selectedContributors.some(c => c.id === u.id)
+        );
+        setSearchResults(filteredResults);
+      }
+    } catch (err) {
+      console.error('Error searching users:', err);
+      setSearchError('Failed to search for users');
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  // Add contributor to selected list
+  const addContributor = (contributor: any) => {
+    setSelectedContributors(prev => [
+      ...prev, 
+      { 
+        id: contributor.id, 
+        name: contributor.name, 
+        email: contributor.email 
+      }
+    ]);
+    setSearchResults([]);
+    setSearchEmail('');
+  };
+
+  // Remove contributor from selected list
+  const removeContributor = (id: string) => {
+    setSelectedContributors(prev => prev.filter(c => c.id !== id));
   };
   
   const validateForm = () => {
@@ -66,7 +134,10 @@ const TripForm: React.FC = () => {
       return;
     }
     
-    const trip = await createTrip(formData);
+    const trip = await createTrip({
+      ...formData,
+      contributors: selectedContributors
+    });
     if (trip) {
       navigate(`/trips/${trip.id}`);
     }
@@ -83,6 +154,7 @@ const TripForm: React.FC = () => {
       )}
       
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Existing form fields */}
         <div>
           <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
             Trip Name *
@@ -154,6 +226,95 @@ const TripForm: React.FC = () => {
             />
             {formErrors.endDate && (
               <p className="mt-1 text-sm text-error-600">{formErrors.endDate}</p>
+            )}
+          </div>
+        </div>
+        
+        {/* New contributor section */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Contributors
+          </label>
+          <div className="space-y-4">
+            {/* Selected contributors display */}
+            {selectedContributors.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-2">
+                {selectedContributors.map(contributor => (
+                  <div 
+                    key={contributor.id}
+                    className="flex items-center bg-primary-50 text-primary-700 py-1 px-3 rounded-full text-sm"
+                  >
+                    <span className="mr-1">{contributor.name}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeContributor(contributor.id)}
+                      className="text-primary-500 hover:text-primary-700"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            {/* Contributor search */}
+            <div>
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <input
+                    type="email"
+                    value={searchEmail}
+                    onChange={(e) => setSearchEmail(e.target.value)}
+                    placeholder="Search user by email"
+                    className="w-full px-4 py-2 pr-10 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  />
+                  <div className="absolute right-3 top-2.5 text-gray-400">
+                    <Search className="h-5 w-5" />
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleSearchUsers}
+                  disabled={isSearching}
+                  className="px-4 py-2 bg-secondary-500 text-white rounded-md hover:bg-secondary-600 disabled:bg-gray-300"
+                >
+                  {isSearching ? "Searching..." : "Search"}
+                </button>
+              </div>
+              
+              {searchError && (
+                <p className="mt-1 text-sm text-error-600">{searchError}</p>
+              )}
+            </div>
+            
+            {/* Search results */}
+            {searchResults.length > 0 && (
+              <div className="border rounded-md divide-y">
+                {searchResults.map(result => (
+                  <div 
+                    key={result.id} 
+                    className="p-2 flex justify-between items-center hover:bg-gray-50"
+                  >
+                    <div className="flex items-center">
+                      <div className="bg-secondary-100 text-secondary-700 rounded-full w-8 h-8 flex items-center justify-center mr-3">
+                        <User className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <div className="font-medium">{result.name}</div>
+                        <div className="text-sm text-gray-500">{result.email}</div>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => addContributor(result)}
+                      className="text-primary-600 hover:text-primary-800 flex items-center"
+                    >
+                      <Plus className="h-4 w-4 mr-1" />
+                      Add
+                    </button>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         </div>

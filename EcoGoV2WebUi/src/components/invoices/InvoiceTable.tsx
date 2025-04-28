@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FileText, TrendingUp, MapPin, Trash2, ChevronDown, ChevronUp, Droplets } from 'lucide-react';
+import { FileText, TrendingUp, MapPin, Trash2, ChevronDown, ChevronUp, Droplets, User } from 'lucide-react';
 import { InvoiceType, InvoiceFuel, InvoiceTravel } from '../../types';
 import { useApi } from '../../hooks/useApi';
 import ConfirmationModal from '../modal/ConfirmationModal';
@@ -86,6 +86,17 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, tripId, onInvoice
       // Handle any other invoice types
       return (invoice as {type: string}).type || 'Unknown';
     }
+  };
+
+  // Get user initials
+  const getUserInitials = (name: string) => {
+    if (!name) return '?';
+    return name
+      .split(' ')
+      .map(part => part[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
   };
 
   // Filter invoices
@@ -308,6 +319,9 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, tripId, onInvoice
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Details
                 </th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Uploaded By
+                </th>
                 <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
@@ -338,6 +352,21 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, tripId, onInvoice
                   <td className="px-6 py-4 whitespace-nowrap">
                     {isFuelInvoice(invoice) ? renderFuelDetails(invoice) : 
                      isTravelInvoice(invoice) ? renderRoutes(invoice) : null}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {invoice.uploadedBy ? (
+                      <div className="flex items-center">
+                        <div className="bg-secondary-100 text-secondary-700 rounded-full w-8 h-8 flex items-center justify-center mr-2">
+                          {getUserInitials(invoice.uploadedBy.name)}
+                        </div>
+                        <span className="text-sm">{invoice.uploadedBy.name}</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center text-gray-400">
+                        <User className="h-4 w-4 mr-2" />
+                        <span className="text-sm">Unknown</span>
+                      </div>
+                    )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right">
                     <button

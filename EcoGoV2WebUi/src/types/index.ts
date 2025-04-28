@@ -7,12 +7,24 @@ export interface Trip {
   totalCarbonFootprint: number;
   invoices: InvoiceType[];
   createdAt: string;
+  ownerId: string;
+  contributors: Contributor[];
+}
+
+export interface Contributor {
+  id: string;
+  name: string;
+  email: string;
 }
 
 export interface InvoiceBase {
   id: string;
   type: 'fuel' | 'plane' | 'train';
   fileName: string;
+  uploadedBy: {
+    id: string;
+    name: string;
+  };
 }
 
 export interface InvoiceTravel extends InvoiceBase {

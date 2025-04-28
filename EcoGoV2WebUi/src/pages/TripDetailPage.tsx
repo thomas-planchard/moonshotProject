@@ -114,14 +114,29 @@ const TripDetailPage: React.FC = () => {
       }
       else if (isTravelInvoice(invoice)) {
         // Handle travel invoices
+        // Use transport_type to determine which category to add to
         const totalCo2 = Array.isArray(invoice.co2) 
           ? invoice.co2.reduce((sum, val) => sum + (val || 0), 0)
           : 0;
           
-        if (invoice.type === 'plane') {
-          emissions.plane.total += totalCo2;
-        } else if (invoice.type === 'train') {
-          emissions.train.total += totalCo2;
+        // Check each item in the transport_type array when available
+        if (Array.isArray(invoice.transport_type) && invoice.transport_type.length > 0) {
+          for (const transportType of invoice.transport_type) {
+            const type = (transportType || '').toLowerCase();
+            if (type.includes('train') || type === 'train') {
+              emissions.train.total += totalCo2 / invoice.transport_type.length; // Split CO2 by transport types
+            } else {
+              // Default to plane for any other type
+              emissions.plane.total += totalCo2 / invoice.transport_type.length;
+            }
+          }
+        } else {
+          // Fall back to the invoice type if transport_type is not available
+          if (invoice.type === 'plane') {
+            emissions.plane.total += totalCo2;
+          } else if (invoice.type === 'train') {
+            emissions.train.total += totalCo2;
+          }
         }
       }
     });

@@ -3,6 +3,7 @@ import { useAuth, AuthContextProvider } from "../context/AuthContext";
 import { useEffect } from "react";
 import ConnectionCheck from "@/components/common/CheckConnection";
 import "../global.css";
+import React from "react";
 
 
 

@@ -1,3 +1,4 @@
+<a name="readme-top"></a>
 
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
@@ -5,132 +6,105 @@
 [![Issues][issues-shield]][issues-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
 
+<br />
 <div align="center">
    <img src="EcoGo/assets/icon.png" alt="Logo" width="100" height="100">
-  <h1 align="center">EcoGo API</h1>
+  <h1 align="center">Moonshot Project: EcoGo & EcoGo API</h1>
   <p align="center">
-    A lightweight API to extract receipt data (from train, plane, and fuel tickets) and format it for carbon emissions calculation.
+    A combined mobile application and lightweight API for tracking carbon emissions from transportation and fuel receipts.
   </p>
 </div>
 
-## About the Project
+## About
 
-This project is derived from EcoGo mobile app that tracked carbon emissions from daily activities. EcoGo API is designed to process receipts or tickets (in PDF, JPG, or PNG formats) to extract structured data—such as departure and arrival locations, dates, and fuel amounts—needed for calculating CO₂ emissions. The goal is to streamline data integration for carbon clap.
+This repository contains two main components:
 
-## Key Features
+1. **EcoGo Mobile App** – A React Native/Expo application built with TypeScript for tracking your carbon footprint in real time.
+2. **EcoGo API** – A FastAPI/Python service that extracts and processes receipt or ticket data (train, plane, fuel) into structured JSON for carbon emission calculations.
 
-- **Multi-category Support:** Extracts data for trains, planes, and fuel receipts.
-- **Flexible Input Formats:** Supports PDF, JPG, and PNG files.
-- **Structured JSON Responses:** Returns formatted data compatible with the Carbon Clap calculator.
-- **Error Handling:** Uses standard HTTP status codes and error messages.
+## Project Structure
+
+```
+/carbon-clap-api    # FastAPI backend
+/EcoGo              # React Native mobile app
+```
 
 ## Built With
 
-* [![FastAPI][FastAPI-shield]][FastAPI-shield]
-* [![Python][Python-shield]][Python-shield]
-* [![Tesseract][Tesseract-shield]][Tesseract-shield]
-* [![Mistral][mistral-shield]][mistral-shield]
+- **EcoGo API**
+  
+  [![FastAPI][FastAPI-shield]][FastAPI-url]  
+  [![Python][Python-shield]][Python-url]  
+  [![Tesseract OCR][Tesseract-shield]][Tesseract-url]  
+  [![Mistral LLM][Mistral-shield]][Mistral-url]
 
+- **EcoGo App**
+  
+  [![React Native][RN-shield]][RN-url]  
+  [![TypeScript][TS-shield]][TS-url]  
+  [![Expo][Expo-shield]][Expo-url]
 
-## API Documentation
+## Getting Started
 
-### Base URL
+### Prerequisites
 
-`https://example-api.com/api/v1`
+- Python 3.8+
+- pip
+- Node.js & npm
+- Expo CLI (`npm install -g expo-cli`)
 
-### Endpoints
+### Installation
 
-#### POST `/extract`
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/thomas-planchard/moonshotProject.git
+   cd moonshotProject
+   ```
 
-Extracts structured data from a receipt or ticket.
+2. Set up the API:
+   ```bash
+   cd carbon-clap-api
+   pip install -r requirements.txt
+   python3 app.py  # Runs the FastAPI server on http://localhost:8000
+   ```
 
-### Request Parameters
+3. Set up the Mobile App:
+   ```bash
+   cd ../EcoGo
+   npm install
+    npx expo run:ios          # Launches Expo on iOS 
+   ```
 
-| Parameter | Type    | Required  | Description                                                            |
-|-----------|---------|-----------|------------------------------------------------------------------------|
-| file      | File    | Yes       | Receipt file to process (PDF, JPG, or PNG).                            |
-| category  | String  | Yes       | Receipt category (e.g., `trains`, `planes`, `fuel`).                   |
-| countries | List    | Optional  | List of country codes to filter results (e.g., `["FR","IT"]`).              |
+4. Configure the App to use the local API:
+   - Open `EcoGo/FirebaseConfig.ts` or environment settings and set the base URL to `http://localhost:8000`.
 
-### Example Requests and Responses
+## Running the App
 
-#### Request Example
+- Use Expo Go on your iOS or Android device or an emulator.
+- Scan the QR code shown in the terminal or Expo dev tools.
+
+## Testing the API
+
+You can test the extraction endpoint with curl or Postman:
 
 ```bash
-curl -X POST https://example-api.com/api/v1/extract \
-  -F "file=@/path/to/receipt.pdf" \
+curl -X POST http://localhost:8000/extract \
+  -F "file=@/path/to/receipt.jpg" \
   -F "category=trains" \
   -F "countries[]=FR"
-
 ```
 
-**Successful Response (Trains)**
-```bash
-{
-  "category": "trains",
-  "name_of_trip": "Paris to Lyon",
-  "type_of_transport": null,
-  "are_kilometers_known": false,
-  "departure": "Paris",
-  "arrival": "Lyon",
-  "number_of_trips": 1
-}
-```
+## Contributing
 
-**Successful Response (Fuel)**
-
-```bash
-{
-  "category": "fuel",
-  "name_of_trip": "fuel",
-  "type_of_transport": null,
-  "are_kilometers_known": false,
-  "number_of_kilometers": 32.0,
-  "departure": null,
-  "arrival": null,
-  "number_of_trips": 1
-}
-```
-
-**Error Response**
-
-```bash
-{
-  "detail": "Error processing the file: No valid departure or arrival information found."
-}
-```
-
-**Getting Started**
-
-To run the API locally:
-
-1.	Clone the repository:
-
-```bash
-git clone https://github.com/thomas-planchard/moonshotProject.git
-cd carbon-clap-api
-```
-
-2.	Install dependencies:
-
-```pip install -r requirements.txt```
-
-
-3.	Run the API server:
-
-```python3 app.py ```
-
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## License
 
-EcoGo is a proprietary software developed by Thomas Planchard. All rights reserved. Unauthorized use, distribution, or reproduction is strictly prohibited.
+EcoGo is proprietary software developed by Thomas Planchard. All rights reserved.
 
 ## Contact
 
-For general inquiries or partnership opportunities, you can reach me at thomas.planchard@algosup.com.
-
-
-
+For questions or partnerships, reach out at thomas.planchard@algosup.com
 
 <!-- MARKDOWN LINKS & IMAGES -->
 [contributors-shield]: https://img.shields.io/github/contributors/thomas-planchard/moonshotProject.svg?style=for-the-badge
@@ -144,6 +118,18 @@ For general inquiries or partnership opportunities, you can reach me at thomas.p
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: www.linkedin.com/in/thomas-planchard-461782221
 [FastAPI-shield]: https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi
+[FastAPI-url]: https://fastapi.tiangolo.com/
 [Python-shield]: https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white
+[Python-url]: https://python.org/
 [Tesseract-shield]: https://img.shields.io/badge/Tesseract-292929?style=for-the-badge&logo=tesseract&logoColor=white
-[mistral-shield]: https://img.shields.io/badge/Mistral-FF5733?style=for-the-badge&logo=mistral&logoColor=white
+[Tesseract-url]: https://github.com/tesseract-ocr/tesseract
+[Mistral-shield]: https://img.shields.io/badge/Mistral-FF5733?style=for-the-badge&logo=mistral&logoColor=white
+[Mistral-url]: https://github.com/mistralai/mistral
+[RN-shield]: https://img.shields.io/badge/React%20Native-61DAFB?style=for-the-badge&logo=react&logoColor=black
+[RN-url]: https://reactnative.dev/
+[TS-shield]: https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white
+[TS-url]: https://typescriptlang.org/
+[Expo-shield]: https://img.shields.io/badge/Expo-000020?style=for-the-badge&logo=expo
+[Expo-url]: https://expo.dev/
+
+

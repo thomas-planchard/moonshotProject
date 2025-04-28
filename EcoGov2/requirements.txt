@@ -1,0 +1,6 @@
+slowapi
+fastapi
+pandas
+pdfplumber
+pycountry
+uvicorn

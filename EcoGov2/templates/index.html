@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receipt Data Extraction API Tester</title>
+    <link rel="stylesheet" href="/static/css/main.css">
+    
+</head>
+<body>
+    <h1>Receipt Data Extraction API Tester</h1>
+    
+    <form id="uploadForm">
+        <div class="form-group">
+            <label for="category">Category:</label>
+            <select id="category" name="category" required>
+                <option value="trains">Trains</option>
+                <option value="avions">Avions</option>
+                <option value="essence">Essence</option>
+            </select>
+        </div>
+
+        <div class="form-group" id="countriesContainer" style="display: none;">
+            <label>Select Countries:</label>
+            <div class="checkbox-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="countries" value="FR" checked> France (FR)
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" name="countries" value="IT"> Italy (IT)
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" name="countries" value="DE"> Germany (DE)
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" name="countries" value="ES"> Spain (ES)
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" name="countries" value="HU"> Hongary (HU)
+            </label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="file">Upload Receipt:</label>
+            <input type="file" id="file" name="file" accept=".pdf,.jpg,.jpeg,.png" required>
+        </div>
+        <div class="form-group">
+            <label for="use_ai">Use AI Processing:</label>
+            <input type="checkbox" id="use_ai" name="use_ai">
+        </div>
+
+        <button type="submit">Process Receipt</button>
+    </form>
+
+    <div id="response"></div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            const file = document.getElementById('file').files[0];
+            const category = document.getElementById('category').value;
+            const useAI = document.getElementById('use_ai').checked;
+
+            // Get selected countries
+            const selectedCountries = Array.from(
+                document.querySelectorAll('input[name="countries"]:checked')
+            ).map(checkbox => checkbox.value);
+            
+            
+            formData.append('file', file);
+            formData.append('category', category);
+            formData.append('use_ai', useAI.toString());
+
+            // Only append countries if category is trains or avions
+            if (['trains', 'avions'].includes(category)) {
+                selectedCountries.forEach(country => {
+                    formData.append('countries', country);
+                });
+            }
+
+                    
+            // Convert FormData to object for better visibility
+            const formDataObj = {};
+            for (let [key, value] of formData.entries()) {
+                if (formDataObj[key]) {
+                    if (!Array.isArray(formDataObj[key])) {
+                        formDataObj[key] = [formDataObj[key]];
+                    }
+                    formDataObj[key].push(value);
+                } else {
+                    formDataObj[key] = value;
+                }
+            }
+            console.log('FormData as object:', formDataObj);
+
+
+            try {
+                const response = await fetch('/extract-data', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                document.getElementById('response').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('response').textContent = `Error: ${error.message}`;
+            }
+        });
+        // Show/hide countries based on category
+        document.getElementById('category').addEventListener('change', (e) => {
+            const countriesContainer = document.getElementById('countriesContainer');
+            countriesContainer.style.display = ['trains', 'avions'].includes(e.target.value) ? 'block' : 'none';
+        });
+
+        // Initialize countries visibility based on initial category
+        document.addEventListener('DOMContentLoaded', () => {
+            const category = document.getElementById('category').value;
+            const countriesContainer = document.getElementById('countriesContainer');
+            countriesContainer.style.display = ['trains', 'avions'].includes(category) ? 'block' : 'none';
+        });
+    </script>
+</body>
+</html>

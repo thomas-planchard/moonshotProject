@@ -1,8 +1,9 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useApi } from '../../hooks/useApi';
 import { Upload, X, FilePlus, AlertCircle, CheckCircle2 } from 'lucide-react';
-import { InvoiceFile } from '../../types';
+import { InvoiceFile, InvoiceType } from '../../types';
+import UploadProgressModal, { UploadStep } from '../modal/UploadProgressModal';
 
 interface InvoiceDropZoneProps {
   tripId: string;
@@ -13,8 +14,29 @@ const InvoiceDropZone: React.FC<InvoiceDropZoneProps> = ({ tripId, onUploadSucce
   const [files, setFiles] = useState<InvoiceFile[]>([]);
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentStep, setCurrentStep] = useState<UploadStep>('uploading');
+  const [uploadResults, setUploadResults] = useState<InvoiceType[]>([]);
+  const [calculationProgress, setCalculationProgress] = useState(0);
   
   const { uploadInvoice, loading } = useApi();
+
+  // Simulate calculation progress
+  useEffect(() => {
+    if (currentStep === 'calculating') {
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += Math.random() * 2;
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(interval);
+        }
+        setCalculationProgress(progress);
+      }, 100);
+      
+      return () => clearInterval(interval);
+    }
+  }, [currentStep]);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const newFiles = acceptedFiles.map(file => ({
@@ -50,13 +72,12 @@ const InvoiceDropZone: React.FC<InvoiceDropZoneProps> = ({ tripId, onUploadSucce
     });
   };
 
-  // Toggle file between fuel and non-fuel (plane)
   const toggleFuelType = (index: number, isFuel: boolean) => {
     setFiles(prev => {
       const newFiles = [...prev];
       newFiles[index] = { 
         ...newFiles[index], 
-        type: isFuel ? 'fuel' : 'plane' // Use 'plane' as the default non-fuel type
+        type: isFuel ? 'fuel' : 'plane'
       };
       return newFiles;
     });
@@ -65,32 +86,74 @@ const InvoiceDropZone: React.FC<InvoiceDropZoneProps> = ({ tripId, onUploadSucce
   const handleUpload = async () => {
     if (files.length === 0) return;
     
+    // Reset states
     setUploadStatus('uploading');
     setErrorMessage(null);
+    setUploadResults([]);
+    setCurrentStep('uploading');
+    setIsModalOpen(true);
+    setCalculationProgress(0);
     
     try {
+      const results: InvoiceType[] = [];
+      
+      // Upload each file with realistic progress updates
       for (const fileInfo of files) {
+        // Step 1: Uploading - Quick
+        setCurrentStep('uploading');
+        await new Promise(resolve => setTimeout(resolve, 500)); // Quick upload
+        
+        // Step 2: Processing - Quick
+        setCurrentStep('processing');
+        await new Promise(resolve => setTimeout(resolve, 800)); // Quick processing
+        
+        // Step 3: Calculating Carbon Footprint - Slow (handled by the useEffect)
+        setCurrentStep('calculating');
+        setCalculationProgress(0);
+        
+        // Wait longer for calculation - simulated through the progress bar
+        const calcTime = 4000 + Math.random() * 2000; // 4-6 seconds of calculation
+        await new Promise(resolve => setTimeout(resolve, calcTime));
+        
+        // Actual upload
         const result = await uploadInvoice(tripId, fileInfo.file, fileInfo.type);
         if (!result) throw new Error('Failed to upload invoice');
+        
+        results.push(result);
       }
       
-      // Clear files after successful upload
-      setFiles([]);
+      // All uploads complete
+      setUploadResults(results);
+      setCurrentStep('complete');
       setUploadStatus('success');
-      onUploadSuccess();
       
-      // Reset success message after a delay
-      setTimeout(() => {
-        setUploadStatus('idle');
-      }, 3000);
+      // Clear files but keep modal open to show results
+      setFiles([]);
+      
+      // Notify parent component of success
+      onUploadSuccess();
     } catch (error) {
       setUploadStatus('error');
+      setCurrentStep('error');
       setErrorMessage('Failed to upload one or more invoices. Please try again.');
     }
   };
 
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
   return (
     <div className="space-y-6">
+      <UploadProgressModal
+        isOpen={isModalOpen}
+        currentStep={currentStep}
+        uploadResults={uploadResults}
+        errorMessage={errorMessage || undefined}
+        onClose={closeModal}
+        progress={calculationProgress}
+      />
+      
       <div 
         {...getRootProps()} 
         className={`border-2 border-dashed rounded-lg p-6 transition-colors text-center cursor-pointer ${
@@ -114,15 +177,15 @@ const InvoiceDropZone: React.FC<InvoiceDropZoneProps> = ({ tripId, onUploadSucce
         </div>
       </div>
 
-      {/* Status messages */}
-      {uploadStatus === 'success' && (
+      {/* Status messages - Only show when modal is not open */}
+      {!isModalOpen && uploadStatus === 'success' && (
         <div className="flex items-center p-4 bg-success-50 text-success-800 rounded-md">
           <CheckCircle2 className="h-5 w-5 mr-2 text-success-500" />
           Invoices uploaded successfully!
         </div>
       )}
       
-      {uploadStatus === 'error' && (
+      {!isModalOpen && uploadStatus === 'error' && (
         <div className="flex items-center p-4 bg-error-50 text-error-800 rounded-md">
           <AlertCircle className="h-5 w-5 mr-2 text-error-500" />
           {errorMessage || 'Something went wrong. Please try again.'}

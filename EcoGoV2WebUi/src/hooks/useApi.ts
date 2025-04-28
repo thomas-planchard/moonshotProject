@@ -275,14 +275,42 @@ export function useApi() {
             ? [data.transport_type]
             : [];
 
-        const co2Field = type === 'plane' ? 'flight_co2' : 'train_co2';
-        const co2Array = Array.isArray(data[co2Field])
-          ? data[co2Field]
-          : typeof data[co2Field] === 'number'
-            ? [data[co2Field]]
-            : [];
+        // Determine correct CO2 field based on detected transport type
+        let co2Array: number[] = [];
+        
+        // Look at the actual transport types in the response
+        const detectedTypes = transportArray.map((t: any) => (t || '').toLowerCase());
+        
+        for (let i = 0; i < Math.max(1, detectedTypes.length); i++) {
+          const transportType = detectedTypes[i] || type.toLowerCase();
+          
+          let co2Value = 0;
+          // For trains, use train_co2
+          if (transportType.includes('train')) {
+            if (Array.isArray(data.train_co2) && data.train_co2[i] !== undefined) {
+              co2Value = data.train_co2[i];
+            } else if (typeof data.train_co2 === 'number') {
+              co2Value = data.train_co2;
+            }
+          } 
+          // For planes/flights, use flight_co2
+          else {
+            if (Array.isArray(data.flight_co2) && data.flight_co2[i] !== undefined) {
+              co2Value = data.flight_co2[i];
+            } else if (typeof data.flight_co2 === 'number') {
+              co2Value = data.flight_co2;
+            }
+          }
+          
+          co2Array.push(co2Value);
+        }
+        
+        // Ensure we have at least one CO2 value
+        if (co2Array.length === 0) {
+          co2Array.push(0);
+        }
 
-        totalCO2 = co2Array.reduce((sum, v) => sum + (v || 0), 0);
+        totalCO2 = co2Array.reduce((sum, v) => sum + v, 0);
 
         newInvoice = {
           id: Math.random().toString(36).substring(2, 9),

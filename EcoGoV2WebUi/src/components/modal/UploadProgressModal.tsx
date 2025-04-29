@@ -168,11 +168,7 @@ const UploadProgressModal: React.FC<UploadProgressModalProps> = ({
                       </div>
                     )}
                   </div>
-                ) : (
-                  <div className="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center">
-                    <CheckCircle className="h-8 w-8 text-green-600" />
-                  </div>
-                )}
+                ) : null}
               </div>
             </div>
 
@@ -213,13 +209,15 @@ const UploadProgressModal: React.FC<UploadProgressModalProps> = ({
                         )}
                         {isTravelInvoice(invoice) && (
                           <div className="flex flex-col">
-                            {invoice.departure && invoice.arrival && (
-                              <span>Route: {invoice.departure[0] || 'Unknown'} → {invoice.arrival[0] || 'Unknown'}</span>
-                            )}
-                            <span>Transport: {invoice.type.charAt(0).toUpperCase() + invoice.type.slice(1)}</span>
-                            {invoice.transport_type && invoice.transport_type[0] && (
-                              <span>Type: {invoice.transport_type[0]}</span>
-                            )}
+                            <span>Total Trips: <b>{invoice.departure?.length || 0}</b></span>
+                            <span>Total CO₂: <b>{Array.isArray(invoice.co2) ? invoice.co2.reduce((sum, val) => sum + (val || 0), 0).toLocaleString() : '0'} kg</b></span>
+                            <ul className="mt-1 ml-2 list-disc">
+                              {invoice.departure?.map((dep, i) => (
+                                <li key={i}>
+                                  Trip {i + 1}: {dep || 'Unknown'} → {invoice.arrival?.[i] || 'Unknown'} | Distance: <b>{invoice.distance?.[i] ?? (invoice.type === 'plane' ? 1000 : 500)}</b> km | CO₂: <b>{invoice.co2?.[i]?.toLocaleString() || '0'} kg</b>
+                                </li>
+                              ))}
+                            </ul>
                           </div>
                         )}
                       </div>
@@ -229,6 +227,57 @@ const UploadProgressModal: React.FC<UploadProgressModalProps> = ({
                     <span>Total Carbon Footprint</span>
                     <span className="text-primary-700">{calculateTotalCO2().toLocaleString()} kg CO₂</span>
                   </div>
+                </div>
+                {/* Explanation Section */}
+                <div className="mt-6 bg-gray-50 border border-gray-200 rounded p-4">
+                  <h5 className="font-semibold text-gray-800 mb-2">How was this calculated?</h5>
+                  <ul className="space-y-4 text-xs text-gray-700">
+                    {uploadResults.map((invoice, idx) => {
+                      if (isFuelInvoice(invoice)) {
+                        const ef = invoice.typeOfFuel === 'diesel' ? 2.69 : 2.24;
+                        return (
+                          <li key={idx}>
+                            <b>Fuel Invoice:</b> {invoice.fileName} <br />
+                            Formula: <span className="font-mono">Emissions = Volume (L) × EF (kg CO₂/L)</span><br />
+                            Volume: <b>{invoice.volume?.toLocaleString() || 0} L</b>, EF: <b>{ef} kg CO₂/L</b><br />
+                            <span>CO₂ = {invoice.volume?.toLocaleString() || 0} × {ef} = <b>{invoice.co2?.toLocaleString()} kg CO₂</b></span><br />
+                            <span className="italic">EPA: 2.24 kg/L for gasoline, 2.69 kg/L for diesel</span>
+                          </li>
+                        );
+                      } else if (invoice.type === 'plane' || invoice.type === 'train') {
+                        const ef = invoice.type === 'plane'
+                          ? (invoice.transport_type && invoice.transport_type[0] === 'long-haul' ? 0.11 : 0.15)
+                          : undefined;
+                        const isPlane = invoice.type === 'plane';
+                        const segments = invoice.departure?.length || 0;
+                        return (
+                          <li key={idx}>
+                            <b>{isPlane ? 'Flight' : 'Train'} Invoice:</b> {invoice.fileName} <br />
+                            <span className="font-mono">Emissions = Distance (km) × EF (kg CO₂/p-km)</span>
+                            <ul className="mt-2 ml-4 space-y-1">
+                              {Array.from({ length: segments }).map((_, i) => {
+                                const dep = invoice.departure?.[i] || 'Unknown';
+                                const arr = invoice.arrival?.[i] || 'Unknown';
+                                const dist = invoice.distance?.[i] ?? (isPlane ? 1000 : 500);
+                                const co2 = invoice.co2?.[i] ?? 0;
+                                const efVal = isPlane
+                                  ? (invoice.transport_type && invoice.transport_type[i] === 'long-haul' ? 0.11 : 0.15)
+                                  : 'EF';
+                                return (
+                                  <li key={i} className="mb-1">
+                                    <b>Segment {i + 1}:</b> {dep} → {arr} | Distance: <b>{dist}</b> km | EF: <b>{efVal}</b> | CO₂: <b>{co2.toLocaleString()} kg</b><br />
+                                    <span className="font-mono text-xs">CO₂ = {dist} × {efVal} = {(isPlane && typeof efVal === 'number') ? (dist * efVal).toLocaleString() : '...'}</span>
+                                  </li>
+                                );
+                              })}
+                            </ul>
+                            <span className="italic">{isPlane ? 'ICAO: 0.15 kg/p-km (short-haul), 0.11 kg/p-km (long-haul)' : 'EF depends on train type (see documentation)'}</span>
+                          </li>
+                        );
+                      }
+                      return null;
+                    })}
+                  </ul>
                 </div>
               </div>
             )}

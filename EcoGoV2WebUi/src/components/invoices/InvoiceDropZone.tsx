@@ -130,8 +130,7 @@ const InvoiceDropZone: React.FC<InvoiceDropZoneProps> = ({ tripId, onUploadSucce
       // Clear files but keep modal open to show results
       setFiles([]);
       
-      // Notify parent component of success
-      onUploadSuccess();
+      // Do NOT call onUploadSuccess here, let user close modal manually
     } catch (error) {
       setUploadStatus('error');
       setCurrentStep('error');
@@ -139,8 +138,12 @@ const InvoiceDropZone: React.FC<InvoiceDropZoneProps> = ({ tripId, onUploadSucce
     }
   };
 
+  // Only call onUploadSuccess when user closes the modal after success
   const closeModal = () => {
     setIsModalOpen(false);
+    if (uploadStatus === 'success') {
+      onUploadSuccess();
+    }
   };
 
   return (

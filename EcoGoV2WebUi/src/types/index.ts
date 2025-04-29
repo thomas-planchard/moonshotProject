@@ -33,6 +33,7 @@ export interface InvoiceTravel extends InvoiceBase {
   arrival: string[];
   departure: string[];
   transport_type: string[];
+  distance?: number[]; // Optional array of distances in km
 }
 
 export interface InvoiceFuel extends InvoiceBase {

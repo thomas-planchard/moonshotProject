@@ -374,7 +374,8 @@ export function useApi() {
 
         totalCO2 = co2Array.reduce((sum, v) => sum + v, 0);
 
-        newInvoice = {
+        // Only include distance if it is defined and is an array
+        const invoiceBase = {
           id: Math.random().toString(36).substring(2, 9),
           type,
           fileName: file.name,
@@ -383,7 +384,11 @@ export function useApi() {
           transport_type: transportArray,
           co2: co2Array,
           uploadedBy: uploaderInfo
-        } as InvoiceTravel;
+        };
+        if (Array.isArray(data.distance)) {
+          (invoiceBase as any).distance = data.distance;
+        }
+        newInvoice = invoiceBase as InvoiceTravel;
       }
 
       if (user) {

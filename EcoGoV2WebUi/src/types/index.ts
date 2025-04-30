@@ -17,6 +17,20 @@ export interface Contributor {
   email: string;
 }
 
+// User types and roles
+export type Department = 'Finance' | 'Industry' | 'Tech' | 'Marketing' | 'Operations';
+export type UserRole = 'employee' | 'manager';
+
+export interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  jobPosition: string;
+  department: Department;
+  role: UserRole;
+  totalCarbon: number;
+  }
+
 export interface InvoiceBase {
   id: string;
   type: 'fuel' | 'plane' | 'train';

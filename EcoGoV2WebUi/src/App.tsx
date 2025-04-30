@@ -8,6 +8,7 @@ import TripDetailPage from './pages/TripDetailPage';
 import NewTripPage from './pages/NewTripPage';
 import AuthPage from './pages/AuthPage';
 import AccountPage from './pages/AccountPage';
+import AdminPage from './pages/AdminPage';
 import { useAuth } from './context/AuthContext';
 
 // RequireAuth wrapper to protect routes
@@ -41,6 +42,30 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+// RequireManager wrapper to protect manager-only routes
+function RequireManager({ children }: { children: React.ReactNode }) {
+  const { isManager, loading } = useAuth();
+  const location = useLocation();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  if (!isManager()) {
+    // Redirect to dashboard if not a manager
+    return <Navigate to="/" replace />;
+  }
+  
+  return <>{children}</>;
+}
+
 function App() {
   return (
     <Router>
@@ -59,6 +84,17 @@ function App() {
                     <Route path="/trips/new" element={<NewTripPage />} />
                     <Route path="/trips/:id" element={<TripDetailPage />} />
                     <Route path="/account" element={<AccountPage />} />
+                    
+                    {/* Admin route - protected with RequireManager */}
+                    <Route 
+                      path="/admin" 
+                      element={
+                        <RequireManager>
+                          <AdminPage />
+                        </RequireManager>
+                      } 
+                    />
+                    
                     <Route path="*" element={<Navigate replace to="/" />} />
                   </Routes>
                 </RequireAuth>

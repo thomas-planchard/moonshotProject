@@ -630,7 +630,7 @@ const TripDetailPage: React.FC = () => {
             <TrendingUp className="h-6 w-6 text-secondary-500 mr-3" />
             <div>
               <p className="text-sm text-gray-500">Total Carbon Footprint</p>
-              <p className="font-medium">{trip.totalCarbonFootprint.toLocaleString()} kg CO₂</p>
+              <p className="font-medium">{Math.round(trip.totalCarbonFootprint).toLocaleString()} kg CO₂</p>
             </div>
           </div>
         </div>
@@ -663,7 +663,7 @@ const TripDetailPage: React.FC = () => {
                           ></span>
                           <span className="text-sm">{item.name}</span>
                         </div>
-                        <span className="text-sm font-medium">{item.value.toLocaleString()} kg CO₂</span>
+                        <span className="text-sm font-medium">{Math.round(item.value).toLocaleString()} kg CO₂</span>
                       </div>
                     ))}
                   </div>

@@ -206,7 +206,7 @@ const QuickAnalysis: React.FC = () => {
                         {result.type}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {result.carbonFootprint.toLocaleString()} kg CO₂
+                        {Math.round(result.carbonFootprint).toLocaleString()} kg CO₂
                       </td>
                     </tr>
                   ))}
@@ -215,7 +215,7 @@ const QuickAnalysis: React.FC = () => {
                       Total Carbon Footprint
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {analysisResults.reduce((sum, result) => sum + result.carbonFootprint, 0).toLocaleString()} kg CO₂
+                      {Math.round(analysisResults.reduce((sum, result) => sum + result.carbonFootprint, 0)).toLocaleString()} kg CO₂
                     </td>
                   </tr>
                 </tbody>

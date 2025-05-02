@@ -296,10 +296,10 @@ const InvoiceDropZone: React.FC<InvoiceDropZoneProps> = ({ tripId, onUploadSucce
 
   const calculateTotalCO2 = (invoice: InvoiceType): number => {
     if (isFuelInvoice(invoice)) {
-      return invoice.co2;
+      return Math.round(invoice.co2);
     } else if (isTravelInvoice(invoice)) {
       return Array.isArray(invoice.co2) 
-        ? invoice.co2.reduce((sum, val) => sum + (val || 0), 0) 
+        ? Math.round(invoice.co2.reduce((sum, val) => sum + (val || 0), 0))
         : 0;
     }
     return 0;
@@ -392,7 +392,7 @@ const InvoiceDropZone: React.FC<InvoiceDropZoneProps> = ({ tripId, onUploadSucce
                               {dep || 'Unknown'} → {arr}
                             </p>
                             <p className="text-xs text-gray-600">
-                              CO₂: {co2.toLocaleString()} kg
+                              CO₂: {Math.round(co2).toLocaleString()} kg
                             </p>
                           </div>
                         );

@@ -439,8 +439,8 @@ const AdminPage: React.FC = () => {
         />
         
         <StatCard
-          title="Total Carbon Footprint"
-          value={`${totalDepartmentCarbon.toLocaleString()} kg CO₂`}
+          title="Total Department Carbon"
+          value={`${Math.round(totalDepartmentCarbon).toLocaleString()} kg CO₂`}
           icon={<TrendingUp className="h-6 w-6" />}
           description={`Combined emissions from ${userDepartment}`}
         />
@@ -506,7 +506,7 @@ const AdminPage: React.FC = () => {
                     </div>
                     <div className="text-right">
                       <div className="font-medium">
-                        {getUserCategoryEmission(userId, category as any).toLocaleString()} kg CO₂
+                        {Math.round(getUserCategoryEmission(userId, category as any)).toLocaleString()} kg CO₂
                       </div>
                     </div>
                   </div>
@@ -567,23 +567,23 @@ const AdminPage: React.FC = () => {
                       {employee.email}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right font-medium text-gray-900">
-                      {employee.totalCarbon.toLocaleString()} kg CO₂
+                      {Math.round(employee.totalCarbon).toLocaleString()} kg CO₂
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
                       <div className="flex justify-end space-x-1">
                         {getUserCategoryEmission(employee.id, 'fuel') > 0 && (
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
-                            Fuel: {getUserCategoryEmission(employee.id, 'fuel').toLocaleString()}
+                            Fuel: {Math.round(getUserCategoryEmission(employee.id, 'fuel')).toLocaleString()}
                           </span>
                         )}
                         {getUserCategoryEmission(employee.id, 'plane') > 0 && (
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                            Air: {getUserCategoryEmission(employee.id, 'plane').toLocaleString()}
+                            Air: {Math.round(getUserCategoryEmission(employee.id, 'plane')).toLocaleString()}
                           </span>
                         )}
                         {getUserCategoryEmission(employee.id, 'train') > 0 && (
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-lime-100 text-lime-600">
-                            Rail: {getUserCategoryEmission(employee.id, 'train').toLocaleString()}
+                            Rail: {Math.round(getUserCategoryEmission(employee.id, 'train')).toLocaleString()}
                           </span>
                         )}
                       </div>
@@ -646,7 +646,7 @@ const AdminPage: React.FC = () => {
                       {employee.email}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right font-medium text-gray-900">
-                      {employee.totalCarbon.toLocaleString()} kg CO₂
+                      {Math.round(employee.totalCarbon).toLocaleString()} kg CO₂
                     </td>
                   </tr>
                 ))}

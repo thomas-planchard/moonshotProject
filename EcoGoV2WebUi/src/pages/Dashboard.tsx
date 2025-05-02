@@ -275,7 +275,7 @@ const Dashboard: React.FC = () => {
                     <div className="mt-2 flex justify-between items-center">
                       <span className="text-sm">{userInvoices.length} of your invoices</span>
                       <span className="text-sm font-medium text-gray-900">
-                        {userCarbonFootprint.toLocaleString()} kg CO₂
+                        {Math.round(userCarbonFootprint).toLocaleString()} kg CO₂
                       </span>
                     </div>
                   </div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FileText, TrendingUp, MapPin, Trash2, ChevronDown, ChevronUp, Droplets, User } from 'lucide-react';
+import { FileText, TrendingUp, MapPin, Trash2, ChevronDown, ChevronUp, Droplets, User, Map } from 'lucide-react';
 import { InvoiceType, InvoiceFuel, InvoiceTravel } from '../../types';
 import { useApi } from '../../hooks/useApi';
 import ConfirmationModal from '../modal/ConfirmationModal';
@@ -172,7 +172,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, tripId, onInvoice
                 ? invoice.transport_type[idx] 
                 : 'Unknown';
               const co2Value = Array.isArray(invoice.co2) && invoice.co2[idx] 
-                ? invoice.co2[idx].toLocaleString() 
+                ? Math.round(invoice.co2[idx]).toLocaleString() 
                 : '0';
               
               return (
@@ -191,7 +191,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, tripId, onInvoice
             })}
             <div className="mt-2 pt-2 border-t border-gray-200 flex justify-between text-sm font-medium">
               <span>Total</span>
-              <span>{totalCO2.toLocaleString()} kg CO₂</span>
+              <span>{Math.round(totalCO2).toLocaleString()} kg CO₂</span>
             </div>
           </div>
         )}
@@ -218,14 +218,14 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, tripId, onInvoice
         <div className="flex items-center">
           <TrendingUp className="h-4 w-4 text-gray-500 mr-2" />
           <span className="text-sm text-gray-900">
-            {invoice.co2.toLocaleString()} kg CO₂
+            {Math.round(invoice.co2).toLocaleString()} kg CO₂
           </span>
         </div>
       );
     } else {
       // For travel invoices, just show total CO2
       const totalCO2 = Array.isArray(invoice.co2) 
-        ? invoice.co2.reduce((sum, val) => sum + (val || 0), 0) 
+        ? Math.round(invoice.co2.reduce((sum, val) => sum + (val || 0), 0)) 
         : 0;
         
       return (

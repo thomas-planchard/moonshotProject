@@ -615,6 +615,65 @@ export function useApi() {
     [user]
   );
 
+  // Save carbon entries directly added by user (not from invoices)
+  const saveUserCarbonEntry = useCallback(
+    async (entries: Array<{
+      type: string;
+      description: string;
+      co2: number;
+      distance?: number;
+      date: string;
+    }>): Promise<boolean> => {
+      setLoading(true);
+      setError(null);
+      try {
+        if (!user) throw new Error("Not authenticated");
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        if (!userSnap.exists()) throw new Error("User not found");
+        
+        const userData = userSnap.data();
+        
+        // Create new entries with IDs
+        const newEntries = entries.map(entry => ({
+          id: Math.random().toString(36).substring(2, 9),
+          ...entry,
+          createdAt: new Date().toISOString()
+        }));
+        
+        // Get current carbonEntries or initialize if it doesn't exist
+        const carbonEntries = userData.carbonEntries || [];
+        
+        // Add new entries to the user profile
+        await updateDoc(userRef, { 
+          carbonEntries: [...carbonEntries, ...newEntries]
+        });
+        
+        // Update the total carbon in user's profile
+        const totalCO2FromNewEntries = entries.reduce((sum, entry) => sum + entry.co2, 0);
+        
+        // Initialize totalCarbon if it doesn't exist
+        if (typeof userData.totalCarbon === 'undefined') {
+          await updateDoc(userRef, { totalCarbon: totalCO2FromNewEntries });
+        } else {
+          // Update existing totalCarbon
+          await updateDoc(userRef, {
+            totalCarbon: userData.totalCarbon + totalCO2FromNewEntries
+          });
+        }
+        
+        return true;
+      } catch (err) {
+        console.error("Save carbon entries error:", err);
+        setError(err instanceof Error ? err.message : String(err));
+        return false;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [user]
+  );
+
   return {
     loading,
     error,
@@ -627,5 +686,6 @@ export function useApi() {
     analyzeInvoice,
     deleteInvoice,
     deleteTrip,
+    saveUserCarbonEntry,
   };
 }

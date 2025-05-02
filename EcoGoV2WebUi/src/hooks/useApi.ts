@@ -240,8 +240,8 @@ export function useApi() {
     }
   }, [user]);
 
-  const uploadInvoice = useCallback(async (
-    tripId: string,
+  // New function to analyze an invoice file without saving it to the database
+  const analyzeInvoiceFile = useCallback(async (
     file: File,
     type: 'fuel' | 'plane' | 'train'
   ): Promise<InvoiceType | null> => {
@@ -391,79 +391,126 @@ export function useApi() {
         newInvoice = invoiceBase as InvoiceTravel;
       }
 
-      if (user) {
-        const userRef = doc(db, "users", user.uid);
-        const userSnap = await getDoc(userRef);
-        
-        if (userSnap.exists()) {
-          const userData = userSnap.data();
-          const myTrips = userData.businessTrips?.trips || [];
-          const myTripIndex = myTrips.findIndex((t: any) => t.id === tripId);
-          
-          if (myTripIndex !== -1) {
-            const tripInvoices = myTrips[myTripIndex].invoices || { invoices: [] };
-            const updatedInvoices = [...tripInvoices.invoices, newInvoice];
-            myTrips[myTripIndex].invoices = { invoices: updatedInvoices };
-            myTrips[myTripIndex].carbonFootprint = (myTrips[myTripIndex].carbonFootprint||0) + totalCO2;
-            
-            if (type !== 'fuel') {
-              const transportTypes = myTrips[myTripIndex].transportTypes || {};
-              const travelInvoice = newInvoice as InvoiceTravel;
-              travelInvoice.transport_type.forEach((t: string | null | undefined) => {
-                const transportType = t?.toLowerCase() || type.toLowerCase();
-                transportTypes[transportType] = (transportTypes[transportType] || 0) + 1;
-              });
-              myTrips[myTripIndex].transportTypes = transportTypes;
-            }
-            
-            await updateDoc(userRef, { "businessTrips.trips": myTrips });
-          } else {
-            const sharedTripsData = userData.sharedTrips || [];
-            const sharedTripInfo = sharedTripsData.find((st: any) => st.id === tripId);
-            
-            if (sharedTripInfo && sharedTripInfo.ownerId) {
-              const ownerRef = doc(db, "users", sharedTripInfo.ownerId);
-              const ownerSnap = await getDoc(ownerRef);
-              
-              if (ownerSnap.exists()) {
-                const ownerData = ownerSnap.data();
-                const ownerTrips = ownerData.businessTrips?.trips || [];
-                const ownerTripIndex = ownerTrips.findIndex((t: any) => t.id === tripId);
-                
-                if (ownerTripIndex !== -1) {
-                  const tripInvoices = ownerTrips[ownerTripIndex].invoices || { invoices: [] };
-                  const updatedInvoices = [...tripInvoices.invoices, newInvoice];
-                  ownerTrips[ownerTripIndex].invoices = { invoices: updatedInvoices };
-                  ownerTrips[ownerTripIndex].carbonFootprint = (ownerTrips[ownerTripIndex].carbonFootprint||0) + totalCO2;
-                  
-                  if (type !== 'fuel') {
-                    const transportTypes = ownerTrips[ownerTripIndex].transportTypes || {};
-                    // Fix reference to transportArray from the travel invoice we created earlier
-                    const travelInvoice = newInvoice as InvoiceTravel;
-                    travelInvoice.transport_type.forEach((t: string | null | undefined) => {
-                      const transportType = t?.toLowerCase() || type.toLowerCase();
-                      transportTypes[transportType] = (transportTypes[transportType] || 0) + 1;
-                    });
-                    ownerTrips[ownerTripIndex].transportTypes = transportTypes;
-                  }
-                  
-                  await updateDoc(ownerRef, { "businessTrips.trips": ownerTrips });
-                }
-              }
-            }
-          }
-        }
-      }
-
       return newInvoice;
     } catch (err) {
-      console.error('Invoice upload error:', err);
-      setError('Failed to process invoice: ' + (err instanceof Error ? err.message : String(err)));
+      console.error('Invoice analysis error:', err);
+      setError('Failed to analyze invoice: ' + (err instanceof Error ? err.message : String(err)));
       return null;
     } finally {
       setLoading(false);
     }
   }, [user]);
+
+  // Modify the existing uploadInvoice function to accept a pre-analyzed invoice
+  const saveInvoiceToDatabase = useCallback(async (
+    tripId: string,
+    invoice: InvoiceType
+  ): Promise<boolean> => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      if (!user) throw new Error("Not authenticated");
+      
+      const totalCO2 = invoice.type === 'fuel' 
+        ? (invoice as InvoiceFuel).co2 
+        : Array.isArray((invoice as InvoiceTravel).co2) 
+          ? (invoice as InvoiceTravel).co2.reduce((sum, val) => sum + (val || 0), 0) 
+          : 0;
+
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
+      
+      if (userSnap.exists()) {
+        const userData = userSnap.data();
+        const myTrips = userData.businessTrips?.trips || [];
+        const myTripIndex = myTrips.findIndex((t: any) => t.id === tripId);
+        
+        if (myTripIndex !== -1) {
+          const tripInvoices = myTrips[myTripIndex].invoices || { invoices: [] };
+          const updatedInvoices = [...tripInvoices.invoices, invoice];
+          myTrips[myTripIndex].invoices = { invoices: updatedInvoices };
+          myTrips[myTripIndex].carbonFootprint = (myTrips[myTripIndex].carbonFootprint||0) + totalCO2;
+          
+          if (invoice.type !== 'fuel') {
+            const transportTypes = myTrips[myTripIndex].transportTypes || {};
+            const travelInvoice = invoice as InvoiceTravel;
+            travelInvoice.transport_type.forEach((t: string | null | undefined) => {
+              const transportType = t?.toLowerCase() || invoice.type.toLowerCase();
+              transportTypes[transportType] = (transportTypes[transportType] || 0) + 1;
+            });
+            myTrips[myTripIndex].transportTypes = transportTypes;
+          }
+          
+          await updateDoc(userRef, { "businessTrips.trips": myTrips });
+          return true;
+        } else {
+          const sharedTripsData = userData.sharedTrips || [];
+          const sharedTripInfo = sharedTripsData.find((st: any) => st.id === tripId);
+          
+          if (sharedTripInfo && sharedTripInfo.ownerId) {
+            const ownerRef = doc(db, "users", sharedTripInfo.ownerId);
+            const ownerSnap = await getDoc(ownerRef);
+            
+            if (ownerSnap.exists()) {
+              const ownerData = ownerSnap.data();
+              const ownerTrips = ownerData.businessTrips?.trips || [];
+              const ownerTripIndex = ownerTrips.findIndex((t: any) => t.id === tripId);
+              
+              if (ownerTripIndex !== -1) {
+                const tripInvoices = ownerTrips[ownerTripIndex].invoices || { invoices: [] };
+                const updatedInvoices = [...tripInvoices.invoices, invoice];
+                ownerTrips[ownerTripIndex].invoices = { invoices: updatedInvoices };
+                ownerTrips[ownerTripIndex].carbonFootprint = (ownerTrips[ownerTripIndex].carbonFootprint||0) + totalCO2;
+                
+                if (invoice.type !== 'fuel') {
+                  const transportTypes = ownerTrips[ownerTripIndex].transportTypes || {};
+                  const travelInvoice = invoice as InvoiceTravel;
+                  travelInvoice.transport_type.forEach((t: string | null | undefined) => {
+                    const transportType = t?.toLowerCase() || invoice.type.toLowerCase();
+                    transportTypes[transportType] = (transportTypes[transportType] || 0) + 1;
+                  });
+                  ownerTrips[ownerTripIndex].transportTypes = transportTypes;
+                }
+                
+                await updateDoc(ownerRef, { "businessTrips.trips": ownerTrips });
+                return true;
+              }
+            }
+          }
+        }
+      }
+      
+      throw new Error('Trip not found');
+    } catch (err) {
+      console.error('Invoice save error:', err);
+      setError('Failed to save invoice: ' + (err instanceof Error ? err.message : String(err)));
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }, [user]);
+
+  // Keep the old uploadInvoice function for backwards compatibility
+  const uploadInvoice = useCallback(async (
+    tripId: string,
+    file: File,
+    type: 'fuel' | 'plane' | 'train'
+  ): Promise<InvoiceType | null> => {
+    try {
+      const invoice = await analyzeInvoiceFile(file, type);
+      if (!invoice) return null;
+      
+      const success = await saveInvoiceToDatabase(tripId, invoice);
+      if (!success) return null;
+      
+      return invoice;
+    } catch (err) {
+      console.error('Invoice upload error:', err);
+      setError('Failed to process invoice: ' + (err instanceof Error ? err.message : String(err)));
+      return null;
+    }
+  }, [analyzeInvoiceFile, saveInvoiceToDatabase]);
 
   const analyzeInvoice = useCallback(async (
     type: 'fuel' | 'plane' | 'train'
@@ -575,6 +622,8 @@ export function useApi() {
     getTrip,
     createTrip,
     uploadInvoice,
+    analyzeInvoiceFile,
+    saveInvoiceToDatabase,
     analyzeInvoice,
     deleteInvoice,
     deleteTrip,

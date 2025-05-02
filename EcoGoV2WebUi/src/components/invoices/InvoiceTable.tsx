@@ -144,7 +144,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, tripId, onInvoice
       <div>
         <div className="flex items-center">
           <MapPin className="h-4 w-4 text-gray-500 mr-2" />
-          <span className="text-sm text-gray-900">
+          <span className="text-sm text-gray-900 truncate">
             {invoice.departure[0] || 'N/A'} → {invoice.arrival[0] || 'N/A'}
           </span>
           
@@ -178,11 +178,13 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, tripId, onInvoice
               return (
                 <div key={idx} className="text-sm text-gray-700 py-1">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center">
+                    <div className="flex items-center max-w-[65%]">
                       {getTransportEmoji(transportType)}
-                      <span className="ml-2">{dep || 'N/A'} → {invoice.arrival[idx] || 'N/A'}</span>
+                      <span className="ml-2 truncate" title={`${dep || 'N/A'} → ${invoice.arrival[idx] || 'N/A'}`}>
+                        {dep || 'N/A'} → {invoice.arrival[idx] || 'N/A'}
+                      </span>
                     </div>
-                    <span className="text-gray-600">{co2Value} kg CO₂</span>
+                    <span className="text-gray-600 ml-2 flex-shrink-0">{co2Value} kg CO₂</span>
                   </div>
                 </div>
               );

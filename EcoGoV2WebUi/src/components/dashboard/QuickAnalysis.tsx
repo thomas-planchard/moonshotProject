@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 
 type EntryMode = 'direct' | 'distance';
 type TransportType = 'plane' | 'train' | 'car';
+type FuelType = 'gasoline' | 'diesel' | 'lpg';
 
 interface CarbonEntry {
   id: string;
@@ -12,6 +13,8 @@ interface CarbonEntry {
   description: string;
   co2Value: number;
   distance?: number;
+  fuelConsumption?: number; // L/100km
+  fuelType?: FuelType;
 }
 
 // CO2 emission factors (kg CO2 per km)
@@ -19,6 +22,13 @@ const EMISSION_FACTORS = {
   plane: 0.13,
   train: 0.035,
   car: 0.17 // average for medium-sized car
+};
+
+// CO2 emission factors by fuel type (kg CO2 per L)
+const FUEL_EMISSION_FACTORS = {
+  gasoline: 2.31, // kg CO2 per liter
+  diesel: 2.68,   // kg CO2 per liter
+  lpg: 1.51       // kg CO2 per liter
 };
 
 const QuickAnalysis: React.FC = () => {
@@ -31,6 +41,8 @@ const QuickAnalysis: React.FC = () => {
   const [description, setDescription] = useState('');
   const [directCO2, setDirectCO2] = useState<string>('');
   const [distance, setDistance] = useState<string>('');
+  const [fuelConsumption, setFuelConsumption] = useState<string>('');
+  const [fuelType, setFuelType] = useState<FuelType>('gasoline');
   
   const [savingStatus, setSavingStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -45,6 +57,13 @@ const QuickAnalysis: React.FC = () => {
 
   // Calculate CO2 from distance and transport type
   const calculateCO2 = (distanceKm: number, type: TransportType): number => {
+    if (type === 'car' && fuelConsumption && !isNaN(parseFloat(fuelConsumption))) {
+      // Calculate fuel volume: (consumption per 100km * distance) / 100
+      const fuelConsumptionValue = parseFloat(fuelConsumption);
+      const fuelVolume = (fuelConsumptionValue * distanceKm) / 100;
+      // Calculate CO2 based on fuel volume and emission factor
+      return fuelVolume * FUEL_EMISSION_FACTORS[fuelType];
+    }
     return distanceKm * EMISSION_FACTORS[type];
   };
 
@@ -70,23 +89,36 @@ const QuickAnalysis: React.FC = () => {
         setErrorMessage('Please enter a valid distance');
         return;
       }
+
+      if (transportType === 'car' && (!fuelConsumption || isNaN(parseFloat(fuelConsumption)) || parseFloat(fuelConsumption) <= 0)) {
+        setErrorMessage('Please enter valid fuel consumption');
+        return;
+      }
       
       const distanceValue = parseFloat(distance);
       const co2Value = calculateCO2(distanceValue, transportType);
       
-      setEntries([...entries, {
+      const newEntry: CarbonEntry = {
         id: generateId(),
         type: transportType,
         description: description || `${transportType.charAt(0).toUpperCase() + transportType.slice(1)} journey (${distanceValue} km)`,
         co2Value: co2Value,
         distance: distanceValue
-      }]);
+      };
+
+      if (transportType === 'car') {
+        newEntry.fuelConsumption = parseFloat(fuelConsumption);
+        newEntry.fuelType = fuelType;
+      }
+      
+      setEntries([...entries, newEntry]);
     }
     
     // Reset form
     setDescription('');
     setDirectCO2('');
     setDistance('');
+    setFuelConsumption('');
     setErrorMessage(null);
     setShowForm(false);
   };
@@ -113,15 +145,22 @@ const QuickAnalysis: React.FC = () => {
           date: new Date().toISOString()
         };
         
-        // Only add distance if it's defined
+        // Add additional properties if they exist
+        const additionalData: any = {};
+        
         if (entry.distance !== undefined) {
-          return {
-            ...baseEntry,
-            distance: entry.distance
-          };
+          additionalData.distance = entry.distance;
         }
         
-        return baseEntry;
+        if (entry.fuelConsumption !== undefined) {
+          additionalData.fuelConsumption = entry.fuelConsumption;
+          additionalData.fuelType = entry.fuelType;
+        }
+        
+        return {
+          ...baseEntry,
+          ...additionalData
+        };
       });
       
       const success = await saveUserCarbonEntry(entriesForSaving);
@@ -255,6 +294,69 @@ const QuickAnalysis: React.FC = () => {
                 </div>
               </div>
               
+              {transportType === 'car' && entryMode === 'distance' && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Fuel Type
+                    </label>
+                    <div className="grid grid-cols-3 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setFuelType('gasoline')}
+                        className={`p-2 flex items-center justify-center rounded-md ${
+                          fuelType === 'gasoline' ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-800'
+                        }`}
+                      >
+                        Gasoline
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFuelType('diesel')}
+                        className={`p-2 flex items-center justify-center rounded-md ${
+                          fuelType === 'diesel' ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-800'
+                        }`}
+                      >
+                        Diesel
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFuelType('lpg')}
+                        className={`p-2 flex items-center justify-center rounded-md ${
+                          fuelType === 'lpg' ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-800'
+                        }`}
+                      >
+                        LPG
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label htmlFor="fuelConsumption" className="block text-sm font-medium text-gray-700 mb-1">
+                      Fuel Consumption (L/100km)
+                    </label>
+                    <div className="flex items-center">
+                      <input
+                        type="number"
+                        id="fuelConsumption"
+                        min="0"
+                        step="0.1"
+                        value={fuelConsumption}
+                        onChange={(e) => setFuelConsumption(e.target.value)}
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-1 focus:ring-primary-500"
+                        placeholder="e.g., 5.5"
+                      />
+                      <span className="px-3 py-2 bg-gray-100 border border-gray-300 border-l-0 rounded-r-md text-gray-600">
+                        L/100km
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      How much fuel your car uses per 100 kilometers
+                    </p>
+                  </div>
+                </>
+              )}
+              
               <div>
                 <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
                   Description (optional)
@@ -305,7 +407,14 @@ const QuickAnalysis: React.FC = () => {
                   
                   {distance && !isNaN(parseFloat(distance)) && parseFloat(distance) > 0 && (
                     <div className="mt-2 text-sm text-gray-600">
-                      Estimated CO₂: {Math.round(calculateCO2(parseFloat(distance), transportType))} kg
+                      {transportType === 'car' && fuelConsumption && !isNaN(parseFloat(fuelConsumption)) ? (
+                        <>
+                          <div>Fuel used: {((parseFloat(distance) * parseFloat(fuelConsumption)) / 100).toFixed(2)} L</div>
+                          <div>Estimated CO₂: {Math.round(calculateCO2(parseFloat(distance), transportType))} kg</div>
+                        </>
+                      ) : (
+                        <div>Estimated CO₂: {Math.round(calculateCO2(parseFloat(distance), transportType))} kg</div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -361,6 +470,7 @@ const QuickAnalysis: React.FC = () => {
                       <div className="text-sm text-gray-600">
                         {Math.round(entry.co2Value).toLocaleString()} kg CO₂
                         {entry.distance && ` • ${entry.distance} km`}
+                        {entry.fuelConsumption && ` • ${entry.fuelConsumption}L/100km (${entry.fuelType})`}
                       </div>
                     </div>
                   </div>

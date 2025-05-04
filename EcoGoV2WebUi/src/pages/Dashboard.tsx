@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApi } from '../hooks/useApi';
 import { useAuth } from '../context/AuthContext';
 import { doc, getDoc } from "firebase/firestore";
@@ -24,6 +24,7 @@ const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const [trips, setTrips] = React.useState<Trip[]>([]);
   const [userTotalCarbon, setUserTotalCarbon] = React.useState<number>(0);
+  const [manualEntries, setManualEntries] = useState<any[]>([]);
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -51,12 +52,30 @@ const Dashboard: React.FC = () => {
     fetchUserCarbon();
   }, [user]);
 
+  // Also fetch manual carbon entries
+  React.useEffect(() => {
+    const fetchUserManualEntries = async () => {
+      if (!user?.uid) return;
+      try {
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          setManualEntries(userData.carbonEntries || []);
+        }
+      } catch (error) {
+        console.error("Error fetching carbon entries:", error);
+      }
+    };
+    fetchUserManualEntries();
+  }, [user]);
+
   // Filter invoices to only include those uploaded by the current user
   const filterUserInvoices = (invoice: InvoiceType) => {
     return invoice.uploadedBy?.id === user?.uid;
   };
 
-  // Calculate total carbon footprint from user's own invoices across all trips
+  // Calculate total carbon footprint - include manual entries and own invoices from all trips
   const totalCarbonFootprint = trips.reduce((total, trip) => {
     const userInvoices = trip.invoices.filter(filterUserInvoices);
     return total + userInvoices.reduce((tripTotal, invoice) => {
@@ -69,10 +88,11 @@ const Dashboard: React.FC = () => {
     }, 0);
   }, 0);
 
-  // Get distribution data by type - only for user's own invoices
+  // Get distribution data - only include user's own invoices
   const getDistributionData = (): ChartData[] => {
     const typeMap: Record<string, number> = { fuel: 0, plane: 0, train: 0 };
-    // Sum up carbon footprint by type
+
+    // Process trip invoices - only include user's own invoices
     trips.forEach(trip => {
       trip.invoices
         .filter(filterUserInvoices)
@@ -81,22 +101,17 @@ const Dashboard: React.FC = () => {
             typeMap.fuel += invoice.co2;
           } else if (isTravelInvoice(invoice)) {
             if (Array.isArray(invoice.co2)) {
-              // For travel invoices, check each segment's actual transport type
               if (Array.isArray(invoice.transport_type) && invoice.transport_type.length > 0) {
-                // Process each segment separately
                 invoice.transport_type.forEach((transportType, index) => {
                   const segmentCO2 = invoice.co2[index] || 0;
-                  // Categorize based on actual transport type
                   const type = (transportType || '').toLowerCase();
                   if (type.includes('train') || type === 'train' || type.includes('rail')) {
                     typeMap.train += segmentCO2;
                   } else {
-                    // Default to plane for air travel and any other mode
                     typeMap.plane += segmentCO2;
                   }
                 });
               } else {
-                // Fallback to invoice type if no transport_type details are available
                 const totalCO2 = invoice.co2.reduce((sum, val) => sum + (val || 0), 0);
                 typeMap[invoice.type] += totalCO2;
               }
@@ -104,6 +119,14 @@ const Dashboard: React.FC = () => {
           }
         });
     });
+
+    // Also process manual entries
+    manualEntries.forEach(entry => {
+      if (entry.type === 'plane') typeMap.plane += entry.co2;
+      else if (entry.type === 'train') typeMap.train += entry.co2;
+      else if (entry.type === 'car') typeMap.fuel += entry.co2;
+    });
+
     return [
       { name: 'Fuel', value: typeMap.fuel, fill: '#F59E0B' },
       { name: 'Plane', value: typeMap.plane, fill: '#4A6FA5' },
@@ -111,54 +134,68 @@ const Dashboard: React.FC = () => {
     ];
   };
 
-  // Get monthly data for the bar chart - only for user's own invoices
+  // Get monthly data - include manual entries and user's own invoices
   const getMonthlyData = () => {
     const monthlyData: Record<string, { fuel: number; plane: number; train: number }> = {};
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    // Initialize monthly data
     months.forEach(month => {
       monthlyData[month] = { fuel: 0, plane: 0, train: 0 };
     });
+
+    // Process trip invoices - only include user's own invoices
     trips.forEach(trip => {
       let tripMonth = 'Jan';
       if (trip.createdAt) {
         const tripDate = new Date(trip.createdAt);
         tripMonth = months[tripDate.getMonth()];
       }
+
       trip.invoices
         .filter(filterUserInvoices)
         .forEach(invoice => {
-          const month = tripMonth;
           if (isFuelInvoice(invoice)) {
-            monthlyData[month].fuel += invoice.co2;
+            monthlyData[tripMonth].fuel += invoice.co2;
           } else if (isTravelInvoice(invoice)) {
             if (Array.isArray(invoice.co2)) {
-              // For travel invoices, check each segment's actual transport type
               if (Array.isArray(invoice.transport_type) && invoice.transport_type.length > 0) {
-                // Process each segment separately
                 invoice.transport_type.forEach((transportType, index) => {
                   const segmentCO2 = invoice.co2[index] || 0;
-                  // Categorize based on actual transport type
                   const type = (transportType || '').toLowerCase();
                   if (type.includes('train') || type === 'train' || type.includes('rail')) {
-                    monthlyData[month].train += segmentCO2;
+                    monthlyData[tripMonth].train += segmentCO2;
                   } else {
-                    // Default to plane for air travel and any other mode
-                    monthlyData[month].plane += segmentCO2;
+                    monthlyData[tripMonth].plane += segmentCO2;
                   }
                 });
               } else {
-                // Fallback to invoice type if no transport_type details are available
                 const totalCO2 = invoice.co2.reduce((sum, val) => sum + (val || 0), 0);
                 if (invoice.type === 'plane') {
-                  monthlyData[month].plane += totalCO2;
+                  monthlyData[tripMonth].plane += totalCO2;
                 } else if (invoice.type === 'train') {
-                  monthlyData[month].train += totalCO2;
+                  monthlyData[tripMonth].train += totalCO2;
                 }
               }
             }
           }
         });
     });
+
+    // Add manual entries by month
+    manualEntries.forEach(entry => {
+      const entryDate = new Date(entry.date || entry.createdAt);
+      const month = months[entryDate.getMonth()] || 'Jan';
+
+      if (entry.type === 'car') {
+        monthlyData[month].fuel += entry.co2;
+      } else if (entry.type === 'plane') {
+        monthlyData[month].plane += entry.co2;
+      } else if (entry.type === 'train') {
+        monthlyData[month].train += entry.co2;
+      }
+    });
+
     return months.map(month => ({
       name: month,
       ...monthlyData[month]
@@ -243,26 +280,18 @@ const Dashboard: React.FC = () => {
           data={getMonthlyData()} 
         />
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div className="bg-white rounded-lg shadow-card p-6">
-          <h2 className="text-lg font-medium text-gray-900 mb-4">Your Emission Distribution</h2>
-          <div className="text-sm text-gray-500 mb-4">
-            Based only on invoices you've uploaded.
-          </div>
+      <div className="bg-white rounded-lg shadow-card p-6 mb-8">
+        <h2 className="text-lg font-medium text-gray-900 mb-4">Your Manual Carbon Entries</h2>
+        <div className="text-sm text-gray-500 mb-4">
+          Carbon entries you've manually added through the dashboard.
         </div>
-        <div className="bg-white rounded-lg shadow-card p-6">
-          <h2 className="text-lg font-medium text-gray-900 mb-4">Your Manual Carbon Entries</h2>
-          <div className="text-sm text-gray-500 mb-4">
-            Carbon entries you've manually added through the dashboard.
+        {userTotalCarbon > 0 ? (
+          <UserCarbonEntriesList userId={user?.uid} />
+        ) : (
+          <div className="text-center py-4 text-gray-500">
+            No manual entries found. Add some using the form above.
           </div>
-          {userTotalCarbon > 0 ? (
-            <UserCarbonEntriesList userId={user?.uid} />
-          ) : (
-            <div className="text-center py-4 text-gray-500">
-              No manual entries found. Add some using the form above.
-            </div>
-          )}
-        </div>
+        )}
       </div>
       <div className="bg-white rounded-lg shadow-card p-6">
         <h2 className="text-lg font-medium text-gray-900 mb-4">Recent Trips</h2>

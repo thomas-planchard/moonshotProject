@@ -156,6 +156,9 @@ const AdminPage: React.FC = () => {
         const totals = { fuel: 0, plane: 0, train: 0 };
         let departmentTotal = 0;
         
+        // Track unique trips to prevent duplicate counting
+        const processedTripIds = new Set<string>();
+        
         const categoryHighest: Record<string, { userId: string, value: number }> = {
           fuel: { userId: '', value: 0 },
           plane: { userId: '', value: 0 },
@@ -172,6 +175,60 @@ const AdminPage: React.FC = () => {
           
           if (userSnap.exists()) {
             const userData = userSnap.data();
+            
+            // Process manual carbon entries for this user
+            if (Array.isArray(userData.carbonEntries)) {
+              userData.carbonEntries.forEach((entry: any) => {
+                const entryCarbon = entry.co2 || 0;
+                
+                // Add to department total
+                departmentTotal += entryCarbon;
+                
+                // Add to user's total
+                userCarbon[userId].totalCarbon += entryCarbon;
+                
+                // Add to appropriate category totals
+                if (entry.type === 'car') {
+                  totals.fuel += entryCarbon;
+                  userCarbon[userId].fuelCarbon += entryCarbon;
+                  
+                  // Check for top emitter
+                  if (entryCarbon > categoryHighest.fuel.value) {
+                    categoryHighest.fuel = { userId, value: entryCarbon };
+                  }
+                } else if (entry.type === 'plane') {
+                  totals.plane += entryCarbon;
+                  userCarbon[userId].planeCarbon += entryCarbon;
+                  
+                  if (entryCarbon > categoryHighest.plane.value) {
+                    categoryHighest.plane = { userId, value: entryCarbon };
+                  }
+                } else if (entry.type === 'train') {
+                  totals.train += entryCarbon;
+                  userCarbon[userId].trainCarbon += entryCarbon;
+                  
+                  if (entryCarbon > categoryHighest.train.value) {
+                    categoryHighest.train = { userId, value: entryCarbon };
+                  }
+                }
+                
+                // Add to monthly emissions if date is available
+                if (entry.date || entry.createdAt) {
+                  const date = new Date(entry.date || entry.createdAt);
+                  const month = months[date.getMonth()];
+                  
+                  if (entry.type === 'car') {
+                    monthlyData[month].fuel += entryCarbon;
+                  } else if (entry.type === 'plane') {
+                    monthlyData[month].plane += entryCarbon;
+                  } else if (entry.type === 'train') {
+                    monthlyData[month].train += entryCarbon;
+                  }
+                }
+              });
+            }
+            
+            // Process business trips
             const businessTrips = userData.businessTrips || { trips: [] };
             const userTrips = (businessTrips.trips || []).map(mapTripData);
             
@@ -199,8 +256,14 @@ const AdminPage: React.FC = () => {
           }
         }
         
-        // Process all trips to calculate emissions - we now have trips from ALL department users
+        // Process all trips to calculate emissions - ensuring each trip is only counted once
         allTrips.forEach(trip => {
+          // Skip this trip if we've already processed it
+          if (processedTripIds.has(trip.id)) return;
+          
+          // Mark this trip as processed
+          processedTripIds.add(trip.id);
+          
           const tripDate = new Date(trip.createdAt || new Date());
           const month = months[tripDate.getMonth()];
           

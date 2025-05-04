@@ -423,6 +423,14 @@ export function useApi() {
       
       if (userSnap.exists()) {
         const userData = userSnap.data();
+        
+        // Update user's total carbon regardless of where invoice is stored
+        if (typeof userData.totalCarbon === 'undefined') {
+          await updateDoc(userRef, { totalCarbon: totalCO2 });
+        } else {
+          await updateDoc(userRef, { totalCarbon: userData.totalCarbon + totalCO2 });
+        }
+        
         const myTrips = userData.businessTrips?.trips || [];
         const myTripIndex = myTrips.findIndex((t: any) => t.id === tripId);
         

@@ -35,7 +35,7 @@ const CarbonEmissionChart: React.FC<CarbonEmissionChartProps> = ({ data }) => {
               style: { textAnchor: 'middle' }
             }} 
           />
-          <Tooltip formatter={(value) => `${Number(value).toLocaleString()} kg CO₂`} />
+          <Tooltip formatter={(value) => `${Math.round(Number(value)).toLocaleString()} kg CO₂`} />
           <Legend />
           <Bar dataKey="fuel" name="Fuel" fill="#F59E0B" />
           <Bar dataKey="plane" name="Plane" fill="#4A6FA5" />

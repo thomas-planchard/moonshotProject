@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { Department, UserRole } from "../types";
 
 const AuthPage: React.FC = () => {
   const { login, register, user } = useAuth();
@@ -10,7 +11,12 @@ const AuthPage: React.FC = () => {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [jobPosition, setJobPosition] = useState("");
+  const [department, setDepartment] = useState<Department>("Tech");
+  const [role, setRole] = useState<UserRole>("employee");
   const [error, setError] = useState<string | null>(null);
+
+  // Available departments
+  const departments: Department[] = ["Finance", "Industry", "Tech", "Marketing", "Operations"];
 
   React.useEffect(() => {
     if (user) navigate("/");
@@ -21,7 +27,7 @@ const AuthPage: React.FC = () => {
     setError(null);
     try {
       if (isRegister) {
-        await register(email, password, name, jobPosition);
+        await register(email, password, name, jobPosition, department, role);
       } else {
         await login(email, password);
       }
@@ -80,6 +86,52 @@ const AuthPage: React.FC = () => {
                 onChange={e => setJobPosition(e.target.value)}
                 required={isRegister}
               />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Department
+              </label>
+              <select
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                value={department}
+                onChange={e => setDepartment(e.target.value as Department)}
+                required={isRegister}
+              >
+                {departments.map(dept => (
+                  <option key={dept} value={dept}>
+                    {dept}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Role
+              </label>
+              <div className="flex space-x-4">
+                <label className="inline-flex items-center">
+                  <input
+                    type="radio"
+                    className="form-radio text-primary-500"
+                    name="role"
+                    value="employee"
+                    checked={role === 'employee'}
+                    onChange={() => setRole('employee')}
+                  />
+                  <span className="ml-2">Employee</span>
+                </label>
+                <label className="inline-flex items-center">
+                  <input
+                    type="radio"
+                    className="form-radio text-primary-500"
+                    name="role"
+                    value="manager"
+                    checked={role === 'manager'}
+                    onChange={() => setRole('manager')}
+                  />
+                  <span className="ml-2">Manager</span>
+                </label>
+              </div>
             </div>
           </>
         )}

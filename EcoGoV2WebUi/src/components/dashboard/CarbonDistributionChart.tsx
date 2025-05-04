@@ -14,7 +14,7 @@ const CarbonDistributionChart: React.FC<CarbonDistributionChartProps> = ({ data 
       return (
         <div className="bg-white p-3 border border-gray-200 shadow-sm rounded-md">
           <p className="font-medium">{payload[0].name}</p>
-          <p className="text-gray-700">{`${payload[0].value.toLocaleString()} kg CO₂`}</p>
+          <p className="text-gray-700">{`${Math.round(payload[0].value).toLocaleString()} kg CO₂`}</p>
           <p className="text-gray-600 text-sm">
             {`${((payload[0].value / data.reduce((sum, item) => sum + item.value, 0)) * 100).toFixed(1)}%`}
           </p>

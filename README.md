@@ -9,90 +9,107 @@
 <br />
 <div align="center">
    <img src="EcoGo/assets/icon.png" alt="Logo" width="100" height="100">
-  <h1 align="center">Moonshot Project: EcoGo & EcoGo API</h1>
+  <h1 align="center">EcoGo Corporate</h1>
   <p align="center">
-    A combined mobile application and lightweight API for tracking carbon emissions from transportation and fuel receipts.
+    A comprehensive web platform for businesses to track, manage, and reduce their carbon footprint
   </p>
 </div>
 
-## About
+## About EcoGo Corporate
 
-This repository contains two main components:
+EcoGo Corporate is a robust web application built to help businesses measure, monitor, and minimize their carbon emissions from business travel and operations. 
 
-1. **EcoGo Mobile App** – A React Native/Expo application built with TypeScript for tracking your carbon footprint in real time.
-2. **EcoGo API** – A FastAPI/Python service that extracts and processes receipt or ticket data (train, plane, fuel) into structured JSON for carbon emission calculations.
+**Key Functions:**
+- Centralized carbon tracking dashboard for individuals and departments
+- Upload and intelligent analysis of travel and fuel invoices for CO2 calculation
+- Trip management system with sharing capabilities across team members
+- Department-wide analytics for managers to identify areas for improvement
+- Manual carbon entry system for activities without digital records
 
-## Project Structure
+The platform offers companies a complete solution to understand their environmental impact, make data-driven decisions, and work towards sustainability goals with transparent carbon accounting.
 
-```
-/carbon-clap-api    # FastAPI backend
-/EcoGo              # React Native mobile app
-```
+## Project Features
+
+### Dashboard & Analytics
+- Interactive data visualizations of carbon emissions by type and time period
+- Monthly trend analysis to identify patterns and progress
+- Personal and departmental carbon footprint comparisons
+
+### Trip Management
+- Create and track business trips with comprehensive details
+- Share trips with collaborators within the organization
+- Associate multiple invoices and emissions sources to each trip
+
+### Invoice Processing
+- Automatic carbon footprint calculation from uploaded invoices
+- Support for fuel receipts, plane tickets, and train travel documents
+- Historical record of all processed documents
+
+### Department Management
+- Manager views for monitoring team-wide carbon metrics
+- Identify top emission sources and contributors within departments
+- Track departmental sustainability goals and progress
+
+### User Management
+- Role-based access control (employee vs. manager)
+- Department organization structure
+- Personal carbon tracking and history
 
 ## Built With
 
-- **EcoGo API**
-  
-  [![FastAPI][FastAPI-shield]][FastAPI-url]  
-  [![Python][Python-shield]][Python-url]  
-  [![Tesseract OCR][Tesseract-shield]][Tesseract-url]  
-  [![Mistral LLM][Mistral-shield]][Mistral-url]
+[![React][React-shield]][React-url]  
+[![TypeScript][TS-shield]][TS-url]  
+[![Tailwind CSS][Tailwind-shield]][Tailwind-url]  
+[![Firebase][Firebase-shield]][Firebase-url]  
+[![Vite][Vite-shield]][Vite-url]  
 
-- **EcoGo App**
-  
-  [![React Native][RN-shield]][RN-url]  
-  [![TypeScript][TS-shield]][TS-url]  
-  [![Expo][Expo-shield]][Expo-url]
 
 ## Getting Started
 
 ### Prerequisites
 
-- Python 3.8+
-- pip
 - Node.js & npm
-- Expo CLI (`npm install -g expo-cli`)
+- Firebase account (for authentication and database)
 
 ### Installation
 
 1. Clone the repository:
    ```bash
    git clone https://github.com/thomas-planchard/moonshotProject.git
-   cd moonshotProject
+   cd moonshotProject/EcoGoV2WebUi
    ```
 
-2. Set up the API:
+2. Install dependencies:
    ```bash
-   cd carbon-clap-api
-   pip install -r requirements.txt
-   python3 app.py  # Runs the FastAPI server on http://localhost:8000
-   ```
-
-3. Set up the Mobile App:
-   ```bash
-   cd ../EcoGo
    npm install
-    npx expo run:ios          # Launches Expo on iOS 
    ```
 
-4. Configure the App to use the local API:
-   - Open `EcoGo/FirebaseConfig.ts` or environment settings and set the base URL to `http://localhost:8000`.
+3. Create a `.env` file with necessary environment variables:
+   ```
+   VITE_FIREBASE_API_KEY=your_firebase_api_key
+   VITE_FIREBASE_AUTH_DOMAIN=your_firebase_auth_domain
+   VITE_FIREBASE_PROJECT_ID=your_firebase_project_id
+   VITE_FIREBASE_STORAGE_BUCKET=your_firebase_storage_bucket
+   VITE_FIREBASE_MESSAGING_SENDER_ID=your_firebase_messaging_sender_id
+   VITE_FIREBASE_APP_ID=your_firebase_app_id
+   ```
 
-## Running the App
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
 
-- Use Expo Go on your iOS or Android device or an emulator.
-- Scan the QR code shown in the terminal or Expo dev tools.
+5. Open your browser and navigate to `http://localhost:5173`
 
-## Testing the API
+## Deployment
 
-You can test the extraction endpoint with curl or Postman:
+To build the application for production:
 
 ```bash
-curl -X POST http://localhost:8000/extract \
-  -F "file=@/path/to/receipt.jpg" \
-  -F "category=trains" \
-  -F "countries[]=FR"
+npm run build
 ```
+
+The built files will be in the `dist` directory, ready to be deployed to your hosting provider of choice.
 
 ## Contributing
 
@@ -116,20 +133,18 @@ For questions or partnerships, reach out at thomas.planchard@algosup.com
 [issues-shield]: https://img.shields.io/github/issues/thomas-planchard/moonshotProject.svg?style=for-the-badge
 [issues-url]: https://github.com/thomas-planchard/moonshotProject/issues
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: www.linkedin.com/in/thomas-planchard-461782221
-[FastAPI-shield]: https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi
-[FastAPI-url]: https://fastapi.tiangolo.com/
-[Python-shield]: https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white
-[Python-url]: https://python.org/
-[Tesseract-shield]: https://img.shields.io/badge/Tesseract-292929?style=for-the-badge&logo=tesseract&logoColor=white
-[Tesseract-url]: https://github.com/tesseract-ocr/tesseract
-[Mistral-shield]: https://img.shields.io/badge/Mistral-FF5733?style=for-the-badge&logo=mistral&logoColor=white
-[Mistral-url]: https://github.com/mistralai/mistral
-[RN-shield]: https://img.shields.io/badge/React%20Native-61DAFB?style=for-the-badge&logo=react&logoColor=black
-[RN-url]: https://reactnative.dev/
+[linkedin-url]: https://www.linkedin.com/in/thomas-planchard-461782221
+[React-shield]: https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black
+[React-url]: https://reactjs.org/
 [TS-shield]: https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white
 [TS-url]: https://typescriptlang.org/
-[Expo-shield]: https://img.shields.io/badge/Expo-000020?style=for-the-badge&logo=expo
-[Expo-url]: https://expo.dev/
+[Tailwind-shield]: https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white
+[Tailwind-url]: https://tailwindcss.com/
+[Firebase-shield]: https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black
+[Firebase-url]: https://firebase.google.com/
+[Vite-shield]: https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white
+[Vite-url]: https://vitejs.dev/
+[Recharts-shield]: https://img.shields.io/badge/Recharts-22B5BF?style=for-the-badge&logo=recharts&logoColor=white
+[Recharts-url]: https://recharts.org/
 
 

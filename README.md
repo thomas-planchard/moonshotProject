@@ -86,12 +86,9 @@ The platform offers companies a complete solution to understand their environmen
 
 3. Create a `.env` file with necessary environment variables:
    ```
-   VITE_FIREBASE_API_KEY=your_firebase_api_key
-   VITE_FIREBASE_AUTH_DOMAIN=your_firebase_auth_domain
-   VITE_FIREBASE_PROJECT_ID=your_firebase_project_id
-   VITE_FIREBASE_STORAGE_BUCKET=your_firebase_storage_bucket
-   VITE_FIREBASE_MESSAGING_SENDER_ID=your_firebase_messaging_sender_id
-   VITE_FIREBASE_APP_ID=your_firebase_app_id
+VITE_LLAMA_API_KEY=your-project-id
+VITE_LLAMA_FUEL_PROJECT_ID=your-project-id
+VITE_LLAMA_INVOICES_PROJECT_ID=your-project-id
    ```
 
 4. Start the development server:

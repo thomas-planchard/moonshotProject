@@ -85,11 +85,12 @@ The platform offers companies a complete solution to understand their environmen
    ```
 
 3. Create a `.env` file with necessary environment variables:
-   ```
+   
+```bash
 VITE_LLAMA_API_KEY=your-project-id
 VITE_LLAMA_FUEL_PROJECT_ID=your-project-id
 VITE_LLAMA_INVOICES_PROJECT_ID=your-project-id
-   ```
+```
 
 4. Start the development server:
    ```bash

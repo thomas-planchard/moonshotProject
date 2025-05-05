@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FileText, TrendingUp, MapPin, Trash2, ChevronDown, ChevronUp, Droplets, User, Map } from 'lucide-react';
 import { InvoiceType, InvoiceFuel, InvoiceTravel } from '../../types';
 import { useApi } from '../../hooks/useApi';
@@ -15,7 +15,16 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, tripId, onInvoice
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
   const { deleteInvoice, loading } = useApi();
   const [invoiceToDelete, setInvoiceToDelete] = useState<string | null>(null);
-  
+  const [displayedInvoices, setDisplayedInvoices] = useState<InvoiceType[]>([]);
+
+  // Update displayed invoices whenever the original invoices change or filter changes
+  useEffect(() => {
+    const filtered = filter === 'all' 
+      ? invoices 
+      : invoices.filter(invoice => invoice.type === filter);
+    setDisplayedInvoices(filtered);
+  }, [invoices, filter]);
+
   // Toggle expanded state for a row
   const toggleRowExpand = (invoiceId: string) => {
     setExpandedRows(prev => ({
@@ -23,17 +32,17 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, tripId, onInvoice
       [invoiceId]: !prev[invoiceId]
     }));
   };
-  
+
   // Open delete confirmation modal
   const openDeleteConfirmation = (invoiceId: string) => {
     setInvoiceToDelete(invoiceId);
   };
-  
+
   // Close delete confirmation modal
   const closeDeleteConfirmation = () => {
     setInvoiceToDelete(null);
   };
-  
+
   // Handle invoice deletion
   const confirmDeleteInvoice = async () => {
     if (invoiceToDelete) {
@@ -71,7 +80,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, tripId, onInvoice
       return <FileText className="h-4 w-4 text-gray-500" />;
     }
   };
-  
+
   // Get display type name
   const getDisplayType = (invoice: InvoiceType) => {
     if (isFuelInvoice(invoice)) {
@@ -99,11 +108,6 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, tripId, onInvoice
       .substring(0, 2);
   };
 
-  // Filter invoices
-  const filteredInvoices = filter === 'all' 
-    ? invoices 
-    : invoices.filter(invoice => invoice.type === filter);
-  
   // Check if invoice is a fuel invoice
   const isFuelInvoice = (invoice: InvoiceType): invoice is InvoiceFuel => {
     return invoice.type === 'fuel';
@@ -253,7 +257,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, tripId, onInvoice
       
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
         <h3 className="text-lg font-medium text-gray-900 mb-2 sm:mb-0">
-          Invoices ({filteredInvoices.length})
+          Invoices ({displayedInvoices.length})
         </h3>
         
         <div className="flex space-x-1">
@@ -300,7 +304,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, tripId, onInvoice
         </div>
       </div>
       
-      {filteredInvoices.length === 0 ? (
+      {displayedInvoices.length === 0 ? (
         <div className="text-center py-6 bg-gray-50 rounded-lg">
           <p className="text-gray-500">No invoices found. Add some invoices to get started.</p>
         </div>
@@ -330,7 +334,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ invoices, tripId, onInvoice
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredInvoices.map((invoice) => (
+              {displayedInvoices.map((invoice) => (
                 <tr key={invoice.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">

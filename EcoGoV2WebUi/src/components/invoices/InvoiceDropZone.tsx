@@ -142,28 +142,36 @@ const InvoiceDropZone: React.FC<InvoiceDropZoneProps> = ({ tripId, onUploadSucce
     setErrorMessage(null);
 
     try {
-      const results = await Promise.all(
-        acceptedFiles.map(async (fileInfo, index) => {
-          if (!fileInfo.result) return false;
-          return await saveInvoiceToDatabase(tripId, fileInfo.result);
-        })
-      );
+      // Log how many files we're trying to save
+      console.log(`Saving ${acceptedFiles.length} invoice(s) to database`);
+      
+      // Process files sequentially instead of in parallel to avoid race conditions
+      const results = [];
+      for (const fileInfo of acceptedFiles) {
+        if (!fileInfo.result) continue;
+        const success = await saveInvoiceToDatabase(tripId, fileInfo.result);
+        results.push(success);
+      }
 
       const successCount = results.filter(Boolean).length;
+      console.log(`Successfully saved ${successCount} of ${acceptedFiles.length} invoice(s)`);
       
       if (successCount > 0) {
-        acceptedFiles.forEach((_, index) => {
+        // Update status for all files that were successfully saved
+        acceptedFiles.forEach((fileInfo, index) => {
           if (results[index]) {
             updateFileStatus(
-              files.findIndex(f => f.file === acceptedFiles[index].file), 
+              files.findIndex(f => f.file === fileInfo.file), 
               'success', 
               100
             );
           }
         });
         
+        // Notify parent component that invoices were saved
         onUploadSuccess();
         
+        // Clear successfully saved files after a delay
         setTimeout(() => {
           setFiles(prev => prev.filter(f => f.status !== 'success'));
         }, 2000);
@@ -172,6 +180,7 @@ const InvoiceDropZone: React.FC<InvoiceDropZoneProps> = ({ tripId, onUploadSucce
         setErrorMessage('Failed to save invoices to database');
       }
     } catch (error) {
+      console.error('Error saving invoices:', error);
       setUploadStatus('error');
       setErrorMessage('Error saving invoices: ' + (error instanceof Error ? error.message : String(error)));
     }

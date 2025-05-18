@@ -24,6 +24,7 @@ const InvoiceDropZone: React.FC<InvoiceDropZoneProps> = ({ tripId, onUploadSucce
   const [uploadedResults, setUploadedResults] = useState<InvoiceType[]>([]);
   const [selectedResult, setSelectedResult] = useState<InvoiceType | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<number>(0);
 
   const { analyzeInvoiceFile, saveInvoiceToDatabase, loading } = useApi();
 
@@ -116,6 +117,8 @@ const InvoiceDropZone: React.FC<InvoiceDropZoneProps> = ({ tripId, onUploadSucce
       }));
       
       setUploadStatus('success');
+      setIsDetailsOpen(true);
+      setActiveTab(0);
     } catch (error) {
       setUploadStatus('error');
       setErrorMessage('Failed to analyze one or more invoices. Please try again.');
@@ -142,20 +145,23 @@ const InvoiceDropZone: React.FC<InvoiceDropZoneProps> = ({ tripId, onUploadSucce
     setErrorMessage(null);
 
     try {
-      const results = await Promise.all(
-        acceptedFiles.map(async (fileInfo, index) => {
-          if (!fileInfo.result) return false;
-          return await saveInvoiceToDatabase(tripId, fileInfo.result);
-        })
-      );
+      console.log(`Saving ${acceptedFiles.length} invoice(s) to database`);
+      
+      const results: any[] = [];
+      for (const fileInfo of acceptedFiles) {
+        if (!fileInfo.result) continue;
+        const success = await saveInvoiceToDatabase(tripId, fileInfo.result);
+        results.push(success);
+      }
 
       const successCount = results.filter(Boolean).length;
+      console.log(`Successfully saved ${successCount} of ${acceptedFiles.length} invoice(s)`);
       
       if (successCount > 0) {
-        acceptedFiles.forEach((_, index) => {
+        acceptedFiles.forEach((fileInfo, index) => {
           if (results[index]) {
             updateFileStatus(
-              files.findIndex(f => f.file === acceptedFiles[index].file), 
+              files.findIndex(f => f.file === fileInfo.file), 
               'success', 
               100
             );
@@ -172,6 +178,7 @@ const InvoiceDropZone: React.FC<InvoiceDropZoneProps> = ({ tripId, onUploadSucce
         setErrorMessage('Failed to save invoices to database');
       }
     } catch (error) {
+      console.error('Error saving invoices:', error);
       setUploadStatus('error');
       setErrorMessage('Error saving invoices: ' + (error instanceof Error ? error.message : String(error)));
     }
@@ -190,114 +197,10 @@ const InvoiceDropZone: React.FC<InvoiceDropZoneProps> = ({ tripId, onUploadSucce
     setUploadedResults([]);
   };
   
-  const showInvoiceDetails = (result: InvoiceType) => {
-    setSelectedResult(result);
-    setIsDetailsOpen(true);
-  };
-  
-  const closeDetails = () => {
-    setIsDetailsOpen(false);
-    setSelectedResult(null);
-  };
-
-  const renderFileStatus = (fileInfo: FileWithStatus) => {
-    switch (fileInfo.status) {
-      case 'idle':
-        return null;
-      case 'uploading':
-        return <div className="flex items-center">
-          <Loader2 className="h-4 w-4 text-primary-500 animate-spin mr-2" />
-          <span className="text-xs text-gray-600">Uploading...</span>
-        </div>;
-      case 'processing':
-        return <div className="flex items-center">
-          <Loader2 className="h-4 w-4 text-primary-500 animate-spin mr-2" />
-          <span className="text-xs text-gray-600">Processing...</span>
-        </div>;
-      case 'calculating':
-        return <div className="flex flex-col space-y-1">
-          <div className="flex items-center">
-            <Loader2 className="h-4 w-4 text-primary-500 animate-spin mr-2" />
-            <span className="text-xs text-gray-600">Calculating CO₂...</span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-1.5">
-            <div 
-              className="bg-primary-500 h-1.5 rounded-full transition-all duration-300" 
-              style={{ width: `${fileInfo.progress}%` }}
-            ></div>
-          </div>
-        </div>;
-      case 'analyzed':
-        return <div className="flex items-center space-x-2">
-          <CheckCircle2 className="h-4 w-4 text-warning-500" />
-          <span className="text-xs text-warning-600">Analyzed</span>
-          {fileInfo.result && (
-            <>
-              <button 
-                onClick={() => showInvoiceDetails(fileInfo.result!)} 
-                className="ml-2 text-primary-600 hover:text-primary-800 text-xs flex items-center"
-                title="View details"
-              >
-                <Eye className="h-3 w-3 mr-1" />
-                Details
-              </button>
-              <button 
-                onClick={() => acceptInvoice(files.findIndex(f => f === fileInfo))}
-                className="text-success-600 hover:text-success-800"
-                title="Accept this invoice"
-                disabled={fileInfo.accepted === true}
-              >
-                <ThumbsUp className="h-4 w-4" />
-              </button>
-              <button 
-                onClick={() => rejectInvoice(files.findIndex(f => f === fileInfo))}
-                className="text-error-600 hover:text-error-800"
-                title="Reject this invoice"
-                disabled={fileInfo.accepted === false}
-              >
-                <ThumbsDown className="h-4 w-4" />
-              </button>
-              {fileInfo.accepted === true && (
-                <span className="text-xs text-success-600">Accepted</span>
-              )}
-              {fileInfo.accepted === false && (
-                <span className="text-xs text-error-600">Rejected</span>
-              )}
-            </>
-          )}
-        </div>;
-      case 'success':
-        return <div className="flex items-center">
-          <CheckCircle2 className="h-4 w-4 text-success-500 mr-2" />
-          <span className="text-xs text-success-600">Saved</span>
-          {fileInfo.result && (
-            <button 
-              onClick={() => showInvoiceDetails(fileInfo.result!)} 
-              className="ml-2 text-primary-600 hover:text-primary-800 text-xs flex items-center"
-            >
-              <Eye className="h-3 w-3 mr-1" />
-              Details
-            </button>
-          )}
-        </div>;
-      case 'error':
-        return <div className="flex items-center">
-          <AlertCircle className="h-4 w-4 text-error-500 mr-2" />
-          <span className="text-xs text-error-600">{fileInfo.error || 'Error'}</span>
-        </div>;
-      default:
-        return null;
-    }
-  };
-
-  const isFuelInvoice = (invoice: InvoiceType): invoice is InvoiceFuel => invoice.type === 'fuel';
-  const isTravelInvoice = (invoice: InvoiceType): invoice is InvoiceTravel => 
-    invoice.type === 'plane' || invoice.type === 'train';
-
   const calculateTotalCO2 = (invoice: InvoiceType): number => {
-    if (isFuelInvoice(invoice)) {
+    if (invoice.type === 'fuel') {
       return Math.round(invoice.co2);
-    } else if (isTravelInvoice(invoice)) {
+    } else if (invoice.type === 'plane' || invoice.type === 'train') {
       return Array.isArray(invoice.co2) 
         ? Math.round(invoice.co2.reduce((sum, val) => sum + (val || 0), 0))
         : 0;
@@ -310,103 +213,141 @@ const InvoiceDropZone: React.FC<InvoiceDropZoneProps> = ({ tripId, onUploadSucce
 
   return (
     <div className="space-y-6">
-      {isDetailsOpen && selectedResult && (
+      {isDetailsOpen && files.filter(f => f.status === 'analyzed' || f.status === 'success').length > 0 && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[80vh] flex flex-col">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
             <div className="p-4 border-b border-gray-200 flex justify-between items-center">
               <h3 className="text-lg font-medium text-gray-900">Invoice Details</h3>
               <button 
-                onClick={closeDetails}
+                onClick={() => { setIsDetailsOpen(false); setSelectedResult(null); }}
                 className="text-gray-400 hover:text-gray-500"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
-            
-            <div className="p-4 overflow-y-auto">
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">File</p>
-                  <p className="text-base text-gray-900">{selectedResult.fileName}</p>
-                </div>
-                
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Carbon Footprint</p>
-                  <p className="text-base text-gray-900 font-medium">
-                    {calculateTotalCO2(selectedResult).toLocaleString()} kg CO₂
-                  </p>
-                </div>
-                
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Calculation Method</p>
-                  <div className="text-xs text-gray-600 p-2 bg-gray-50 rounded border border-gray-200 mt-1">
-                    {isFuelInvoice(selectedResult) ? (
+            <div className="flex border-b border-gray-200 overflow-x-auto">
+              {files.filter(f => f.status === 'analyzed' || f.status === 'success').map((fileInfo, idx) => (
+                <button
+                  key={idx}
+                  className={`px-4 py-2 text-sm font-medium ${activeTab === idx ? 'border-b-2 border-primary-500 text-primary-700' : 'text-gray-600 hover:text-primary-700'}`}
+                  onClick={() => setActiveTab(idx)}
+                >
+                  {fileInfo.file.name}
+                </button>
+              ))}
+            </div>
+            <div className="p-4 overflow-y-auto flex-1">
+              {(() => {
+                const analyzedFiles = files.filter(f => f.status === 'analyzed' || f.status === 'success');
+                if (analyzedFiles.length === 0) return null;
+                const fileInfo = analyzedFiles[activeTab] || analyzedFiles[0];
+                const result = fileInfo.result;
+                if (!result) return null;
+                return (
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">File</p>
+                      <p className="text-base text-gray-900">{result.fileName}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Carbon Footprint</p>
+                      <p className="text-base text-gray-900 font-medium">
+                        {calculateTotalCO2(result).toLocaleString()} kg CO₂
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Calculation Method</p>
+                      <div className="text-xs text-gray-600 p-2 bg-gray-50 rounded border border-gray-200 mt-1">
+                        {result.type === 'fuel' ? (
+                          <>
+                            <p className="font-medium mb-1">Fuel CO₂ calculation:</p>
+                            <p>CO₂ = Fuel Volume × Emission Factor</p>
+                            <p className="mt-1">Where emission factor depends on fuel type:</p>
+                            <ul className="list-disc pl-4 mt-1">
+                              <li>Diesel: 2.69 kg CO₂/liter</li>
+                              <li>Petrol/Gasoline: 2.24 kg CO₂/liter</li>
+                            </ul>
+                          </>
+                        ) : (
+                          <>
+                            <p className="font-medium mb-1">Travel CO₂ calculation:</p>
+                            <p>CO₂ = Distance × Emission Factor</p>
+                            <p className="mt-1">Where emission factor depends on transport type:</p>
+                            <ul className="list-disc pl-4 mt-1">
+                              <li>flight: 0.13 kg CO₂/km</li>
+                              <li>Train: 0.035 kg CO₂/km</li>
+                            </ul>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    {result.type === 'fuel' && (
                       <>
-                        <p className="font-medium mb-1">Fuel CO₂ calculation:</p>
-                        <p>CO₂ = Fuel Volume × Emission Factor</p>
-                        <p className="mt-1">Where emission factor depends on fuel type:</p>
-                        <ul className="list-disc pl-4 mt-1">
-                          <li>Diesel: 2.69 kg CO₂/liter</li>
-                          <li>Petrol/Gasoline: 2.24 kg CO₂/liter</li>
-                        </ul>
-                      </>
-                    ) : (
-                      <>
-                        <p className="font-medium mb-1">Travel CO₂ calculation:</p>
-                        <p>CO₂ = Distance × Emission Factor</p>
-                        <p className="mt-1">Where emission factor depends on transport type:</p>
-                        <ul className="list-disc pl-4 mt-1">
-                          <li>flight: 0.13 kg CO₂/km</li>
-                          <li>Train: 0.035 kg CO₂/km</li>
-                        </ul>
+                        <div>
+                          <p className="text-sm font-medium text-gray-500">Fuel Type</p>
+                          <p className="text-base text-gray-900">{result.typeOfFuel || 'Unknown'}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-500">Volume</p>
+                          <p className="text-base text-gray-900">{result.volume || 0} L</p>
+                        </div>
                       </>
                     )}
+                    {result.type === 'plane' || result.type === 'train' ? (
+                      <div>
+                        <p className="text-sm font-medium text-gray-500">Routes</p>
+                        <div className="mt-1 space-y-2">
+                          {result.departure?.map((dep, idx) => {
+                            const arr = result.arrival?.[idx] || 'Unknown';
+                            const co2 = Array.isArray(result.co2) && result.co2[idx] 
+                              ? result.co2[idx] 
+                              : 0;
+                            return (
+                              <div key={idx} className="p-2 bg-gray-50 rounded-md">
+                                <p className="text-sm text-gray-800">
+                                  {dep || 'Unknown'} → {arr}
+                                </p>
+                                <p className="text-xs text-gray-600">
+                                  CO₂: {Math.round(co2).toLocaleString()} kg
+                                </p>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ) : null}
+                    <div className="flex items-center space-x-3 pt-2">
+                      <button
+                        onClick={() => acceptInvoice(files.findIndex(f => f.file === fileInfo.file))}
+                        className={`flex items-center px-3 py-1 rounded-md ${fileInfo.accepted === true ? 'bg-success-500 text-white' : 'bg-gray-100 text-success-700 hover:bg-success-100'}`}
+                        disabled={fileInfo.accepted === true}
+                      >
+                        <ThumbsUp className="h-4 w-4 mr-1" />
+                        Accept
+                      </button>
+                      <button
+                        onClick={() => rejectInvoice(files.findIndex(f => f.file === fileInfo.file))}
+                        className={`flex items-center px-3 py-1 rounded-md ${fileInfo.accepted === false ? 'bg-error-500 text-white' : 'bg-gray-100 text-error-700 hover:bg-error-100'}`}
+                        disabled={fileInfo.accepted === false}
+                      >
+                        <ThumbsDown className="h-4 w-4 mr-1" />
+                        Reject
+                      </button>
+                      {fileInfo.accepted === true && (
+                        <span className="text-xs text-success-600">Accepted</span>
+                      )}
+                      {fileInfo.accepted === false && (
+                        <span className="text-xs text-error-600">Rejected</span>
+                      )}
+                    </div>
                   </div>
-                </div>
-                
-                {isFuelInvoice(selectedResult) && (
-                  <>
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Fuel Type</p>
-                      <p className="text-base text-gray-900">{selectedResult.typeOfFuel || 'Unknown'}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Volume</p>
-                      <p className="text-base text-gray-900">{selectedResult.volume || 0} L</p>
-                    </div>
-                  </>
-                )}
-                
-                {isTravelInvoice(selectedResult) && (
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">Routes</p>
-                    <div className="mt-1 space-y-2">
-                      {selectedResult.departure?.map((dep, idx) => {
-                        const arr = selectedResult.arrival?.[idx] || 'Unknown';
-                        const co2 = Array.isArray(selectedResult.co2) && selectedResult.co2[idx] 
-                          ? selectedResult.co2[idx] 
-                          : 0;
-                        return (
-                          <div key={idx} className="p-2 bg-gray-50 rounded-md">
-                            <p className="text-sm text-gray-800">
-                              {dep || 'Unknown'} → {arr}
-                            </p>
-                            <p className="text-xs text-gray-600">
-                              CO₂: {Math.round(co2).toLocaleString()} kg
-                            </p>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-              </div>
+                );
+              })()}
             </div>
-            
             <div className="p-4 border-t border-gray-200 flex justify-end">
               <button
                 type="button"
-                onClick={closeDetails}
+                onClick={() => { setIsDetailsOpen(false); setSelectedResult(null); }}
                 className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
               >
                 Close
@@ -446,15 +387,6 @@ const InvoiceDropZone: React.FC<InvoiceDropZoneProps> = ({ tripId, onUploadSucce
             <span>{uploadedResults.length} {uploadedResults.length === 1 ? 'invoice' : 'invoices'} analyzed successfully!</span>
             <span className="ml-2 text-sm text-gray-600">Please review and accept/reject each invoice.</span>
           </div>
-          {acceptedFilesCount > 0 && (
-            <button
-              onClick={handleSaveInvoices}
-              className="flex items-center px-3 py-1 bg-primary-500 text-white rounded-md hover:bg-primary-600"
-            >
-              <Save className="h-4 w-4 mr-1" />
-              Save {acceptedFilesCount}
-            </button>
-          )}
         </div>
       )}
       
@@ -481,7 +413,52 @@ const InvoiceDropZone: React.FC<InvoiceDropZoneProps> = ({ tripId, onUploadSucce
 
                 <div className="flex flex-col sm:flex-row items-start sm:items-center sm:space-x-4 w-full sm:w-auto">
                   <div className="mt-2 sm:mt-0 w-full sm:w-auto">
-                    {renderFileStatus(fileInfo)}
+                    {(() => {
+                      switch (fileInfo.status) {
+                        case 'idle':
+                          return null;
+                        case 'uploading':
+                          return <div className="flex items-center">
+                            <Loader2 className="h-4 w-4 text-primary-500 animate-spin mr-2" />
+                            <span className="text-xs text-gray-600">Uploading...</span>
+                          </div>;
+                        case 'processing':
+                          return <div className="flex items-center">
+                            <Loader2 className="h-4 w-4 text-primary-500 animate-spin mr-2" />
+                            <span className="text-xs text-gray-600">Processing...</span>
+                          </div>;
+                        case 'calculating':
+                          return <div className="flex flex-col space-y-1">
+                            <div className="flex items-center">
+                              <Loader2 className="h-4 w-4 text-primary-500 animate-spin mr-2" />
+                              <span className="text-xs text-gray-600">Calculating CO₂...</span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-1.5">
+                              <div 
+                                className="bg-primary-500 h-1.5 rounded-full transition-all duration-300" 
+                                style={{ width: `${fileInfo.progress}%` }}
+                              ></div>
+                            </div>
+                          </div>;
+                        case 'analyzed':
+                          return <div className="flex items-center space-x-2">
+                            <CheckCircle2 className="h-4 w-4 text-warning-500" />
+                            <span className="text-xs text-warning-600">Analyzed</span>
+                          </div>;
+                        case 'success':
+                          return <div className="flex items-center">
+                            <CheckCircle2 className="h-4 w-4 text-success-500 mr-2" />
+                            <span className="text-xs text-success-600">Saved</span>
+                          </div>;
+                        case 'error':
+                          return <div className="flex items-center">
+                            <AlertCircle className="h-4 w-4 text-error-500 mr-2" />
+                            <span className="text-xs text-error-600">{fileInfo.error || 'Error'}</span>
+                          </div>;
+                        default:
+                          return null;
+                      }
+                    })()}
                   </div>
 
                   {fileInfo.status !== 'uploading' && fileInfo.status !== 'processing' && fileInfo.status !== 'calculating' && fileInfo.status !== 'success' && (
@@ -519,7 +496,10 @@ const InvoiceDropZone: React.FC<InvoiceDropZoneProps> = ({ tripId, onUploadSucce
                   : 'Analyze Invoices'}
               </button>
             )}
-            {acceptedFilesCount > 0 && (
+          </div>
+
+          {acceptedFilesCount > 0 && (
+            <div className="flex justify-end mt-4">
               <button
                 type="button"
                 onClick={handleSaveInvoices}
@@ -527,10 +507,10 @@ const InvoiceDropZone: React.FC<InvoiceDropZoneProps> = ({ tripId, onUploadSucce
                 className="px-4 py-2 bg-success-500 text-white rounded-md shadow-sm hover:bg-success-600 focus:outline-none focus:ring-2 focus:ring-success-500 disabled:opacity-70 disabled:cursor-not-allowed flex items-center"
               >
                 <Save className="h-4 w-4 mr-2" />
-                Save
+                Save {acceptedFilesCount}
               </button>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       )}
     </div>

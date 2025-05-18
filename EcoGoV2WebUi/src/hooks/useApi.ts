@@ -552,6 +552,8 @@ export function useApi() {
         const userSnap = await getDoc(userRef);
         if (!userSnap.exists()) throw new Error("User not found");
         const userData = userSnap.data();
+        
+        // First check if the invoice is in the user's own trips
         const trips = userData.businessTrips?.trips || [];
         let ti = trips.findIndex((t: any) => t.id === tripId);
         if (ti === -1) {
@@ -560,31 +562,121 @@ export function useApi() {
             t.invoices.invoices.some((inv: any) => inv.id === invoiceId)
           );
         }
-        if (ti === -1) {
-          throw new Error(`Trip not found for tripId=${tripId} or invoiceId=${invoiceId}`);
-        }
-        console.log("Deleting invoice", invoiceId, "from trip", trips[ti].id);
-        const invList = trips[ti].invoices?.invoices || [];
-        const updatedInvs = invList.filter((inv: any) => inv.id !== invoiceId);
         
-        const newTotalCF = updatedInvs.reduce((sum: number, inv: any) => {
+        // If the trip is found in the user's own trips
+        if (ti !== -1) {
+          console.log("Deleting invoice", invoiceId, "from trip", trips[ti].id);
+          const invList = trips[ti].invoices?.invoices || [];
+          
+          // Find the invoice to be deleted to get its CO2 value
+          const invoiceToDelete = invList.find((inv: any) => inv.id === invoiceId);
           let invoiceCO2 = 0;
           
-          if (inv.type === 'fuel') {
-            invoiceCO2 = inv.co2 || 0;
-          } else if (inv.type === 'plane' || inv.type === 'train') {
-            if (Array.isArray(inv.co2)) {
-              invoiceCO2 = inv.co2.reduce((co2Sum: number, val: number) => co2Sum + (val || 0), 0);
+          if (invoiceToDelete) {
+            if (invoiceToDelete.type === 'fuel') {
+              invoiceCO2 = invoiceToDelete.co2 || 0;
+            } else if (invoiceToDelete.type === 'plane' || invoiceToDelete.type === 'train') {
+              if (Array.isArray(invoiceToDelete.co2)) {
+                invoiceCO2 = invoiceToDelete.co2.reduce((co2Sum: number, val: number) => co2Sum + (val || 0), 0);
+              }
+            }
+            
+            // Update user's total carbon footprint
+            if (typeof userData.totalCarbon === 'number' && invoiceCO2 > 0) {
+              await updateDoc(userRef, { 
+                totalCarbon: Math.max(0, userData.totalCarbon - invoiceCO2) 
+              });
             }
           }
           
-          return sum + invoiceCO2;
-        }, 0);
+          const updatedInvs = invList.filter((inv: any) => inv.id !== invoiceId);
+          
+          const newTotalCF = updatedInvs.reduce((sum: number, inv: any) => {
+            let invCO2 = 0;
+            
+            if (inv.type === 'fuel') {
+              invCO2 = inv.co2 || 0;
+            } else if (inv.type === 'plane' || inv.type === 'train') {
+              if (Array.isArray(inv.co2)) {
+                invCO2 = inv.co2.reduce((co2Sum: number, val: number) => co2Sum + (val || 0), 0);
+              }
+            }
+            
+            return sum + invCO2;
+          }, 0);
+          
+          trips[ti].invoices = { invoices: updatedInvs };
+          trips[ti].carbonFootprint = newTotalCF;
+          await updateDoc(userRef, { "businessTrips.trips": trips });
+          return true;
+        }
         
-        trips[ti].invoices = { invoices: updatedInvs };
-        trips[ti].carbonFootprint = newTotalCF;
-        await updateDoc(userRef, { "businessTrips.trips": trips });
-        return true;
+        // If not found in user's own trips, check shared trips
+        const sharedTripsData = userData.sharedTrips || [];
+        const sharedTripInfo = sharedTripsData.find((st: any) => st.id === tripId);
+        
+        if (sharedTripInfo && sharedTripInfo.ownerId) {
+          // Trip is shared - need to update on the owner's document
+          const ownerRef = doc(db, "users", sharedTripInfo.ownerId);
+          const ownerSnap = await getDoc(ownerRef);
+          
+          if (ownerSnap.exists()) {
+            const ownerData = ownerSnap.data();
+            const ownerTrips = ownerData.businessTrips?.trips || [];
+            const ownerTripIndex = ownerTrips.findIndex((t: any) => t.id === tripId);
+            
+            if (ownerTripIndex !== -1) {
+              const invList = ownerTrips[ownerTripIndex].invoices?.invoices || [];
+              
+              // Find the invoice to be deleted to get its CO2 value
+              const invoiceToDelete = invList.find((inv: any) => inv.id === invoiceId);
+              let invoiceCO2 = 0;
+              
+              if (invoiceToDelete) {
+                if (invoiceToDelete.type === 'fuel') {
+                  invoiceCO2 = invoiceToDelete.co2 || 0;
+                } else if (invoiceToDelete.type === 'plane' || invoiceToDelete.type === 'train') {
+                  if (Array.isArray(invoiceToDelete.co2)) {
+                    invoiceCO2 = invoiceToDelete.co2.reduce((co2Sum: number, val: number) => co2Sum + (val || 0), 0);
+                  }
+                }
+                
+                // Check if the invoice was uploaded by the current user
+                if (invoiceToDelete.uploadedBy && invoiceToDelete.uploadedBy.id === user.uid && invoiceCO2 > 0) {
+                  // Update current user's total carbon footprint
+                  if (typeof userData.totalCarbon === 'number') {
+                    await updateDoc(userRef, { 
+                      totalCarbon: Math.max(0, userData.totalCarbon - invoiceCO2) 
+                    });
+                  }
+                }
+              }
+              
+              const updatedInvs = invList.filter((inv: any) => inv.id !== invoiceId);
+              
+              const newTotalCF = updatedInvs.reduce((sum: number, inv: any) => {
+                let invCO2 = 0;
+                
+                if (inv.type === 'fuel') {
+                  invCO2 = inv.co2 || 0;
+                } else if (inv.type === 'plane' || inv.type === 'train') {
+                  if (Array.isArray(inv.co2)) {
+                    invCO2 = inv.co2.reduce((co2Sum: number, val: number) => co2Sum + (val || 0), 0);
+                  }
+                }
+                
+                return sum + invCO2;
+              }, 0);
+              
+              ownerTrips[ownerTripIndex].invoices = { invoices: updatedInvs };
+              ownerTrips[ownerTripIndex].carbonFootprint = newTotalCF;
+              await updateDoc(ownerRef, { "businessTrips.trips": ownerTrips });
+              return true;
+            }
+          }
+        }
+        
+        throw new Error(`Trip not found for tripId=${tripId} or invoiceId=${invoiceId}`);
       } catch (err) {
         console.error("Delete invoice error:", err);
         setError(err instanceof Error ? err.message : String(err));

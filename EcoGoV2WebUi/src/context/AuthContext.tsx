@@ -106,8 +106,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     await signOut(auth);
-    // Force reload to clear any cached state
-    window.location.href = '/auth';
+    // Use absolute URL to avoid Netlify routing issues
+    window.location.href = `${window.location.origin}/auth`;
   };
 
   const register = async (email: string, password: string, name: string, jobPosition: string, department: Department, role: UserRole = 'employee') => {

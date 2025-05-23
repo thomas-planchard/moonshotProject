@@ -81,7 +81,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const currentPath = window.location.pathname;
       if (currentPath !== '/auth') {
         console.log("No authenticated user, redirecting to login");
-        window.location.href = '/auth';
+        // Use absolute URL with origin to ensure it works on Netlify
+        window.location.replace(`${window.location.origin}/auth`);
       }
     }
   }, [user, loading, initialAuthCheckDone]);
@@ -106,8 +107,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     await signOut(auth);
-    // Use absolute URL to avoid Netlify routing issues
-    window.location.href = `${window.location.origin}/auth`;
+    // Use location.replace instead of location.href for more reliable navigation
+    window.location.replace(`${window.location.origin}/auth`);
   };
 
   const register = async (email: string, password: string, name: string, jobPosition: string, department: Department, role: UserRole = 'employee') => {

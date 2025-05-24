@@ -66,48 +66,10 @@ The platform offers companies a complete solution to understand their environmen
 
 ## Getting Started
 
-### Prerequisites
+You can access EcoGo Corporate directly at [ecogocorporate.netlify.app](https://ecogocorporate.netlify.app).
 
-- Node.js & npm
-- Firebase account (for authentication and database)
+If you want to test the platform, you will need to create an account.
 
-### Installation
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/thomas-planchard/moonshotProject.git
-   cd moonshotProject/EcoGoV2WebUi
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Create a `.env` file with necessary environment variables:
-   
-```bash
-VITE_LLAMA_API_KEY=your-project-id
-VITE_LLAMA_FUEL_PROJECT_ID=your-project-id
-VITE_LLAMA_INVOICES_PROJECT_ID=your-project-id
-```
-
-4. Start the development server:
-   ```bash
-   npm run dev
-   ```
-
-5. Open your browser and navigate to `http://localhost:5173`
-
-## Deployment
-
-To build the application for production:
-
-```bash
-npm run build
-```
-
-The built files will be in the `dist` directory, ready to be deployed to your hosting provider of choice.
 
 ## Contributing
 

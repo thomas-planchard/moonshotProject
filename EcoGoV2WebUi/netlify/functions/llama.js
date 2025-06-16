@@ -1,8 +1,8 @@
 import axios from "axios";
 
 export const handler = async (event, context) => {
-    
-    if (event.httpMethod === 'OPTIONS') {
+  // Handle CORS preflight
+  if (event.httpMethod === 'OPTIONS') {
     return {
       statusCode: 200,
       headers: {
@@ -16,8 +16,8 @@ export const handler = async (event, context) => {
 
   const key = process.env.LLAMA_API_KEY;
   
-  // Check if API key exists
   if (!key) {
+    console.error('LLAMA_API_KEY not configured');
     return {
       statusCode: 500,
       headers: {
@@ -29,20 +29,32 @@ export const handler = async (event, context) => {
   }
 
   const path = event.path.replace('/.netlify/functions/llama', '');
+  
+  console.log('Llama function called:', {
+    method: event.httpMethod,
+    path: path,
+    hasBody: !!event.body,
+    isBase64: event.isBase64Encoded
+  });
 
   try {
-    const upstream = await axios({
+    const requestConfig = {
       method: event.httpMethod,
       url: `https://api.cloud.llamaindex.ai${path}`,
-      data: event.isBase64Encoded
-              ? Buffer.from(event.body, 'base64')
-              : event.body,
       headers: {
-        ...event.headers,
-        authorization: `Bearer ${key}`,
+        'Authorization': `Bearer ${key}`,
       },
       responseType: 'arraybuffer',
-    });
+    };
+    
+    if (event.body) {
+      requestConfig.headers['Content-Type'] = event.headers['content-type'] || 'application/json';
+      requestConfig.data = event.isBase64Encoded 
+        ? Buffer.from(event.body, 'base64')
+        : event.body;
+    }
+    
+    const upstream = await axios(requestConfig);
 
     return {
       statusCode: upstream.status,
@@ -54,13 +66,23 @@ export const handler = async (event, context) => {
       isBase64Encoded: true,
     };
   } catch (e) {
+    console.error('Llama API Error:', {
+      status: e.response?.status,
+      statusText: e.response?.statusText,
+      message: e.message,
+      url: `https://api.cloud.llamaindex.ai${path}`
+    });
+    
     return {
       statusCode: e.response?.status || 500,
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ message: e.message }),
+      body: JSON.stringify({ 
+        message: e.response?.data?.toString() || e.message,
+        status: e.response?.status 
+      }),
     };
   }
 };

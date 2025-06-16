@@ -257,7 +257,7 @@ export function useApi() {
       const form = new FormData();
       form.append('upload_file', file, file.name);
 
-      const uploadResp = await fetch('/api/llama/api/v1/files', {
+      const uploadResp = await fetch('/.netlify/functions/llama/api/v1/files', {
         method: 'POST',
         body: form
       });
@@ -272,7 +272,7 @@ export function useApi() {
       }
 
       // Create extraction job through Netlify proxy
-      const jobResp = await fetch('/api/llama/api/v1/extraction/jobs', {
+      const jobResp = await fetch('/.netlify/functions/llama/api/v1/extraction/jobs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ extraction_agent_id: AGENT_ID, file_id: fileId })
@@ -290,7 +290,7 @@ export function useApi() {
       do {
         await new Promise(r => setTimeout(r, 2000));
         
-        const statusResp = await fetch(`/api/llama/api/v1/extraction/jobs/${jobId}`);
+        const statusResp = await fetch(`/.netlify/functions/llama/api/v1/extraction/jobs/${jobId}`);
         if (!statusResp.ok) throw new Error('Status check failed');
         
         const statusData = await statusResp.json();
@@ -300,7 +300,7 @@ export function useApi() {
       } while (status !== 'SUCCESS');
 
       // Get job result through Netlify proxy
-      const resultResp = await fetch(`/api/llama/api/v1/extraction/jobs/${jobId}/result`);
+      const resultResp = await fetch(`/.netlify/functions/llama/api/v1/extraction/jobs/${jobId}/result`);
       if (!resultResp.ok) throw new Error('Result fetch failed');
       
       const resultData = await resultResp.json();

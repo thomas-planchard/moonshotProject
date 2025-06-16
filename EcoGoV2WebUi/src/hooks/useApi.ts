@@ -3,14 +3,12 @@ import { Trip, InvoiceType, InvoiceFuel, InvoiceTravel } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
-import axios from 'axios';
 
 export function useApi() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
 
-  const BASE = 'https://api.cloud.llamaindex.ai';
 
   const getTrips = useCallback(async (): Promise<Trip[]> => {
     setLoading(true);

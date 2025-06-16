@@ -256,46 +256,108 @@ export function useApi() {
         ? import.meta.env.VITE_LLAMA_FUEL_PROJECT_ID
         : import.meta.env.VITE_LLAMA_INVOICES_PROJECT_ID;
 
-      const form = new FormData();
-      form.append('upload_file', file, file.name);
+      // Convert file to base64
+      const fileBuffer = await file.arrayBuffer();
+      const fileBase64 = btoa(String.fromCharCode(...new Uint8Array(fileBuffer)));
 
-      const uploadResp = await axios.post(
-        `${BASE}/api/v1/files`,
-        form,
-        { headers: { Authorization: `Bearer ${LLAMA_API_KEY}` } }
-      );
-      const fileId = uploadResp.data.file_id ?? uploadResp.data.id ?? uploadResp.data.fileId;
+      // Upload file through proxy
+      const uploadResp = await fetch('/.netlify/functions/llamaProxy', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${LLAMA_API_KEY}`,
+        },
+        body: JSON.stringify({
+          action: 'upload',
+          data: {
+            fileData: fileBase64,
+            fileName: file.name,
+          },
+        }),
+      });
+
+      if (!uploadResp.ok) {
+        throw new Error(`Upload failed: ${uploadResp.statusText}`);
+      }
+
+      const uploadData = await uploadResp.json();
+      const fileId = uploadData.file_id ?? uploadData.id ?? uploadData.fileId;
       if (!fileId) {
-        console.error('No file_id returned:', uploadResp.data);
+        console.error('No file_id returned:', uploadData);
         throw new Error('Upload succeeded but no file_id was returned');
       }
 
-      const jobResp = await axios.post(
-        `${BASE}/api/v1/extraction/jobs`,
-        { extraction_agent_id: AGENT_ID, file_id: fileId },
-        { headers: { Authorization: `Bearer ${LLAMA_API_KEY}` } }
-      );
-      const jobId = jobResp.data.job_id ?? jobResp.data.id;
+      // Create extraction job through proxy
+      const jobResp = await fetch('/.netlify/functions/llamaProxy', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${LLAMA_API_KEY}`,
+        },
+        body: JSON.stringify({
+          action: 'createJob',
+          data: {
+            extraction_agent_id: AGENT_ID,
+            file_id: fileId,
+          },
+        }),
+      });
+
+      if (!jobResp.ok) {
+        throw new Error(`Job creation failed: ${jobResp.statusText}`);
+      }
+
+      const jobData = await jobResp.json();
+      const jobId = jobData.job_id ?? jobData.id;
       if (!jobId) throw new Error('No job_id returned from extraction');
 
+      // Poll for job completion
       let status: string;
       let attempts = 0;
       do {
         await new Promise(r => setTimeout(r, 2000));
-        const statusResp = await axios.get(
-          `${BASE}/api/v1/extraction/jobs/${jobId}`,
-          { headers: { Authorization: `Bearer ${LLAMA_API_KEY}` } }
-        );
-        status = statusResp.data.status;
+        
+        const statusResp = await fetch('/.netlify/functions/llamaProxy', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${LLAMA_API_KEY}`,
+          },
+          body: JSON.stringify({
+            action: 'getJobStatus',
+            data: { jobId },
+          }),
+        });
+
+        if (!statusResp.ok) {
+          throw new Error(`Status check failed: ${statusResp.statusText}`);
+        }
+
+        const statusData = await statusResp.json();
+        status = statusData.status;
         if (status === 'FAILED') throw new Error('Extraction job failed');
         if (++attempts > 30) throw new Error('Extraction job timed out');
       } while (status !== 'SUCCESS');
 
-      const resultResp = await axios.get(
-        `${BASE}/api/v1/extraction/jobs/${jobId}/result`,
-        { headers: { Authorization: `Bearer ${LLAMA_API_KEY}` } }
-      );
-      const data = resultResp.data.data || {};
+      // Get job result through proxy
+      const resultResp = await fetch('/.netlify/functions/llamaProxy', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${LLAMA_API_KEY}`,
+        },
+        body: JSON.stringify({
+          action: 'getJobResult',
+          data: { jobId },
+        }),
+      });
+
+      if (!resultResp.ok) {
+        throw new Error(`Result fetch failed: ${resultResp.statusText}`);
+      }
+
+      const resultData = await resultResp.json();
+      const data = resultData.data || {};
 
       let userName = user?.displayName || '';
       if (!userName && user) {

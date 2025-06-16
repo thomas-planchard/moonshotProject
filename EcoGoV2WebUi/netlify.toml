@@ -1,0 +1,7 @@
+[functions]
+  node_bundler = "esbuild"
+
+[[redirects]]         # optional nice URL
+  from = "/api/llama/*"
+  to   = "/.netlify/functions/llama/:splat"
+  status = 200

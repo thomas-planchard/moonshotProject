@@ -10,6 +10,8 @@ export function useApi() {
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
 
+  const BASE = 'https://api.cloud.llamaindex.ai';
+
   const getTrips = useCallback(async (): Promise<Trip[]> => {
     setLoading(true);
     setError(null);
@@ -258,7 +260,7 @@ export function useApi() {
       form.append('upload_file', file, file.name);
 
       const uploadResp = await axios.post(
-        '/llama-api/api/v1/files',
+        `${BASE}/api/v1/files`,
         form,
         { headers: { Authorization: `Bearer ${LLAMA_API_KEY}` } }
       );
@@ -269,7 +271,7 @@ export function useApi() {
       }
 
       const jobResp = await axios.post(
-        '/llama-api/api/v1/extraction/jobs',
+        `${BASE}/api/v1/extraction/jobs`,
         { extraction_agent_id: AGENT_ID, file_id: fileId },
         { headers: { Authorization: `Bearer ${LLAMA_API_KEY}` } }
       );
@@ -281,7 +283,7 @@ export function useApi() {
       do {
         await new Promise(r => setTimeout(r, 2000));
         const statusResp = await axios.get(
-          `/llama-api/api/v1/extraction/jobs/${jobId}`,
+          `${BASE}/api/v1/extraction/jobs/${jobId}`,
           { headers: { Authorization: `Bearer ${LLAMA_API_KEY}` } }
         );
         status = statusResp.data.status;
@@ -290,7 +292,7 @@ export function useApi() {
       } while (status !== 'SUCCESS');
 
       const resultResp = await axios.get(
-        `/llama-api/api/v1/extraction/jobs/${jobId}/result`,
+        `${BASE}/api/v1/extraction/jobs/${jobId}/result`,
         { headers: { Authorization: `Bearer ${LLAMA_API_KEY}` } }
       );
       const data = resultResp.data.data || {};

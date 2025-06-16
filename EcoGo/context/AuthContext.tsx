@@ -1,4 +1,4 @@
-import { FC, ReactNode, createContext, useEffect } from 'react';
+import React, { FC, ReactNode, createContext, useEffect } from 'react';
 import { useState, useContext } from 'react';
 import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { auth, db } from '../FirebaseConfig';
@@ -87,60 +87,6 @@ export const AuthContextProvider: FC<AuthContextProviderProps> = ({ children }) 
     }
   }
 
-  const updateUser = async (newUserData: Partial<User>) => {
-    if (!user) return;
-
-    const userUpdates: Partial<User> = {};
-    const userDataUpdates: Partial<User> = {};
-
-    if (newUserData.username) userUpdates.username = newUserData.username;
-    if (newUserData.email) userUpdates.email = newUserData.email;
-    if (newUserData.profileImageUrl) userUpdates.profileImageUrl = newUserData.profileImageUrl;
-    if (newUserData.carType) userDataUpdates.carType = newUserData.carType;
-    if (newUserData.carSize) userDataUpdates.carSize = newUserData.carSize;
-    if (newUserData.consumption !== undefined) userDataUpdates.consumption = newUserData.consumption;
-
-    const userDocRef = doc(db, 'users', user.userId);
-    const userDataDocRef = doc(db, 'userData', user.userId);
-
-    try {
-      if (Object.keys(userUpdates).length > 0) {
-        await updateDoc(userDocRef, userUpdates);
-      }
-      if (Object.keys(userDataUpdates).length > 0) {
-        await updateDoc(userDataDocRef, userDataUpdates);
-      }
-      setUser((prevUser) => ({
-        ...prevUser,
-        ...newUserData
-      }));
-    } catch (error) {
-      console.error('Error updating user data: ', error);
-    }
-  }
-
-  const login = async (email: string, password: string) => {
-    try {
-      const response = await signInWithEmailAndPassword(auth, email, password);
-      return { success: true };
-    } catch (e: any) {
-      let msg = e.message;
-      if (msg.includes('(auth/invalid-email)')) msg = 'Invalid email';
-      if (msg.includes('(auth/user-not-found)')) msg = 'User not found';
-      if (msg.includes('(auth/wrong-password)')) msg = 'Wrong password';
-      return { success: false, message: msg };
-    }
-  };
-
-  const logout = async () => {
-    try {
-      await signOut(auth);
-      return { success: true };
-    } catch (e: any) {
-      return { success: false, message: e.message, error: e };
-    }
-  };
-
   const register = async (email: string, password: string, username: string, image: any, userData: any) => {
     try {
       const response = await createUserWithEmailAndPassword(auth, email, password);
@@ -171,9 +117,79 @@ export const AuthContextProvider: FC<AuthContextProviderProps> = ({ children }) 
 
     } catch (e: any) {
       let msg = e.message;
-      if (msg.includes('(auth/invalid-email)')) msg = 'Invalid email';
-      if (msg.includes('(auth/email-already-in-use)')) msg = 'This email is already in use';
+      if (msg.includes('(auth/invalid-email)')) msg = 'Invalid email format.';
+      else if (msg.includes('(auth/email-already-in-use)')) msg = 'This email is already in use.';
+      else if (msg.includes('(auth/weak-password)')) msg = 'Password is too weak. Please use at least 6 characters, including a number or symbol.';
+      else msg = 'Registration failed. Please try again.';
       return { success: false, message: msg };
+    }
+  };
+
+  // Fix setUser type issue in updateUser
+  const updateUser = async (newUserData: Partial<User>) => {
+    if (!user) return;
+
+    const userUpdates: Partial<User> = {};
+    const userDataUpdates: Partial<User> = {};
+
+    if (newUserData.username) userUpdates.username = newUserData.username;
+    if (newUserData.email) userUpdates.email = newUserData.email;
+    if (newUserData.profileImageUrl) userUpdates.profileImageUrl = newUserData.profileImageUrl;
+    if (newUserData.carType) userDataUpdates.carType = newUserData.carType;
+    if (newUserData.carSize) userDataUpdates.carSize = newUserData.carSize;
+    if (newUserData.consumption !== undefined) userDataUpdates.consumption = newUserData.consumption;
+
+    const userDocRef = doc(db, 'users', user.userId);
+    const userDataDocRef = doc(db, 'userData', user.userId);
+
+    try {
+      if (Object.keys(userUpdates).length > 0) {
+        await updateDoc(userDocRef, userUpdates);
+      }
+      if (Object.keys(userDataUpdates).length > 0) {
+        await updateDoc(userDataDocRef, userDataUpdates);
+      }
+      setUser((prevUser) => {
+        if (!prevUser) return prevUser;
+        return {
+          ...prevUser,
+          ...newUserData,
+          username: newUserData.username ?? prevUser.username,
+          profileImageUrl: newUserData.profileImageUrl ?? prevUser.profileImageUrl,
+          userId: prevUser.userId,
+          email: newUserData.email ?? prevUser.email,
+          password: prevUser.password,
+          carType: newUserData.carType ?? prevUser.carType,
+          carSize: newUserData.carSize ?? prevUser.carSize,
+          consumption: newUserData.consumption ?? prevUser.consumption,
+          steps: newUserData.steps ?? prevUser.steps,
+          calories: newUserData.calories ?? prevUser.calories,
+        };
+      });
+    } catch (error) {
+      console.error('Error updating user data: ', error);
+    }
+  }
+
+  const login = async (email: string, password: string) => {
+    try {
+      const response = await signInWithEmailAndPassword(auth, email, password);
+      return { success: true };
+    } catch (e: any) {
+      let msg = e.message;
+      if (msg.includes('(auth/invalid-email)')) msg = 'Invalid email';
+      if (msg.includes('(auth/user-not-found)')) msg = 'User not found';
+      if (msg.includes('(auth/wrong-password)')) msg = 'Wrong password';
+      return { success: false, message: msg };
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await signOut(auth);
+      return { success: true };
+    } catch (e: any) {
+      return { success: false, message: e.message, error: e };
     }
   };
 

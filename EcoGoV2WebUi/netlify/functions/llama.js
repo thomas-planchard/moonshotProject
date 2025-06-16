@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const handler = async (event /*, context */) => {
+export const handler = async (event, context) => {
   const key  = process.env.LLAMA_API_KEY;
   const path = event.path.replace('/.netlify/functions/llama', '');
 

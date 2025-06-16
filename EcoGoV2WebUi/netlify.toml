@@ -1,3 +1,6 @@
+[functions]                      # omit if you kept the default folder
+  directory = "netlify/functions"
+
 [[redirects]]
   from = "/api/llama/*"
   to   = "/.netlify/functions/llama/:splat"

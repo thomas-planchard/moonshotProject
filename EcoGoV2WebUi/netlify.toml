@@ -1,8 +1,9 @@
 [functions]                      # omit if you kept the default folder
   directory = "netlify/functions"
+  node_bundler = "esbuild"       # optional, default is "webpack"
 
 [[redirects]]
-  from = "/api/llama/*"
-  to   = "/.netlify/functions/llama/:splat"
-  status = 200          # ← rewrite, not redirect
-  force  = true         # (optional) skip other rules
+  from   = "/api/llama/*"
+  to     = "/.netlify/functions/llama/:splat"
+  status = 200   # rewrite, not redirect
+  force  = true  # optional
